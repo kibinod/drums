@@ -3,15 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Барабанная тетрадь</title>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#e8ecef" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0d1013" media="(prefers-color-scheme: dark)">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Барабаны">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" href="icon-192.png">
+<title>Барабанная тетрадь — тест</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Sofia+Sans+Extra+Condensed:wght@500;700;800&display=swap" rel="stylesheet">
@@ -149,6 +141,12 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .songrow small{color:var(--muted);font-size:13px}
 .panelrow{display:flex;gap:8px;justify-content:space-between;align-items:center}
 .hdrbtns{display:flex;gap:8px}
+.photobox{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;font-size:14px}
+.photobox[hidden]{display:none}
+.photorow{display:flex;gap:8px}.photorow #btnPhoto{flex:1}
+.sheetbox>*{flex-shrink:0}
+.keybox{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px}.keybox[hidden]{display:none}
+.keybox input{height:42px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:16px/1 var(--body);background:var(--surface);color:inherit;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .lab[data-row]{cursor:pointer}
 .lab[data-row]:active,.lab[data-row][aria-expanded="true"]{background:var(--line)}
 .notemenu .mh{flex:0 0 100%;font:600 13px/1.3 var(--body);color:var(--muted);padding:2px 4px 4px}
@@ -253,10 +251,19 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
     <p class="hint" id="importHint"></p>
     <div id="songList" style="display:flex;flex-direction:column;gap:8px"></div>
     <button class="chip" id="btnNew" type="button">Новая песня</button>
+    <div class="photorow"><button class="chip" id="btnPhoto" type="button" hidden>Ноты с фото (ИИ)</button><button class="chip" id="btnKey" type="button" hidden aria-expanded="false">Ключ API</button></div>
+    <div class="keybox" id="keyBox" hidden>
+      <p class="hint" id="keyHelp"></p>
+      <input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="hdrbtns"><button class="chip" id="keySave" type="button">Сохранить ключ</button><button class="chip" id="keyDel" type="button">Удалить ключ</button></div>
+    </div>
+    <div class="photobox" id="photoBox" hidden role="status" aria-live="polite"><span id="photoStatus"></span><button class="chip" id="photoStop" type="button">Стоп</button></div>
+    <p class="hint" id="photoHint" hidden></p>
     <div class="panelrow">
       <button class="chip" id="btnExport" type="button" hidden>Сохранить все в файл</button>
     </div>
     <input type="file" id="fileImport" accept="application/pdf,.pdf,application/json,.json" hidden>
+    <input type="file" id="filePhoto" accept="image/*" multiple hidden>
   </div>
 </div>
 <div class="notemenu" id="noteMenu" hidden role="menu"></div>
@@ -286,7 +293,7 @@ const I18N={
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Claude. Проверьте интернет и попробуйте ещё раз.',phBusyApi:'Gemini сейчас перегружен или запросов слишком много. Попробуйте через минуту.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
   copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save all to a file',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
   hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
@@ -302,13 +309,13 @@ const I18N={
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Could not reach Claude. Check the internet and try again.',phBusyApi:'Gemini is busy or there are too many requests. Try again in a minute.'}
 };
 let LANG='ru';
 const tx=(k,a,b)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; if(a!==undefined) v=v.replace('{0}',a); if(b!==undefined) v=v.replace('{1}',b); return v; };
 const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
-  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#importHint':'importHint'};
+  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
 const ARIA={'#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
 
 /* ---------- model ---------- */
@@ -495,9 +502,11 @@ function drawBar(o,S,bar,g){
     for(const at of b.tri){ const xa=xOf(base+b.items[at].slot)+sdx, xb=xOf(base+b.items[at+2].slot)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.35*sp)}" fill="${ink}">3</text>`); }
     if(b.tuplet){ const xa=xOf(base)+sdx, xb=xOf(base+div-1)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.5*sp)}" fill="${ink}">3</text>`); }
   });
-  let mm=0, anyT=false;
-  for(const b of beats){ if(b.tuplet||b.tri.length) anyT=true; for(const it of b.items){ if(it.t!=='note') continue; let c=0; if(it.notes.some(n=>n.v==='o')) c++; const ac=it.notes.filter(n=>n.v==='a'); if(ac.length&&ac.length===it.notes.length) c++; mm=Math.max(mm,c); } }
-  const stY=stemTop-.75*sp-mm*.95*sp-(anyT?1.5*sp:0);
+  // sticking letters sit in a row under the staff, clear of the lowest notehead (a hi-hat foot hangs below the staff)
+  let maxPos=0;
+  for(const b of beats) for(const it of b.items) if(it.t==='note') for(const n of it.notes) maxPos=Math.max(maxPos,n.inst.pos);
+  if(g.lowPos!==undefined) maxPos=Math.max(maxPos,g.lowPos);
+  const stY=Math.max(y0+4*sp,yOf(maxPos)+.55*sp)+1.65*sp;
   const stTxt=(x,v)=>o.push(`<text x="${f(x)}" y="${f(stY)}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="700" font-size="${f(1.3*sp)}" fill="${ink}">${v}</text>`);
   const triAt=i=>div===4&&i%2===0&&INST.some(inst=>bar.c[inst.id][i]==='3');
   bar.c.st.forEach((v,i)=>{
@@ -537,7 +546,9 @@ function extent(S,bar){
   let minPos=99,hasO=false,hasA=false,hasT=false,any=false;
   for(const inst of INST) for(const v of bar.c[inst.id]){ if(v==='-') continue; any=true; if(inst.pos<minPos) minPos=inst.pos; if(v==='o') hasO=true; if(v==='a') hasA=true; if(v==='3') hasT=true; }
   let up=1; if(any){ up=Math.max(3-minPos/2,1.3)+((hasO||hasA)?1.3:0)+((hasO&&hasA)?.95:0)+((bar.div===3&&!S.compound)||hasT?1.3:0); }
-  let down=.6; if(bar.c.hp.some(v=>v!=='-')) down=1.3; if(bar.c.st.some(v=>v!=='-')) up+=1.5;
+  const hp=bar.c.hp.some(v=>v!=='-'); let down=hp?1.3:.6;
+  // the sticking row under the staff, and a little air before the next line so it reads with its own notes
+  if(bar.c.st.some(v=>v!=='-')) down=(hp?2.7:1.65)+.3+.8;
   return {up,down};
 }
 let ED={sp:7.2,y0:6.6*7.2,H:Math.round((6.6+4+3.9)*7.2)};
@@ -568,7 +579,10 @@ function sheetLayout(s,bpl,minW){
   const nSys=Math.ceil(s.bars.length/bpl), sys=[];
   for(let q=0;q<nSys;q++){
     let up=1,down=.6,lb=false;
-    for(let j=q*bpl;j<Math.min(s.bars.length,(q+1)*bpl);j++){ const e=extent(S,s.bars[j]); up=Math.max(up,e.up); down=Math.max(down,e.down); if(s.bars[j].lb) lb=true; }
+    let anySt=false, anyHp=false;
+    for(let j=q*bpl;j<Math.min(s.bars.length,(q+1)*bpl);j++){ const e=extent(S,s.bars[j]); up=Math.max(up,e.up); down=Math.max(down,e.down); if(s.bars[j].lb) lb=true; if(s.bars[j].c.st.some(v=>v!=='-')) anySt=true; if(s.bars[j].c.hp.some(v=>v!=='-')) anyHp=true; }
+    // the line's sticking row sits under its lowest notehead, which may be in another bar
+    if(anySt&&anyHp) down=Math.max(down,2.7+1.1);
     const topSp=Math.max(up+.35,lb?4.2:3.6); sys.push({topSp,h:(topSp+4+down+1.0)*sp});
   }
   return {sp,mx,lead,barW,S,sys,W:Math.round(2*mx+lead+bpl*barW),headH:66,nSys};
@@ -591,6 +605,8 @@ function sheetSVG(s,opt){
     const topSp=L.sys[q].topSp, sysH=L.sys[q].h, y0=yAcc+topSp*sp, k=Math.min(bpl,s.bars.length-q*bpl), xEnd=mx+lead+k*barW;
     drawStaff(o,mx,xEnd,y0,sp,ink); barline(o,mx,y0,sp,ink); drawClef(o,mx+.8*sp,y0,sp,ink);
     if(q===0) drawSig(o,mx+3.9*sp,y0,sp,S,ink);
+    // one sticking row for the whole line: under the lowest notehead of any bar in it
+    let lowPos=0; for(let j=0;j<k;j++){ const c=s.bars[q*bpl+j].c; for(const inst of INST) if(c[inst.id].some(v=>v!=='-')) lowPos=Math.max(lowPos,inst.pos); }
     for(let j=0;j<k;j++){
       const bi=q*bpl+j, bar=s.bars[bi], bx=mx+lead+j*barW, n=S.beats*bar.div;
       const prevRe=j>0&&s.bars[bi-1].re, padR=bar.re?1.9*sp:.6*sp, yb=y0-2.6*sp, numW=String(bi+1).length*5.9;
@@ -604,7 +620,7 @@ function sheetSVG(s,opt){
       if(bar.tm){ if(j===0) tempoMark(o,mx,yb,bar.tm,ink,11); else tempoMark(o,bx+2,y0-topSp*sp+10,bar.tm,ink,11); }
       o.push(`<text x="${f(tx0)}" y="${f(yb)}" ${sans} font-size="10" font-weight="700" fill="${ink}" opacity=".55">${bi+1}</text>`);
       if(bar.rs) drawRepeat(o,bx,y0,sp,ink,'start',prevRe);
-      drawBar(o,S,bar,{x0:bx+padL,slotW:(barW-padL-padR)/n,y0,sp,ink});
+      drawBar(o,S,bar,{x0:bx+padL,slotW:(barW-padL-padR)/n,y0,sp,ink,lowPos});
       if(bar.re) drawRepeat(o,bx+barW,y0,sp,ink,'end');
       else if(bi===s.bars.length-1){ barline(o,bx+barW-.55*sp,y0,sp,ink); barline(o,bx+barW-.2*sp,y0,sp,ink,.4); } else barline(o,bx+barW,y0,sp,ink);
       if(opt.hits) o.push(`<rect class="hit" data-bar="${bi}" x="${f(bx)}" y="${f(y0-topSp*sp)}" width="${f(barW)}" height="${f(sysH)}" fill="transparent"/>`);
@@ -1078,7 +1094,7 @@ function renderSongs(){
 }
 function plural(n){ if(LANG==='en') return n===1?'bar':'bars'; const a=n%10,b=n%100; return a===1&&b!==11?'такт':(a>=2&&a<=4&&(b<12||b>14))?'такта':'тактов'; }
 let toastT=0;
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},3200); }
+function toast(msg,ms){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},ms||3200); }
 function armed(btn,label,fn){
   if(btn.dataset.arm){ delete btn.dataset.arm; btn.classList.remove('warn'); btn.textContent=btn.dataset.label; fn(); return; }
   btn.dataset.label=btn.textContent; btn.dataset.arm='1'; btn.classList.add('warn'); btn.textContent=label;
@@ -1261,6 +1277,186 @@ async function songsFromPdf(buf){
   return list;
 }
 function songKey(s){ const d=pack(s,true); delete d.updated; return JSON.stringify(d); }
+// adds songs (plain data) to the top of the list, skipping any already there; returns the songs added
+function addSongs(list){
+  list=(Array.isArray(list)?list:[]).filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,200);
+  const have=new Set(state.songs.filter(x=>!x.demo).map(songKey));
+  const added=list.map(x=>unpack(Object.assign({},x,{id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
+  for(let i=added.length-1;i>=0;i--){ state.songs.unshift(added[i]); Store.save(added[i]); }
+  if(added.length){ state.songs=state.songs.filter(x=>!x.demo); setSong(added[0].id); }
+  return added;
+}
+
+/* ---------- notes from a photo: Claude reads the page ---------- */
+let Sampler=null, SampleImg=null, photoCtl=null, PhotoMode='';
+// tried in turn: a model that is overloaded, missing or out of free requests hands over to the next (each has its own free quota)
+const GEM_MODELS=['gemini-flash-latest','gemini-3.6-flash','gemini-flash-lite-latest','gemini-3.5-flash-lite'], GEM_SLOT='drumbook.gemkey';
+const lsGet=k=>{ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } };
+const getKey=()=>lsGet(GEM_SLOT);
+// a Claude key saved by the earlier version is not used any more: forget it
+try{ localStorage.removeItem('drumbook.apikey'); localStorage.removeItem('drumbook.aiprov'); }catch(e){}
+async function initPhoto(){
+  // on its own (installed from GitHub Pages) the app reaches Claude with the person's own API key
+  if(!(window.claude&&typeof window.claude.use==='function')){ PhotoMode='api'; showPhoto(); return; }
+  try{
+    const smp=await window.claude.use('sample'); if(!smp) return;
+    const lim=await smp.limits().catch(()=>null); if(!lim||!lim.images) return;
+    Sampler=smp; SampleImg=lim.images; PhotoMode='sample'; showPhoto();
+  }catch(e){}
+}
+function showPhoto(){ $('btnPhoto').hidden=false; $('photoHint').hidden=false; $('btnKey').hidden=PhotoMode!=='api'; applyLang(); }
+function hidePhoto(){ Sampler=null; PhotoMode=''; $('btnPhoto').hidden=true; $('btnKey').hidden=true; $('keyBox').hidden=true; $('photoHint').hidden=true; }
+function toggleKeyBox(open){
+  const b=$('keyBox'); b.hidden=open===undefined?!b.hidden:!open; $('btnKey').setAttribute('aria-expanded',String(!b.hidden));
+  applyLang();
+  if(!b.hidden){ $('apiKey').value=getKey(); $('keyDel').hidden=!getKey(); try{ $('apiKey').focus({preventScroll:false}); }catch(e){} }
+}
+const blobB64=b=>new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(',')[1]||''); r.onerror=()=>rej(new Error('read')); r.readAsDataURL(b); });
+// the reply read the same way the app's Claude bridge reads JSON: the whole text, else a code fence, else first { to last }
+function parseLoose(t){
+  t=String(t||'').trim(); try{ return JSON.parse(t); }catch(e){}
+  const f=t.match(/```(?:json)?\s*([\s\S]*?)```/); if(f) try{ return JSON.parse(f[1]); }catch(e){}
+  const a=t.indexOf('{'), z=t.lastIndexOf('}'); if(a>=0&&z>a) try{ return JSON.parse(t.slice(a,z+1)); }catch(e){}
+  return undefined;
+}
+// Gemini through the person's own Google AI Studio key (free tier); streamed so the bar count can grow
+async function gemPhotos(prompt,imgs,signal,onText){
+  const parts=[];
+  for(const b of imgs) parts.push({inline_data:{mime_type:'image/jpeg',data:await blobB64(b)}});
+  parts.push({text:prompt+'\n\nReply with the JSON only, no other text.'});
+  const body=JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',maxOutputTokens:32768}});
+  let last=null;
+  for(const model of GEM_MODELS){
+    let r;
+    try{ r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse',{method:'POST',signal,headers:{'content-type':'application/json','x-goog-api-key':getKey()},body}); }
+    catch(e){ throw {code:signal.aborted?'cancelled':'network'}; }
+    if(!r.ok){
+      let m='', st=''; try{ const j=await r.json(); m=(j&&j.error&&j.error.message)||''; st=(j&&j.error&&j.error.status)||''; }catch(e){}
+      const err={code:'gem',status:r.status,gstatus:st,message:m,model};
+      if([404,429,500,502,503,504].includes(r.status)){ if(!(last&&last.status===429&&r.status===404)) last=err; continue; }
+      throw err;
+    }
+    const rd=r.body.getReader(), dec=new TextDecoder(); let buf='', text='', blocked=false;
+    const take=d=>{
+      if(d.promptFeedback&&d.promptFeedback.blockReason) blocked=true;
+      const c=d.candidates&&d.candidates[0]; if(!c) return;
+      for(const p of (c.content&&c.content.parts)||[]) if(typeof p.text==='string'&&!p.thought){ text+=p.text; if(onText&&p.text) onText({text}); }
+      if(c.finishReason&&!/^(STOP|MAX_TOKENS|FINISH_REASON_UNSPECIFIED)$/.test(c.finishReason)) blocked=true;
+    };
+    try{
+      for(;;){
+        const {done,value}=await rd.read(); if(done) break;
+        buf+=dec.decode(value,{stream:true}).replace(/\r/g,''); let i;
+        while((i=buf.indexOf('\n\n'))>=0){
+          const ev=buf.slice(0,i); buf=buf.slice(i+2);
+          const data=ev.split('\n').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join(''); if(!data) continue;
+          try{ take(JSON.parse(data)); }catch(e){}
+        }
+      }
+      if(buf.trim().startsWith('data:')) try{ take(JSON.parse(buf.trim().slice(5))); }catch(e){}
+    }catch(e){ throw {code:signal.aborted?'cancelled':'network'}; }
+    if(blocked&&!text.trim()) throw {code:'refused'};
+    const v=parseLoose(text); if(v===undefined) throw {code:'invalid_json',text}; return v;
+  }
+  throw last||{code:'gem',status:404,message:'model not found'};
+}
+function photoState(msg){ $('photoBox').hidden=!msg; $('photoStatus').textContent=msg||''; $('btnPhoto').disabled=!!msg; }
+const toBlob=(c,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/jpeg',q));
+async function loadImage(file){
+  if(window.createImageBitmap){ try{ return await createImageBitmap(file,{imageOrientation:'from-image'}); }catch(e){} }
+  return await new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('img')); }; im.src=u; });
+}
+// Claude sees each picture at about 1.2 megapixels, too coarse for a whole page of sixteenths.
+// So it gets the whole page for the layout plus overlapping strips of it, top to bottom, for the detail.
+async function photoParts(file){
+  const api=PhotoMode==='api', im=await loadImage(file), W=im.width, H=im.height, maxB=api?4.5e6:((SampleImg&&SampleImg.maxInputBytes)||5e6);
+  const cut=async(sy,sh)=>{
+    let k=api?Math.min(1,2576/Math.max(W,sh),Math.sqrt(3.4e6/(W*sh))):Math.min(1,2600/W), b=null;
+    for(let t=0;t<4;t++){
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(W*k)); c.height=Math.max(1,Math.round(sh*k));
+      const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,sy,W,sh,0,0,c.width,c.height);
+      b=await toBlob(c,.88); if(b.size<=maxB) break; k*=.7;
+    }
+    return b;
+  };
+  const max=api?6:Math.max(1,(SampleImg&&SampleImg.maxCount)||1), strips=H>W*.9?Math.min(max-1,5):Math.min(max-1,2);
+  const out=[await cut(0,H)];
+  if(strips>=2){ const sh=Math.min(H,H*(1/strips+.13)), step=(H-sh)/(strips-1); for(let i=0;i<strips;i++) out.push(await cut(Math.round(i*step),Math.round(sh))); }
+  if(im.close) try{ im.close(); }catch(e){}
+  return out;
+}
+function photoPrompt(n){
+  return `You are reading a photo of drum-set sheet music and writing it out as data for a drum notation app.
+
+${n>1?`Image 1 is the whole page. Images 2 to ${n} are overlapping horizontal strips of the same page, from top to bottom, at higher resolution: read the notes from the strips and use image 1 for the layout, titles and reading order. A line of music near a strip edge appears in two strips: write every bar exactly once.`:'The image is the whole page.'}
+Read in the order a musician would. If the exercises are set in two columns, follow their labels (for example A to H down the left column, then I to P down the right).
+
+Reply with only JSON of this form:
+{"songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[{"div":4,"lb":"A","rs":true,"re":true,"c":{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----","st":"R-L-R-L-R-L-R-L-"}}]}],"note":""}
+
+Rules:
+- One song per exercise heading on the page (such as "Ex.3"). With no heading, one song for the page, titled with any title printed on it, else "".
+- bpm: the printed tempo (♩ = 110), else 100. A tempo change printed over a bar: "tm" with that tempo on that bar.
+- sig: one of "4/4", "3/4", "2/4", "5/4", "6/8", "12/8".
+- div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets; always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3.
+- c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar.
+- Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one.
+  cr crash: x on a ledger line above the staff
+  hh hi-hat: x in the space just above line 5
+  rd ride: x on line 5
+  t1 high tom: in the space between lines 4 and 5
+  t2 mid tom: on line 4
+  sn snare: in the space between lines 3 and 4
+  ft floor tom: in the space between lines 2 and 3
+  bd bass drum: in the space between lines 1 and 2
+  hp hi-hat pedal (foot): x below the staff
+- Characters: "n" a plain note, "a" an accented note (> or ^ by it), "g" a ghost note (in brackets), "o" an open hi-hat (small circle over it; hh only), "x" a cross-stick (x or circled x in the snare space; sn only), "3" a sixteenth-note triplet that starts on this slot and fills it and the next one (only with div 4 and on an even slot; the next slot is "-").
+- st (sticking): the letters R and L printed in a row under the staff (sometimes over it), one letter per note, read left to right. Whenever a bar has them, copy them: each letter goes on the slot of the note it stands under — the first letter on the bar's first note, the second on its second note, and so on. Never leave them out. If two alternative sticking rows are printed for the same bar, write the bar twice: first with the upper sticking, then with the lower (same notes, same label).
+- lb: the label of an exercise (A, B, 1, 2…) printed at its start, often circled or boxed, at most 6 characters, only on the bar where it is printed. Small bar numbers printed over barlines are not labels.
+- rs / re: true on a bar that starts with a start-repeat sign |: / ends with an end-repeat sign :|. Leave out when false.
+- Give your best reading of anything hard to make out, and say what you guessed in "note": one or two short sentences in ${LANG==='en'?'English':'Russian'}, or "" if everything was clear.`;
+}
+async function readPhotos(files){
+  if(!PhotoMode||photoCtl) return;
+  if(PhotoMode==='api'&&!getKey()){ toggleKeyBox(true); return; }
+  files=[...files].slice(0,6); let bars=0, songs=0, notes=[], reported=false, dup=false;
+  for(let f=0;f<files.length;f++){
+    const ctl=photoCtl=new AbortController();
+    try{
+      photoState(tx('phPrep'));
+      const imgs=await photoParts(files[f]); if(ctl.signal.aborted) break;
+      const ai=PhotoMode==='api'?'Gemini':'Claude'; photoState(tx('phLook',files.length>1?' '+(f+1)+'/'+files.length:'',ai));
+      const onText=({text})=>{ const m=text.match(/"c"\s*:/g); photoState(tx('phWrite',m?m.length:0,ai)); };
+      const d=PhotoMode==='api'?await gemPhotos(photoPrompt(imgs.length),imgs,ctl.signal,onText)
+        :await Sampler.json(photoPrompt(imgs.length),{images:imgs,modelTier:'complex',cache:false,signal:ctl.signal,onText});
+      let list=d&&Array.isArray(d.songs)?d.songs:(d&&Array.isArray(d.bars)?[d]:Array.isArray(d)?d:[]);
+      list=list.filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).map(x=>Object.assign({},x,{title:typeof x.title==='string'&&x.title.trim()?x.title.trim().slice(0,80):tx('photoTitle')}));
+      if(d&&typeof d.note==='string'&&d.note.trim()) notes.push(d.note.trim().slice(0,300));
+      const added=addSongs(list); if(list.length&&!added.length) dup=true; songs+=added.length; for(const x of added) bars+=x.bars.length;
+    }catch(e){
+      const c=e&&e.code;
+      reported=true; if(c==='cancelled') break;
+      if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed','images_unavailable'].includes(c)){ hidePhoto(); toast(tx('phOff')); break; }
+      if(c==='network'){ toast(tx('phNet'),6000); break; }
+      if(c==='gem'){
+        const st=e.status, g=String(e.gstatus||''), m=String(e.message||'');
+        if(/API key|API_KEY/i.test(m)||st===401||st===403){ toast(tx('phKeyBad'),7000); break; }
+        if(/location|region|country/i.test(m)){ toast(tx('phRegion'),7000); break; }
+        // Google's own words go along, so a screenshot says what happened
+        const why=' (Google '+st+(m?': '+m.slice(0,140):'')+')';
+        if(st===429||g==='RESOURCE_EXHAUSTED'){ toast(tx(/day|daily|per.?day|quota/i.test(m)?'phGemLimit':'phBusyApi')+why,12000); break; }
+        if(st>=500){ toast(tx('phBusyApi')+why,12000); break; }
+        toast(tx('phFail')+why,12000); break;
+      }
+      toast(tx(c==='rate_limited'?'phBusy':c==='refused'?'phRefused':c==='image_rejected'||(e&&e.message==='img')?'phBadImg':c==='session_expired'?'phSession':c==='invalid_json'||c==='empty_completion'?'phNone':'phFail'),6000);
+      if(c==='rate_limited'||c==='session_expired') break;
+    }finally{ photoCtl=null; }
+  }
+  photoState('');
+  if(songs){ $('songsPanel').hidden=true; toast(tx('phDone',bars)+(notes.length?' '+notes.join(' '):''),notes.length?12000:7000); }
+  else if(dup&&!reported) toast(tx('tDupe'),5000);
+  else if(!reported) toast(tx('phNone'),6000);
+}
 
 /* ---------- language switch, bar swipe ---------- */
 function applyLang(){
@@ -1270,6 +1466,7 @@ function applyLang(){
   $('hintGrid').textContent=tx(state.staff?'hintStaff':'hintGrid')+tx('hintHold')+tx('hintRow');
   $('play').setAttribute('aria-label',tx(Player.on?'stop':'play'));
   $('dlNote').textContent=tx(downloads?'dlOn':pagesShown?'pagesHint':'dlOff');
+  $('photoHint').textContent=tx(PhotoMode==='api'?'photoHintApi':'photoHint'); $('apiKey').placeholder=tx('keyPhGem'); $('keyHelp').textContent=tx('keyHelpGem');
   $('btnPages').textContent=tx(pagesShown?'pagesBack':'pages'); $('btnPages').hidden=!!downloads; $('btnExport').hidden=!downloads;
   $('langSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANG)));
   Store.status();
@@ -1374,13 +1571,22 @@ function init(){
     list=list.filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,200);
     if(!list.length){ toast(tx(isPdf?'tNoPdfData':'tBadFile')); return; }
     // a song that is already in the list exactly as it is in the file is not added a second time
-    const have=new Set(state.songs.filter(x=>!x.demo).map(songKey));
-    const added=list.map(x=>unpack(Object.assign({},x,{id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
+    const added=addSongs(list);
     if(!added.length){ toast(tx('tDupe')); $('songsPanel').hidden=true; return; }
-    for(let i=added.length-1;i>=0;i--){ state.songs.unshift(added[i]); Store.save(added[i]); }
-    state.songs=state.songs.filter(x=>!x.demo);
-    setSong(added[0].id); $('songsPanel').hidden=true; toast(tx('tImported',added.length));
+    $('songsPanel').hidden=true; toast(tx('tImported',added.length));
   });
+  $('btnPhoto').addEventListener('click',()=>{ if(!PhotoMode||photoCtl) return; if(PhotoMode==='api'&&!getKey()){ toggleKeyBox(true); return; } $('filePhoto').value=''; $('filePhoto').click(); });
+  $('btnKey').addEventListener('click',()=>toggleKeyBox());
+  $('keySave').addEventListener('click',()=>{
+    const k=$('apiKey').value.trim();
+    // Google now issues keys as AQ.… (older ones AIza…): accept any whole key, just not a stray word or a space
+    if(!/^[A-Za-z0-9._-]{20,}$/.test(k)){ toast(tx('keyBadGem'),5000); return; }
+    try{ localStorage.setItem(GEM_SLOT,k); }catch(e){ toast(tx('tSave')); return; }
+    toggleKeyBox(false); toast(tx('keySaved'));
+  });
+  $('keyDel').addEventListener('click',e=>armed(e.currentTarget,tx('sure'),()=>{ try{ localStorage.removeItem(GEM_SLOT); }catch(err){} $('apiKey').value=''; toggleKeyBox(false); toast(tx('keyDeleted')); }));
+  $('filePhoto').addEventListener('change',e=>{ const fs=e.target.files; if(fs&&fs.length) readPhotos(fs); });
+  $('photoStop').addEventListener('click',()=>{ if(photoCtl) photoCtl.abort(); });
   $('btnExport').addEventListener('click',async()=>{
     if(!downloads||exporting) return; exporting=true;
     try{
@@ -1410,15 +1616,11 @@ function init(){
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fontCheck); else setTimeout(fontCheck,1500);
   setTimeout(fontCheck,4000);
   Store.initCloud();
+  initPhoto();
   if(window.claude&&typeof window.claude.use==='function') window.claude.use('downloads').then(d=>{ if(d){ downloads=d; $('btnPng').hidden=false; $('btnPdf').hidden=false; applyLang(); } }).catch(()=>{});
   else { downloads={save:nativeSave}; $('btnPng').hidden=false; $('btnPdf').hidden=false; applyLang(); }
 }
 init();
-</script>
-<script>
-/* installed-app extras: offline copy and storage that the phone should keep */
-if('serviceWorker' in navigator) window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
-if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(function(){});
 </script>
 </body>
 </html>
