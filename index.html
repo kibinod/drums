@@ -110,7 +110,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .stf .tip{position:absolute;transform:translate(-50%,0);white-space:nowrap;padding:4px 9px;border-radius:8px;background:var(--ink);color:var(--surface);font:700 17px/1.1 var(--display);letter-spacing:.03em;text-transform:uppercase}
 .nf .stf .tip{font:600 13px/1.2 var(--body);text-transform:none;letter-spacing:0}
 .cell,.bnot{-webkit-touch-callout:none}
-.notemenu{position:fixed;z-index:9;display:flex;flex-wrap:wrap;gap:4px;max-width:calc(100% - 16px);padding:6px;border-radius:12px;background:var(--surface);border:1px solid var(--line-strong);box-shadow:0 6px 24px rgba(0,0,0,.28)}
+.notemenu{position:fixed;z-index:15;display:flex;flex-wrap:wrap;gap:4px;max-width:calc(100% - 16px);padding:6px;border-radius:12px;background:var(--surface);border:1px solid var(--line-strong);box-shadow:0 6px 24px rgba(0,0,0,.28)}
 .notemenu button{height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font:700 17px/1 var(--display);letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
 .notemenu button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .nf .notemenu button{font:600 14px/1 var(--body);text-transform:none;letter-spacing:0}
@@ -143,12 +143,19 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .sheetbox{width:100%;max-width:760px;max-height:82%;overflow:auto;background:var(--surface);border-radius:16px 16px 0 0;padding:16px;display:flex;flex-direction:column;gap:10px}
 .sheetbox h2{margin:0;font:800 28px/1 var(--display);letter-spacing:.01em;text-wrap:balance}
 .songrow{display:flex;gap:8px;align-items:stretch}
+.folders{display:flex;flex-wrap:wrap;gap:6px}.folders .chip{height:34px;font-size:15px}
+#folderName{height:42px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:16px/1 var(--body);background:var(--surface);color:inherit;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .songrow .open{flex:1;min-width:0;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 12px}
 .songrow .open[aria-current="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .songrow b{display:block;font:700 21px/1.15 var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .songrow small{color:var(--muted);font-size:13px}
 .panelrow{display:flex;gap:8px;justify-content:space-between;align-items:center}
 .hdrbtns{display:flex;gap:8px}
+.metro-bpm{display:flex;align-items:center;justify-content:center;gap:18px}#mBpm{font:800 64px/1 var(--display);min-width:3ch;text-align:center;font-variant-numeric:tabular-nums}
+.chip.bigsq{width:56px;height:56px;font:500 32px/1 var(--body);padding:0}#metroPanel input[type=range]{width:100%;accent-color:var(--accent)}
+.metro-dots{display:flex;gap:12px;justify-content:center;min-height:22px}.metro-dots i{width:20px;height:20px;border-radius:50%;background:var(--line)}.metro-dots i.on{background:var(--ink)}.metro-dots i.on.first{background:var(--accent)}
+.seg.wide{display:flex;flex-wrap:wrap}.seg.wide button{flex:1;padding:0 6px}.msel{height:40px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;font:600 17px/1 var(--body)}
+.bigbtn{height:58px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:800 22px/1 var(--display);letter-spacing:.02em}.bigbtn[aria-pressed=true]{background:var(--ink);color:var(--surface)}.bigbtn:disabled{opacity:.45}
 .photobox{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;font-size:14px}
 .photobox[hidden]{display:none}
 .photorow{display:flex;gap:8px}.photorow #btnPhoto{flex:1}
@@ -188,9 +195,14 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <select id="sig" aria-label="Размер">
         <option>4/4</option><option value="2/2">2/2 (¢)</option><option>3/4</option><option>2/4</option><option>5/4</option><option>6/8</option><option>12/8</option>
       </select>
+      <select id="swing" aria-label="Свинг">
+        <option value="0" id="swing0">Ровно</option><option value="30" id="swing30">Свинг лёгкий</option><option value="60" id="swing60">Свинг</option><option value="100" id="swing100">Шаффл</option>
+      </select>
       <div class="seg" id="divSeg" aria-label="Деление такта">
         <button type="button" data-div="4" aria-pressed="true">16-е</button>
         <button type="button" data-div="3" aria-pressed="false">Триоли</button>
+        <button type="button" data-div="6" aria-pressed="false">Секстоли</button>
+        <button type="button" data-div="8" aria-pressed="false">32-е</button>
       </div>
       <button class="chip" id="btnDup" type="button">Копия такта</button>
       <button class="chip" id="btnClear" type="button">Очистить</button>
@@ -198,6 +210,8 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <button class="chip" id="btnRep" type="button" aria-pressed="false">Повтор</button>
       <button class="chip" id="btnUndo" type="button" disabled>Отменить</button>
       <button class="chip" id="btnStaff" type="button" aria-pressed="false">Писать на стане</button>
+      <button class="chip" id="btnMetro" type="button">Просто метроном</button>
+      <button class="chip" id="btnRec" type="button">Записать игру</button>
     </div>
     <div class="pad" id="pad">
       <div class="tape" id="tape" role="group" aria-label="Лента тактов"></div>
@@ -257,6 +271,11 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <span class="hdrbtns"><button class="chip" id="btnImport" type="button">+ PDF</button><button class="chip" id="btnClosePanel" type="button">Закрыть</button></span>
     </div>
     <p class="hint" id="importHint"></p>
+    <div class="folders" id="folderBar" aria-label="Папки"></div>
+    <div class="keybox" id="folderBox" hidden>
+      <input id="folderName" type="text" maxlength="40" autocomplete="off">
+      <div class="hdrbtns"><button class="chip" id="folderSave" type="button">Создать</button><button class="chip" id="folderCancel" type="button">Отмена</button></div>
+    </div>
     <div id="songList" style="display:flex;flex-direction:column;gap:8px"></div>
     <button class="chip" id="btnNew" type="button">Новая песня</button>
     <div class="photorow"><button class="chip" id="btnPhoto" type="button" hidden>Ноты с фото (ИИ)</button><button class="chip" id="btnKey" type="button" hidden aria-expanded="false">Ключ API</button></div>
@@ -272,6 +291,31 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
     </div>
     <input type="file" id="fileImport" accept="application/pdf,.pdf,application/json,.json" hidden>
     <input type="file" id="filePhoto" accept="image/*" multiple hidden>
+  </div>
+</div>
+<div class="panel" id="metroPanel" hidden>
+  <div class="sheetbox" role="dialog" aria-modal="true" aria-labelledby="metroH">
+    <div class="panelrow"><h2 id="metroH">Метроном</h2><button class="chip" id="metroClose" type="button">Закрыть</button></div>
+    <div class="metro-bpm"><button class="chip bigsq" id="mDown" type="button" aria-label="Медленнее">−</button><output id="mBpm" aria-live="polite">100</output><button class="chip bigsq" id="mUp" type="button" aria-label="Быстрее">+</button></div>
+    <input type="range" id="mSlider" min="30" max="250" step="1" aria-label="Темп">
+    <div class="metro-dots" id="mDots" aria-hidden="true"></div>
+    <div class="panelrow"><span id="mBeatsL">Долей в такте</span><select id="mBeats" class="msel"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option></select></div>
+    <div class="seg wide" id="mSub"><button type="button" data-sub="1" aria-pressed="true" id="mSub1">Четверти</button><button type="button" data-sub="2" aria-pressed="false" id="mSub2">Восьмые</button><button type="button" data-sub="3" aria-pressed="false" id="mSub3">Триоли</button><button type="button" data-sub="4" aria-pressed="false" id="mSub4">16-е</button></div>
+    <div class="hdrbtns"><button class="chip" id="mAccent" type="button" aria-pressed="true">Акцент на «1»</button><button class="chip" id="mTap" type="button">Тап</button></div>
+    <button class="bigbtn" id="mPlay" type="button">Старт</button>
+  </div>
+</div>
+<div class="panel" id="recPanel" hidden>
+  <div class="sheetbox" role="dialog" aria-modal="true" aria-labelledby="recH">
+    <div class="panelrow"><h2 id="recH">Записать игру</h2><button class="chip" id="recClose" type="button">Закрыть</button></div>
+    <p class="hint" id="recHelp"></p>
+    <div class="panelrow"><span id="rTempoL">Темп</span><div class="bpm"><button type="button" id="rDown" aria-label="Медленнее">−</button><input id="rBpm" type="number" inputmode="numeric" min="40" max="240" aria-label="Темп"><button type="button" id="rUp" aria-label="Быстрее">+</button></div></div>
+    <div class="panelrow"><span id="rSizeL">Размер</span><select id="rBeats" class="msel"><option value="4">4/4</option><option value="3">3/4</option><option value="2">2/4</option></select></div>
+    <div class="seg wide" id="rWhat"><button type="button" data-what="sn" aria-pressed="true" id="rWhat1">Малый или пэд</button><button type="button" data-what="kit" aria-pressed="false" id="rWhat2">Вся установка</button></div>
+    <div class="seg wide" id="rDiv"><button type="button" data-div="auto" aria-pressed="true" id="rDivA">Авто</button><button type="button" data-div="4" aria-pressed="false" id="rDiv4">16-е</button><button type="button" data-div="3" aria-pressed="false" id="rDiv3">Триоли</button><button type="button" data-div="6" aria-pressed="false" id="rDiv6">Секстоли</button><button type="button" data-div="8" aria-pressed="false" id="rDiv8">32-е</button></div>
+    <button class="chip" id="rClick" type="button" aria-pressed="true">Метроном во время записи</button>
+    <p class="status" id="recStatus" role="status" aria-live="polite"></p>
+    <button class="bigbtn rec" id="recBtn" type="button">● Запись</button>
   </div>
 </div>
 <div class="notemenu" id="noteMenu" hidden role="menu"></div>
@@ -296,12 +340,12 @@ const I18N={
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
   untitled:'Без названия',demoTitle:'Пример: рок-бит',barN:'Такт {0}',addBar:'Добавить такт',cellAria:'{0}, клетка {1}',handAria:'Рука, клетка {0}',
-  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
+  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
   st_cloud:'Песни сохраняются в вашем аккаунте Claude и откроются на любом устройстве.',st_local:'Песни сохраняются только в этом браузере на этом устройстве.',
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Ответ ИИ оборвался: добавлено то, что успело прийти. Остальное сфотографируйте отдельно.',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Gemini сейчас перегружен или запросов слишком много. Попробуйте через минуту.'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Gemini сейчас перегружен или запросов слишком много. Попробуйте через минуту.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
   copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save all to a file',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
   hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
@@ -312,19 +356,19 @@ const I18N={
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
   untitled:'Untitled',demoTitle:'Example: rock beat',barN:'Bar {0}',addBar:'Add a bar',cellAria:'{0}, cell {1}',handAria:'Hand, cell {0}',
-  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
+  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
   st_cloud:'Songs are saved to your Claude account and open on any device.',st_local:'Songs are saved only in this browser on this device.',
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'The AI answer was cut short: what arrived was added. Photograph the rest separately.',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Gemini is busy or there are too many requests. Try again in a minute.'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Gemini is busy or there are too many requests. Try again in a minute.'}
 };
 let LANG='ru';
 const tx=(k,a,b)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; if(a!==undefined) v=v.replace('{0}',a); if(b!==undefined) v=v.replace('{1}',b); return v; };
-const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
+const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
-  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
-const ARIA={'#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
+  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
+const ARIA={'#folderBar':'foldersAria','#swing':'swingAria','#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
 
 /* ---------- model ---------- */
 const INST=[
@@ -355,7 +399,7 @@ const f=n=>Math.round(n*100)/100;
 const newId=()=>'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
 function emptyBar(sig,div){
-  const S=SIGS[sig]; div=S.compound?3:(div===3?3:4);
+  const S=SIGS[sig]; div=S.compound?3:([3,4,6,8].includes(div)?div:4);
   const c={}; for(const k of ROWS) c[k]=Array(S.beats*div).fill('-');
   return {div,c};
 }
@@ -365,9 +409,9 @@ function barMeta(b){ const m={}; if(b&&b.rs) m.rs=true; if(b&&b.re) m.re=true; i
 function tempoAt(s,bi){ let t=0; for(let j=Math.min(bi,s.bars.length-1);j>=0;j--) if(s.bars[j].tm){ t=s.bars[j].tm; break; } if(!t) return s.bpm; return t*s.bpm/(s.ref||s.bpm); }
 function unpack(d){
   const sig=SIGS[d.sig]?d.sig:'4/4', S=SIGS[sig];
-  const s={id:String(d.id),title:typeof d.title==='string'?d.title:tx('untitled'),by:typeof d.by==='string'?d.by.slice(0,80):'',ref:+d.ref>=40&&+d.ref<=240?Math.round(+d.ref):0,bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
+  const s={id:String(d.id),title:typeof d.title==='string'?d.title:tx('untitled'),by:typeof d.by==='string'?d.by.slice(0,80):'',ref:+d.ref>=40&&+d.ref<=240?Math.round(+d.ref):0,swing:clamp(Math.round(+d.swing)||0,0,100),folder:typeof d.folder==='string'?d.folder.trim().slice(0,40):'',bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
   for(const b of (Array.isArray(d.bars)?d.bars:[])){
-    const div=S.compound?3:(b&&b.div===3?3:4), n=S.beats*div, c={};
+    const div=S.compound?3:(b&&[3,4,6,8].includes(b.div)?b.div:4), n=S.beats*div, c={};
     for(const k of ROWS){ const str=b&&b.c&&typeof b.c[k]==='string'?b.c[k]:''; const a=[]; for(let i=0;i<n;i++) a.push(validCell(k,str[i])?str[i]:'-'); c[k]=a; }
     s.bars.push(Object.assign({div,c},barMeta(b)));
   }
@@ -376,7 +420,7 @@ function unpack(d){
 }
 function pack(s,forCloud){
   const d={title:s.title,bpm:s.bpm,sig:s.sig,updated:s.updated,bars:s.bars.map(b=>{const c={}; for(const k of ROWS) c[k]=b.c[k].join(''); return Object.assign({div:b.div,c},barMeta(b));})};
-  if(s.by) d.by=s.by; if(s.ref) d.ref=s.ref;
+  if(s.by) d.by=s.by; if(s.ref) d.ref=s.ref; if(s.swing) d.swing=s.swing; if(s.folder) d.folder=s.folder;
   if(!forCloud){ d.id=s.id; d.synced=!!s.synced; }
   return d;
 }
@@ -413,7 +457,23 @@ function analyzeBar(S,bar){
     if(!on.length){ items.push({t:'rest',slot:0,kind:'q',dot:S.compound}); }
     else if(div===3&&!S.compound){
       if(on.length===1&&on[0]===0) items.push({t:'note',slot:0,notes:slots[0],beams:0,dot:false});
-      else { tuplet=true; for(let j=0;j<3;j++) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:1,dot:false}:{t:'rest',slot:j,kind:'8'}); }
+      else { tuplet=3; for(let j=0;j<3;j++) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:1,dot:false}:{t:'rest',slot:j,kind:'8'}); }
+    }
+    else if(div===6){
+      // sextuplets: six sixteenths under a 6; when only every other one is played they are plain eighth-note triplets
+      if(on.length===1&&on[0]===0) items.push({t:'note',slot:0,notes:slots[0],beams:0,dot:false});
+      else if(on.every(j=>j%2===0)){ tuplet=3; for(let j=0;j<6;j+=2) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:1,dot:false}:{t:'rest',slot:j,kind:'8'}); }
+      else { tuplet=6; for(let j=0;j<6;j++) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:2,dot:false}:{t:'rest',slot:j,kind:'16'}); }
+    }
+    else if(div===8){
+      // thirty-seconds: each note lasts until the next one, written with the nearest plain or dotted value
+      const restFill=(a,b)=>{ let p=a; while(p<b){ const v=[4,2,1].find(v=>p%v===0&&p+v<=b); items.push({t:'rest',slot:p,kind:v===4?'8':v===2?'16':'32'}); p+=v; } };
+      if(on[0]>0) restFill(0,on[0]);
+      on.forEach((s0,k)=>{
+        const d=(k+1<on.length?on[k+1]:8)-s0, V={1:[3,false],2:[2,false],3:[2,true],4:[1,false],5:[1,false],6:[1,true],7:[1,true],8:[0,false]}[d];
+        items.push({t:'note',slot:s0,notes:slots[s0],beams:V[0],dot:V[1]});
+        if(d===5) restFill(s0+4,s0+5); else if(d===7) restFill(s0+6,s0+7);
+      });
     } else {
       // a '3' on an even sixteenth is a triplet filling that eighth: three notes, no room for others on the next sixteenth
       const tri=new Set(); if(div===4) slots.forEach((n,j)=>{ if(j%2===0&&n.some(x=>x.v==='3')) tri.add(j); });
@@ -456,6 +516,8 @@ function restGlyph(kind,x,y,sp,ink,dot){
     if(dot) s+=`<circle cx=".85" cy="-.5" r=".17" fill="${ink}"/>`;
   } else if(kind==='8'){
     s+=`<circle cx="-.36" cy="-.62" r=".25" fill="${ink}"/><path fill="none" stroke="${ink}" stroke-width=".13" stroke-linecap="round" d="M-.56-.5Q-.05-.25.44-.86L-.08 1"/>`;
+  } else if(kind==='32'){
+    s+=`<circle cx="0" cy="-2.12" r=".25" fill="${ink}"/><circle cx="-.26" cy="-1.12" r=".25" fill="${ink}"/><circle cx="-.52" cy="-.12" r=".25" fill="${ink}"/><path fill="none" stroke="${ink}" stroke-width=".13" stroke-linecap="round" d="M-.2-2Q.31-1.75.8-2.36L-.18 1.5M-.46-1Q.05-.75.54-1.36M-.72 0Q-.2.25.27-.36"/>`;
   } else {
     s+=`<circle cx="-.26" cy="-1.12" r=".25" fill="${ink}"/><circle cx="-.52" cy="-.12" r=".25" fill="${ink}"/><path fill="none" stroke="${ink}" stroke-width=".13" stroke-linecap="round" d="M-.46-1Q.05-.75.54-1.36L-.18 1.5M-.72 0Q-.2.25.27-.36"/>`;
   }
@@ -509,18 +571,20 @@ function drawBar(o,S,bar,g){
       const xs=grp.map(it=>xOf(base+it.slot)+sdx);
       if(grp.length>=2){
         o.push(`<rect x="${f(xs[0]-bw)}" y="${f(stemTop)}" width="${f(xs[xs.length-1]-xs[0]+2*bw)}" height="${f(.5*sp)}" fill="${ink}"/>`);
-        const y2=stemTop+.78*sp;
-        grp.forEach((it,k)=>{
-          if(it.beams<2) return;
-          if(k+1<grp.length&&grp[k+1].beams>=2) o.push(`<rect x="${f(xs[k]-bw)}" y="${f(y2)}" width="${f(xs[k+1]-xs[k]+2*bw)}" height="${f(.5*sp)}" fill="${ink}"/>`);
-          else if(!(k>0&&grp[k-1].beams>=2)){ const len=Math.min(g.slotW*.55,sp*1.15); o.push(`<rect x="${f(k===0?xs[k]-bw:xs[k]+bw-len)}" y="${f(y2)}" width="${f(len)}" height="${f(.5*sp)}" fill="${ink}"/>`); }
-        });
+        for(let L=2;L<=3;L++){
+          const y2=stemTop+(L-1)*.78*sp;
+          grp.forEach((it,k)=>{
+            if(it.beams<L) return;
+            if(k+1<grp.length&&grp[k+1].beams>=L) o.push(`<rect x="${f(xs[k]-bw)}" y="${f(y2)}" width="${f(xs[k+1]-xs[k]+2*bw)}" height="${f(.5*sp)}" fill="${ink}"/>`);
+            else if(!(k>0&&grp[k-1].beams>=L)){ const len=Math.min(g.slotW*.55,sp*1.15); o.push(`<rect x="${f(k===0?xs[k]-bw:xs[k]+bw-len)}" y="${f(y2)}" width="${f(len)}" height="${f(.5*sp)}" fill="${ink}"/>`); }
+          });
+        }
       } else {
         for(let q=0;q<grp[0].beams;q++) o.push(`<path transform="translate(${f(xs[0])},${f(stemTop+q*.8*sp)}) scale(${f(sp)})" fill="${ink}" d="M0 0C.1.9 1.25 1.2.85 2.6 1 1.7.35 1.3 0 1Z"/>`);
       }
     }
     for(const at of b.tri){ const xa=xOf(base+b.items[at].slot)+sdx, xb=xOf(base+b.items[at+2].slot)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.35*sp)}" fill="${ink}">3</text>`); }
-    if(b.tuplet){ const xa=xOf(base)+sdx, xb=xOf(base+div-1)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.5*sp)}" fill="${ink}">3</text>`); }
+    if(b.tuplet){ const xa=xOf(base)+sdx, xb=xOf(base+div-1)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.5*sp)}" fill="${ink}">${b.tuplet}</text>`); }
   });
   // sticking letters sit in a row under the staff, clear of the lowest notehead (a hi-hat foot hangs below the staff)
   let maxPos=0;
@@ -565,7 +629,7 @@ function barline(o,x,y0,sp,ink,w){ o.push(`<line x1="${f(x)}" y1="${f(y0)}" x2="
 function extent(S,bar){
   let minPos=99,hasO=false,hasA=false,hasT=false,any=false;
   for(const inst of INST) for(const v of bar.c[inst.id]){ if(v==='-') continue; any=true; if(inst.pos<minPos) minPos=inst.pos; if(v==='o') hasO=true; if(v==='a') hasA=true; if(v==='3') hasT=true; }
-  let up=1; if(any){ up=Math.max(3-minPos/2,1.3)+((hasO||hasA)?1.3:0)+((hasO&&hasA)?.95:0)+((bar.div===3&&!S.compound)||hasT?1.3:0); }
+  let up=1; if(any){ up=Math.max(3-minPos/2,1.3)+((hasO||hasA)?1.3:0)+((hasO&&hasA)?.95:0)+(((bar.div===3||bar.div===6)&&!S.compound)||hasT?1.3:0); }
   const hp=bar.c.hp.some(v=>v!=='-'); let down=hp?1.3:.6;
   // the sticking row under the staff, and a little air before the next line so it reads with its own notes
   if(bar.c.st.some(v=>v!=='-')) down=(hp?2.7:1.65)+.3+.8;
@@ -617,7 +681,7 @@ function sheetSVG(s,opt){
   const sans=`font-family="Helvetica Neue,Helvetica,Arial,sans-serif"`;
   if(head){
     o.push(`<text x="${mx}" y="32" ${sans} font-weight="700" font-size="22" fill="${ink}">${esc(s.title||tx('untitled'))}</text>`);
-    o.push(`<text x="${mx}" y="52" ${sans} font-size="12.5" fill="${ink}" opacity=".7">${esc(tx('tempoLine',s.bpm,s.sig))}</text>`);
+    o.push(`<text x="${mx}" y="52" ${sans} font-size="12.5" fill="${ink}" opacity=".7">${esc(tx('tempoLine',s.bpm,s.sig)+(s.swing&&!SIGS[s.sig].compound?' · '+tx(s.swing>=100?'swShuffle':'swOn'):''))}</text>`);
     if(s.by) o.push(`<text x="${W-mx}" y="52" text-anchor="end" font-family="Times New Roman,Times,serif" font-size="14" fill="${ink}">${esc(s.by)}</text>`);
   }
   let yAcc=top;
@@ -806,9 +870,9 @@ const Snd=(()=>{
     if(id==='hh'||id==='hp'){ choke(t); if(v==='o') openHat=g; }
     src.start(t);
   }
-  function tick(t,strong){
-    if(!ctx) return; const os=ctx.createOscillator(), g=ctx.createGain(); os.type='square'; os.frequency.value=strong?1900:1350;
-    g.gain.setValueAtTime(strong?.16:.1,t); g.gain.exponentialRampToValueAtTime(.0001,t+.035); os.connect(g); g.connect(out); os.start(t); os.stop(t+.06);
+  function tick(t,strong,soft){
+    if(!ctx) return; const os=ctx.createOscillator(), g=ctx.createGain(); os.type='square'; os.frequency.value=strong?1900:soft?1000:1350;
+    g.gain.setValueAtTime(strong?.16:soft?.05:.1,t); g.gain.exponentialRampToValueAtTime(.0001,t+.035); os.connect(g); g.connect(out); os.start(t); os.stop(t+.06);
   }
   function rest(){ try{ if(mute&&!mute.paused) mute.pause(); }catch(e){} }
   return {ensure,hit,tick,rest,preload,now:()=>ctx?ctx.currentTime:0,state:()=>ctx?ctx.state:'none',loaded:()=>Object.keys(bufs)};
@@ -816,7 +880,7 @@ const Snd=(()=>{
 
 /* ---------- state ---------- */
 const $=id=>document.getElementById(id);
-const state={songs:[],curSong:null,cur:0,staff:false,tool:'n',view:'grid',loop:false,click:false,bpl:2,undo:[]};
+const state={songs:[],curSong:null,cur:0,staff:false,tool:'n',view:'grid',loop:false,click:false,bpl:2,undo:[],folder:''};
 const LS='drumbook.v1';
 const song=()=>state.songs.find(s=>s.id===state.curSong)||state.songs[0];
 const curBar=()=>{ const s=song(); state.cur=clamp(state.cur,0,s.bars.length-1); return s.bars[state.cur]; };
@@ -933,7 +997,7 @@ function markCur(){
   centerChip(); renderTools();
 }
 function barGridHTML(s,bi){
-  const bar=s.bars[bi], S=SIGS[s.sig], div=bar.div, n=S.beats*div, cnt=div===4?['','e','&','a']:['','&','a'];
+  const bar=s.bars[bi], S=SIGS[s.sig], div=bar.div, n=S.beats*div, cnt={4:['','e','&','a'],3:['','&','a'],6:['','·','·','&','·','·'],8:['','·','e','·','&','·','a','·']}[div]||[];
   const cls=i=>(i%div===0?' b0':'')+(Math.floor(i/div)%2?' alt':'');
   let h='';
   for(let i=0;i<n;i++) h+=`<div class="cnt${i%div===0?' b0':''}">${S.compound?i+1:(i%div===0?(S.cut?(Math.floor(i/div)%2?'&':Math.floor(i/div)/2+1):Math.floor(i/div)+1):cnt[i%div])}</div>`;
@@ -944,7 +1008,7 @@ function barGridHTML(s,bi){
 // The ribbon: instrument names stay pinned on the left, every bar of the song sits side by side to the right.
 function renderTape(){
   const s=song(), tape=$('tape'), W=tape.clientWidth; if(!W) return;
-  LBL=labelW(); BARW=Math.max(140,(W-LBL)/(W>=700?2:1)); padW=W; ED=edDims(state.staff);
+  LBL=labelW(); const most=Math.max(...s.bars.map(b=>SIGS[s.sig].beats*b.div)); BARW=Math.max(140,(W-LBL)/(W>=700?2:1),most*26); padW=W; ED=edDims(state.staff);
   $('pad').classList.toggle('staffmode',!!state.staff);
   tape.style.setProperty('--barw',BARW+'px');
   let h=`<div class="labels"><div class="lnot">${labelSVG(s,LBL)}</div><div class="cnt"></div>`;
@@ -980,8 +1044,9 @@ function closeMenu(){ menuFor=null; $('noteMenu').hidden=true; document.querySel
 function openRowMenu(row,el){
   const s=song(), bi=state.cur, bar=s.bars[bi]; if(!bar) return;
   const S=SIGS[s.sig], m=$('noteMenu');
-  const opts=row==='st'?[['RL','stRL'],['LR','stLR'],['acc','stAcc'],['-','clearRow']]
-    :[['all',bar.div===4?'fillAll16':S.compound?'fillAll8c':'fillAllT']].concat(bar.div===4?[['8','fill8']]:[],[['4','fill4'],['-','clearRow']]);
+  const d=bar.div, opts=row==='st'?[['RL','stRL'],['LR','stLR'],['acc','stAcc'],['-','clearRow']]
+    :[['all',S.compound?'fillAll8c':{4:'fillAll16',3:'fillAllT',6:'fillAll6',8:'fillAll32'}[d]]]
+      .concat(d===8?[['s2','fill16'],['s4','fill8']]:d===4?[['s2','fill8']]:d===6?[['s2','fill8t']]:[],[['4','fill4'],['-','clearRow']]);
   m.innerHTML=`<div class="mh">${esc(tx('barN',bi+1)+' · '+tx(row==='st'?'hands':'i_'+row))}</div>`+opts.map(o=>`<button type="button" role="menuitem" data-v="${o[0]}">${tx(o[1])}</button>`).join('');
   m.hidden=false; menuFor={kind:'row',bi,row}; el.setAttribute('aria-expanded','true');
   const r=el.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight, vw=document.documentElement.clientWidth, vh=window.innerHeight;
@@ -998,7 +1063,7 @@ function fillRow(bi,row,mode){
     let any=false; for(let i=0;i<n;i++) if(hit(i)) any=true;
     for(let i=0;i<n;i++) a[i]=mode==='-'||(any&&!hit(i))?'-':mode==='acc'?(acc(i)?'R':'L'):((i%2===0)===(mode==='RL')?'R':'L');
   } else {
-    const on=i=>mode==='all'||(mode==='8'&&i%2===0)||(mode==='4'&&i%div===0);
+    const on=i=>mode==='all'||((mode==='s2'||mode==='8')&&i%2===0)||(mode==='s4'&&i%4===0)||(mode==='4'&&i%div===0);
     for(let i=0;i<n;i++){ const v=a[i]; a[i]=mode==='-'||!on(i)?'-':(v&&v!=='-'&&v!=='3'?v:'n'); }
   }
   if(a.join('')===before) return;
@@ -1010,7 +1075,7 @@ function wireMenu(){
   const tape=$('tape'); let lp=null;
   const cancel=()=>{ if(lp){ clearTimeout(lp.t); lp=null; } };
   document.addEventListener('pointerdown',e=>{ if(menuFor){ if(!e.target.closest('#noteMenu')){ closeMenu(); swallow=true; } } else swallow=false; },true);
-  $('noteMenu').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!menuFor) return; const f=menuFor; closeMenu(); if(f.kind==='row') fillRow(f.bi,f.row,b.dataset.v); else setNote(f.bi,f.row,f.i,b.dataset.v); });
+  $('noteMenu').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!menuFor) return; const f=menuFor; closeMenu(); if(f.kind==='folder'){ const v=b.dataset.v; if(v==='#new') openFolderBox(f.id); else moveSong(f.id,v===NO_FOLDER?'':f.names[+v]); return; } if(f.kind==='row') fillRow(f.bi,f.row,b.dataset.v); else setNote(f.bi,f.row,f.i,b.dataset.v); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuFor) closeMenu(); });
   tape.addEventListener('keydown',e=>{ const l=e.target.closest&&e.target.closest('.lab[data-row]'); if(l&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); openRowMenu(l.dataset.row,l); } });
   tape.addEventListener('pointerdown',e=>{
@@ -1083,7 +1148,7 @@ function scrollToBar(i,smooth){
 function addBar(){ const s=song(); pushUndo(); s.bars.push(emptyBar(s.sig,s.bars[s.bars.length-1].div)); state.cur=s.bars.length-1; Store.save(s); renderEditor(); }
 function renderTools(){
   const s=song(), bar=curBar(), S=SIGS[s.sig];
-  $('sig').value=s.sig;
+  $('sig').value=s.sig; $('swing').value=String([0,30,60,100].includes(s.swing)?s.swing:(s.swing?60:0)); $('swing').disabled=SIGS[s.sig].compound;
   $('divSeg').hidden=S.compound;
   $('divSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.div===bar.div)));
   $('btnUndo').disabled=!state.undo.length;
@@ -1105,13 +1170,46 @@ function renderAll(){
   $('loop').setAttribute('aria-pressed',String(state.loop)); $('click').setAttribute('aria-pressed',String(state.click));
   if(state.view==='grid') renderEditor(); else renderSheet();
 }
+/* ---------- folders: a song may sit in one folder; the list shows one folder at a time ---------- */
+const FOLD_SLOT='drumbook.folders', FOLD_CUR='drumbook.folder', NO_FOLDER='#none';
+let folderNames=(()=>{ try{ const a=JSON.parse(localStorage.getItem(FOLD_SLOT)||'[]'); return Array.isArray(a)?a.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim().slice(0,40)):[]; }catch(e){ return []; } })();
+try{ state.folder=localStorage.getItem(FOLD_CUR)||''; }catch(e){}
+function saveFolders(){ try{ localStorage.setItem(FOLD_SLOT,JSON.stringify(folderNames)); localStorage.setItem(FOLD_CUR,state.folder); }catch(e){} }
+function allFolders(){ const set=new Set(folderNames); for(const s of state.songs) if(s.folder) set.add(s.folder); return [...set].sort((a,b)=>a.localeCompare(b,LANG)); }
+const curFolder=()=>state.folder&&state.folder!==NO_FOLDER?state.folder:'';
+let folderMove=null;   // a song waiting for a new folder's name
 function renderSongs(){
+  const folders=allFolders();
+  if(state.folder&&state.folder!==NO_FOLDER&&!folders.includes(state.folder)) state.folder='';
+  const real=state.songs.filter(x=>!x.demo), cnt=f=>real.filter(x=>f===NO_FOLDER?!x.folder:x.folder===f).length;
+  let fb=`<button type="button" class="chip" data-folder-pick="" aria-pressed="${!state.folder}">${tx('folderAll')}</button>`;
+  folders.forEach((f,i)=>{ fb+=`<button type="button" class="chip" data-folder-pick="${i}" aria-pressed="${state.folder===f}">${esc(f)} · ${cnt(f)}</button>`; });
+  if(folders.length) fb+=`<button type="button" class="chip" data-folder-pick="${NO_FOLDER}" aria-pressed="${state.folder===NO_FOLDER}">${tx('folderNone')} · ${cnt(NO_FOLDER)}</button>`;
+  fb+=`<button type="button" class="chip" id="folderAdd">${tx('folderAdd')}</button>`;
+  if(curFolder()) fb+=`<button type="button" class="chip" id="folderDel">${tx('folderDel')}</button>`;
+  $('folderBar').innerHTML=fb; $('folderBar')._names=folders;
   let h='';
-  for(const s of state.songs){
-    h+=`<div class="songrow"><button type="button" class="open" data-open="${s.id}" aria-current="${s.id===song().id}"><b>${esc(s.title||tx('untitled'))}</b><small>${s.bars.length} ${plural(s.bars.length)} · ${s.sig} · ${tx('tempoWord')} ${s.bpm}</small></button><button type="button" class="chip" data-del="${s.id}">${tx('del')}</button></div>`;
+  const list=state.songs.filter(x=>!state.folder||x.demo&&!real.length||(state.folder===NO_FOLDER?!x.folder:x.folder===state.folder));
+  for(const s of list){
+    const where=!state.folder&&s.folder?' · '+esc(s.folder):'';
+    h+=`<div class="songrow"><button type="button" class="open" data-open="${s.id}" aria-current="${s.id===song().id}"><b>${esc(s.title||tx('untitled'))}</b><small>${s.bars.length} ${plural(s.bars.length)} · ${SIGS[s.sig]&&SIGS[s.sig].free?tx('sigNone'):s.sig} · ${tx('tempoWord')} ${s.bpm}${where}</small></button><button type="button" class="chip" data-move="${s.id}" aria-haspopup="menu">${tx('folderMove')}</button><button type="button" class="chip" data-del="${s.id}">${tx('del')}</button></div>`;
   }
+  if(!list.length) h=`<p class="hint">${tx('folderEmpty')}</p>`;
   $('songList').innerHTML=h;
 }
+function openFolderMenu(id,el){
+  const m=$('noteMenu'), folders=allFolders(), s=state.songs.find(x=>x.id===id); if(!s) return;
+  m.innerHTML=`<div class="mh">${esc(tx('folderFor',s.title||tx('untitled')))}</div>`+folders.map((f,i)=>`<button type="button" role="menuitem" data-v="${i}" aria-pressed="${s.folder===f}">${esc(f)}</button>`).join('')
+    +`<button type="button" role="menuitem" data-v="${NO_FOLDER}">${tx('folderNone')}</button><button type="button" role="menuitem" data-v="#new">${tx('folderAdd')}</button>`;
+  m.hidden=false; menuFor={kind:'folder',id,names:folders};
+  const r=el.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight, vw=document.documentElement.clientWidth, vh=window.innerHeight;
+  m.style.left=clamp(r.right-w,8,Math.max(8,vw-w-8))+'px'; m.style.top=(r.bottom+6+h<=vh-8?r.bottom+6:Math.max(8,r.top-h-6))+'px';
+}
+function moveSong(id,f){
+  const s=state.songs.find(x=>x.id===id); if(!s) return;
+  s.folder=f||''; Store.save(s); renderSongs(); toast(f?tx('folderMoved',f):tx('folderMovedNone'));
+}
+function openFolderBox(moveId){ folderMove=moveId||null; $('folderBox').hidden=false; $('folderName').value=''; try{ $('folderName').focus(); }catch(e){} }
 function plural(n){ if(LANG==='en') return n===1?'bar':'bars'; const a=n%10,b=n%100; return a===1&&b!==11?'такт':(a>=2&&a<=4&&(b<12||b>14))?'такта':'тактов'; }
 let toastT=0;
 function toast(msg,ms){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},ms||3200); }
@@ -1145,7 +1243,13 @@ const Player={
       const bar=s.bars[this.bar]; if(!bar){ this.done=true; this.queue.push({t:this.next,end:true}); break; }
       const n=SIGS[s.sig].beats*bar.div; if(this.slot>=n) this.slot=0;
       const dur=60/tempoAt(s,this.bar)/bar.div;
-      for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v==='3'){ for(let k=0;k<3;k++) Snd.hit(inst.id,'n',this.next+k*dur*2/3); } else if(v&&v!=='-') Snd.hit(inst.id,v,this.next); }
+      // swing: the eighth after the beat comes later (all the way to a triplet's third at "Шаффл"); sixteenths stay inside each half
+      let at=this.next;
+      if(s.swing&&bar.div===4&&!SIGS[s.sig].compound){
+        const d=s.swing/100/6, k=this.slot%4, p=[0,(.5+d)/2,.5+d,.5+d+(.5-d)/2][k];
+        at=this.next+(p-k/4)*dur*4;
+      }
+      for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v==='3'){ for(let k=0;k<3;k++) Snd.hit(inst.id,'n',at+k*dur*2/3); } else if(v&&v!=='-') Snd.hit(inst.id,v,at); }
       if(state.click&&this.slot%(bar.div*(SIGS[s.sig].cut?2:1))===0) Snd.tick(this.next,this.slot===0);
       this.queue.push({t:this.next,bar:this.bar,slot:this.slot,n});
       this.next+=dur; this.slot++;
@@ -1296,12 +1400,12 @@ async function songsFromPdf(buf){
   }
   return list;
 }
-function songKey(s){ const d=pack(s,true); delete d.updated; return JSON.stringify(d); }
+function songKey(s){ const d=pack(s,true); delete d.updated; delete d.folder; return JSON.stringify(d); }
 // adds songs (plain data) to the top of the list, skipping any already there; returns the songs added
 function addSongs(list){
   list=(Array.isArray(list)?list:[]).filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,200);
   const have=new Set(state.songs.filter(x=>!x.demo).map(songKey));
-  const added=list.map(x=>unpack(Object.assign({},x,{id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
+  const added=list.map(x=>unpack(Object.assign({folder:curFolder()},x,{id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
   for(let i=added.length-1;i>=0;i--){ state.songs.unshift(added[i]); Store.save(added[i]); }
   if(added.length){ state.songs=state.songs.filter(x=>!x.demo); setSong(added[0].id); }
   return added;
@@ -1357,12 +1461,14 @@ function parseLoose(t){
 // Gemini through the person's own Google AI Studio key (free tier); streamed so the bar count can grow
 // Gemini through the person's own Google AI Studio key (free tier).
 // Streamed with thought summaries on, so data keeps arriving while it thinks: a long silence lets a phone drop the connection.
-async function gemPhotos(prompt,imgs,signal,onText,onThink){
+let gemFrom=0;   // the model that answered last time is asked first next time
+async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
+  opt=opt||{};
   const parts=[];
   for(const b of imgs) parts.push({inline_data:{mime_type:'image/jpeg',data:await blobB64(b)}});
   parts.push({text:prompt+'\n\nReply with the JSON only, no other text.'});
   let maxOut=65536;
-  const bodyFor=th=>JSON.stringify({contents:[{role:'user',parts}],generationConfig:Object.assign({responseMimeType:'application/json',maxOutputTokens:maxOut},th?{thinkingConfig:{includeThoughts:true}}:{})});
+  const bodyFor=th=>JSON.stringify({contents:[{role:'user',parts}],generationConfig:Object.assign({responseMimeType:'application/json',maxOutputTokens:maxOut},th?{thinkingConfig:Object.assign({includeThoughts:true},opt.budget?{thinkingBudget:opt.budget}:{})}:{})});
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   // one request; resolves {value} or {err}
   const attempt=async(model,th)=>{
@@ -1398,24 +1504,74 @@ async function gemPhotos(prompt,imgs,signal,onText,onThink){
       if(buf.trim().startsWith('data:')) try{ take(JSON.parse(buf.trim().slice(5))); }catch(e){}
     }catch(e){ if(signal.aborted) throw {code:'cancelled'}; return {err:{code:'network',message:String((e&&e.message)||e||'')}}; }
     if(blocked&&!text.trim()) throw {code:'refused'};
-    const v=parseLoose(text); if(v===undefined) throw {code:'invalid_json',text,finish};
-    return {value:v};
+    return {value:{text,finish}};
   };
   let last=null;
-  for(const model of GEM_MODELS){
+  for(let mi=gemFrom;mi<GEM_MODELS.length;mi++){
+    const model=GEM_MODELS[mi];
     let th=true, res=await attempt(model,th);
     // a model that takes no thought summaries: ask it again without them
     if(res.err&&res.err.code==='gem'&&res.err.status===400&&/max.?output|output.?tokens/i.test(res.err.message)){ maxOut=32768; res=await attempt(model,th); }
     if(res.err&&res.err.code==='gem'&&res.err.status===400&&/think|thought/i.test(res.err.message)){ th=false; res=await attempt(model,th); }
     // a dropped connection gets one more try on the same model
     if(res.err&&res.err.code==='network'){ await wait(1500); if(signal.aborted) throw {code:'cancelled'}; res=await attempt(model,th); }
-    if(res.value!==undefined) return res.value;
+    if(res.value!==undefined){ gemFrom=mi; return res.value; }
     const e=res.err;
     if(e.code==='network') throw e;   // a lost connection is not the model's fault: no point trying the others
     if([404,429,500,502,503,504].includes(e.status)){ if(!(last&&last.status===429&&e.status===404)) last=e; continue; }
     throw e;
   }
+  gemFrom=0;
   throw last||{code:'gem',status:404,message:'model not found'};
+}
+// One page, as many answers as it takes: when an answer is cut off, the AI is shown what has been written
+// and asked for the rest, until it says the page is done. Waiting longer is fine; losing bars is not.
+const songsOf=v=>(v&&Array.isArray(v.songs)?v.songs:(v&&Array.isArray(v.bars)?[v]:Array.isArray(v)?v:[])).filter(x=>x&&Array.isArray(x.bars));
+const barKey=b=>JSON.stringify([b&&b.lb||'',b&&b.c||{},!!(b&&b.rs),!!(b&&b.re)]);
+function mergeSongs(acc,list){
+  for(const x of list){
+    const bars=x.bars.filter(b=>b&&typeof b==='object');
+    if(!bars.length) continue;
+    const t=String(x.title||'').trim().toLowerCase();
+    let to=acc.find(a=>String(a.title||'').trim().toLowerCase()===t&&t);
+    if(!to&&!t&&acc.length) to=acc[acc.length-1];   // a continuation that left the title out belongs to the last song
+    if(to){ let k=0; while(k<bars.length&&to.bars.length&&barKey(bars[k])===barKey(to.bars[to.bars.length-1])&&bars[k].lb) k++; to.bars.push(...bars.slice(k)); }
+    else acc.push(Object.assign({},x,{bars:bars.slice()}));
+  }
+}
+function contPrompt(acc){
+  return '\n\nPART OF THIS PAGE IS ALREADY WRITTEN. Do not write these bars again:\n'+acc.map(x=>'- song "'+(x.title||'')+'": '+x.bars.length+' bars written; the last one is '+JSON.stringify(x.bars[x.bars.length-1])).join('\n')
+    +'\nNow write ONLY the bars that come after those, to the end of the page, in the same JSON form, with each song\'s title so the parts can be joined. If nothing is left, reply {"songs":[],"note":""}.';
+}
+async function askAI(prompt,imgs,signal,onText,onThink,budget){
+  if(PhotoMode==='api') return await gemPhotos(prompt,imgs,signal,onText,onThink,{budget});
+  try{ const r=await Sampler(prompt,{images:imgs,modelTier:'complex',cache:false,signal,onText}); return {text:r.text,finish:r.truncated?'MAX_TOKENS':'STOP'}; }
+  catch(e){ if(e&&e.code==='empty_completion') return {text:'',finish:'MAX_TOKENS'}; throw e; }
+}
+async function readPage(imgs,signal,ui){
+  const acc=[], notes=[]; let budget=0, strict=false, partial=false, emptyNote='';
+  for(let round=1;round<=8;round++){
+    if(round>1) ui.round(round);
+    const prompt=photoPrompt(imgs.length)+(acc.length?contPrompt(acc):'')+(strict?'\n\nIMPORTANT: the last answer could not be read. Reply with the JSON object only, no words before or after it.':'');
+    const {text,finish}=await askAI(prompt,imgs,signal,ui.onText,ui.onThink,budget);
+    let v=parseLoose(text); const whole=v!==undefined;
+    if(!whole) v=salvage(text);
+    const list=songsOf(v).filter(x=>x.bars.length);
+    if(v&&typeof v.note==='string'&&v.note.trim()) notes.push(v.note.trim().slice(0,300));
+    if(list.length){
+      const before=acc.reduce((n,x)=>n+x.bars.length,0);
+      mergeSongs(acc,list); const now=acc.reduce((n,x)=>n+x.bars.length,0); ui.got(now);
+      if(whole) return {songs:acc,notes};
+      if(now===before) return {songs:acc,notes,partial:true};   // the same part came back again: stop asking
+      partial=true; strict=false; continue;          // cut off: ask for the rest
+    }
+    if(whole){ if(!acc.length&&v&&typeof v.note==='string') emptyNote=v.note; return {songs:acc,notes,emptyNote}; }   // done, or nothing there
+    if(finish==='MAX_TOKENS'&&!String(text||'').trim()){ budget=budget?Math.max(1024,Math.round(budget/4)):6000; continue; }   // it thought so long nothing was written: think less
+    if(!strict){ strict=true; continue; }            // words instead of JSON: ask once more, strictly
+    if(acc.length) return {songs:acc,notes,partial:true};
+    throw {code:'invalid_json',text,finish};
+  }
+  return {songs:acc,notes,partial};
 }
 function photoState(msg){ $('photoBox').hidden=!msg; $('photoStatus').textContent=msg||''; $('btnPhoto').disabled=!!msg; }
 const toBlob=(c,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/jpeg',q));
@@ -1453,9 +1609,10 @@ Reply with only JSON of this form:
 
 Rules:
 - One song per exercise heading on the page (such as "Ex.3"). With no heading, one song for the page, titled with any title printed on it, else "".
+- swing: 100 when the page asks for a shuffle or swung eighths (a mark like ♫ = ♩♪ in triplets, or the word "Swing" or "Shuffle"); leave it out otherwise.
 - bpm: the printed tempo (♩ = 110), else 100. A tempo change printed over a bar: "tm" with that tempo on that bar.
 - sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". A 2/2 bar has the same 16 sixteenth slots as 4/4.
-- div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets; always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3.
+- div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets, 6 when it has sixteenth-note triplets (sextuplets: six notes to a beat under a 6, or two 3s), 8 when it has thirty-second notes (three beams); always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3, 24 with div 6, 32 with div 8. A single sixteenth-note triplet inside a sixteenth bar can instead be written with "3", as below.
 - c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar.
 - Rests are silence, never notes: a rest gets NO character, only "-" on the slots it covers. Tell them apart: a note has a notehead (a filled oval, or an x) with a stem that joins the beam or has a flag; a rest has no notehead and no stem to the beam. An eighth rest looks like a small 7 with one dot-flag, a sixteenth rest like a 7 with two, a quarter rest like a vertical squiggle; rests sit in the middle of the staff, often under a beam. For example, sixteenths R, L, R and then a sixteenth rest in one beat are "nnn-", not "nnnn".
 - Work beat by beat: in each beat, name every symbol in order as a note or a rest and its length, add up the lengths (a beat is 4 sixteenths, or 3 triplet eighths), and only then place the notes on their slots. If a sticking row is printed, the number of letters in a bar equals the number of notes in it, so use the letters to check that no rest was taken for a note.
@@ -1486,21 +1643,18 @@ async function readPhotos(files){
       photoState(tx('phPrep'));
       const imgs=await photoParts(files[f]); if(ctl.signal.aborted) break;
       const ai=PhotoMode==='api'?'Gemini':'Claude'; let sawText=false; photoState(tx('phLook',files.length>1?' '+(f+1)+'/'+files.length:'',ai));
-      const onText=({text})=>{ const m=text.match(/"c"\s*:/g); photoState(tx('phWrite',m?m.length:0,ai)); };
-      const onThink=()=>{ if(!sawText) photoState(tx('phThink',ai)); };
-      let d, partial=false;
-      try{
-        d=PhotoMode==='api'?await gemPhotos(photoPrompt(imgs.length),imgs,ctl.signal,(u)=>{ sawText=true; onText(u); },onThink)
-          :await Sampler.json(photoPrompt(imgs.length),{images:imgs,modelTier:'complex',cache:false,signal:ctl.signal,onText});
-      }catch(e){
-        const v=e&&e.code==='invalid_json'?salvage(e.text):undefined;
-        if(v&&(Array.isArray(v.songs)||Array.isArray(v.bars))){ d=v; partial=true; } else throw e;
-      }
-      if(partial) notes.push(tx('phPartial'));
-      let list=d&&Array.isArray(d.songs)?d.songs:(d&&Array.isArray(d.bars)?[d]:Array.isArray(d)?d:[]);
-      list=list.filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).map(x=>Object.assign({},x,{title:typeof x.title==='string'&&x.title.trim()?x.title.trim().slice(0,80):tx('photoTitle')}));
-      if(d&&typeof d.note==='string'&&d.note.trim()) notes.push(d.note.trim().slice(0,300));
-      if(!list.length){ reported=true; toast(tx('phNone')+(d&&typeof d.note==='string'&&d.note.trim()?' '+d.note.trim().slice(0,200):''),10000); continue; }
+      let have=0, part=1;
+      const ui={
+        onText:({text})=>{ sawText=true; const m=text.match(/"c"\s*:/g); photoState(tx('phWrite',have+(m?m.length:0),ai)+(part>1?' · '+tx('phPart',part):'')); },
+        onThink:()=>{ if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
+        round:n=>{ part=n; sawText=false; photoState(tx('phMore',ai,n)); },
+        got:n=>{ have=n; }
+      };
+      const r=await readPage(imgs,ctl.signal,ui);
+      if(r.partial) notes.push(tx('phPartial'));
+      notes.push(...r.notes);
+      const list=r.songs.filter(x=>x.bars.length).map(x=>Object.assign({},x,{title:typeof x.title==='string'&&x.title.trim()?x.title.trim().slice(0,80):tx('photoTitle')}));
+      if(!list.length){ reported=true; toast(tx('phNone')+(r.emptyNote&&r.emptyNote.trim()?' '+r.emptyNote.trim().slice(0,200):''),10000); continue; }
       const added=addSongs(list); if(list.length&&!added.length) dup=true; songs+=added.length; for(const x of added) bars+=x.bars.length;
     }catch(e){
       const c=e&&e.code;
@@ -1539,7 +1693,7 @@ function applyLang(){
   $('hintGrid').textContent=tx(state.staff?'hintStaff':'hintGrid')+tx('hintHold')+tx('hintRow');
   $('play').setAttribute('aria-label',tx(Player.on?'stop':'play'));
   $('dlNote').textContent=tx(downloads?'dlOn':pagesShown?'pagesHint':'dlOff');
-  $('photoHint').textContent=tx(PhotoMode==='api'?'photoHintApi':'photoHint'); $('apiKey').placeholder=tx('keyPhGem'); $('keyHelp').textContent=tx('keyHelpGem');
+  $('photoHint').textContent=tx(PhotoMode==='api'?'photoHintApi':'photoHint'); try{ if(!$('metroPanel').hidden) Metro.ui(); if(!$('recPanel').hidden) Rec.ui(); }catch(e){} $('folderName').placeholder=tx('folderNamePh'); if(!$('songsPanel').hidden) renderSongs(); $('apiKey').placeholder=tx('keyPhGem'); $('keyHelp').textContent=tx('keyHelpGem');
   $('btnPages').textContent=tx(pagesShown?'pagesBack':'pages'); $('btnPages').hidden=!!downloads; $('btnExport').hidden=!downloads;
   $('langSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANG)));
   Store.status();
@@ -1551,7 +1705,252 @@ function setLang(l){
 }
 /* ---------- wiring ---------- */
 function setSong(id){ if(Player.on) Player.stop(); state.curSong=id; state.cur=0; state.undo=[]; Store.saveLocal(); renderAll(); }
+/* ---------- metronome on its own ---------- */
+const METRO_SLOT='drumbook.metro';
+const metroCfg=(()=>{ const d={bpm:100,beats:4,sub:1,accent:true}; try{ const v=JSON.parse(localStorage.getItem(METRO_SLOT)||'{}'); return {bpm:clamp(Math.round(+v.bpm)||d.bpm,30,250),beats:clamp(Math.round(+v.beats)||d.beats,1,7),sub:[1,2,3,4].includes(+v.sub)?+v.sub:d.sub,accent:v.accent!==false}; }catch(e){ return d; } })();
+let wakeLock=null;
+async function keepAwake(on){
+  try{ if(on){ if(!wakeLock&&navigator.wakeLock) wakeLock=await navigator.wakeLock.request('screen'); } else if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){ wakeLock=null; }
+}
+const Metro={
+  on:false,timer:0,raf:0,next:0,n:0,queue:[],taps:[],
+  save(){ try{ localStorage.setItem(METRO_SLOT,JSON.stringify(metroCfg)); }catch(e){} },
+  start(){
+    const c=Snd.ensure(); if(!c){ toast(tx('tNoAudio')); return; }
+    if(Player.on) Player.stop();
+    this.on=true; this.n=0; this.queue=[]; this.next=c.currentTime+.08;
+    this.timer=setInterval(()=>this.pump(),25); this.pump();
+    const loop=()=>{ if(!this.on) return; this.draw(); this.raf=requestAnimationFrame(loop); }; this.raf=requestAnimationFrame(loop);
+    keepAwake(true); this.ui();
+  },
+  stop(){ this.on=false; clearInterval(this.timer); cancelAnimationFrame(this.raf); this.queue=[]; keepAwake(false); this.ui(); this.dots(-1); },
+  pump(){
+    const c=Snd.ensure(); if(!c) return;
+    while(this.next<c.currentTime+.12){
+      const m=metroCfg, k=this.n%m.sub, beat=Math.floor(this.n/m.sub)%m.beats;
+      if(k===0) Snd.tick(this.next,m.accent&&beat===0&&m.beats>1); else Snd.tick(this.next,false,true);
+      if(k===0) this.queue.push({t:this.next,beat});
+      this.next+=60/m.bpm/m.sub; this.n++;
+    }
+  },
+  draw(){ const now=Snd.now(); let cur=null; while(this.queue.length&&this.queue[0].t<=now) cur=this.queue.shift(); if(cur) this.dots(cur.beat); },
+  dots(b){ const box=$('mDots'); if(box.children.length!==metroCfg.beats) box.innerHTML='<i></i>'.repeat(metroCfg.beats); [...box.children].forEach((d,i)=>{ d.className=(i===b?'on':'')+(i===0&&metroCfg.accent?' first':''); }); },
+  ui(){
+    $('mBpm').textContent=metroCfg.bpm; $('mSlider').value=metroCfg.bpm; $('mBeats').value=String(metroCfg.beats);
+    $('mSub').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.sub===metroCfg.sub)));
+    $('mAccent').setAttribute('aria-pressed',String(metroCfg.accent));
+    $('mPlay').textContent=tx(this.on?'mStop':'mStart'); $('mPlay').setAttribute('aria-pressed',String(this.on));
+    if(!this.on) this.dots(-1);
+  },
+  setBpm(v){ metroCfg.bpm=clamp(Math.round(v)||metroCfg.bpm,30,250); this.save(); $('mBpm').textContent=metroCfg.bpm; $('mSlider').value=metroCfg.bpm; },
+  tap(){
+    const t=performance.now(); this.taps=this.taps.filter(x=>t-x<2500); this.taps.push(t);
+    if(this.taps.length>=2){ const d=[]; for(let i=1;i<this.taps.length;i++) d.push(this.taps[i]-this.taps[i-1]); const avg=d.slice(-4).reduce((a,b)=>a+b,0)/Math.min(4,d.length); this.setBpm(60000/avg); }
+  }
+};
+
+/* ---------- recording yourself: the phone listens, finds the hits and puts them on the grid ---------- */
+// small radix-2 FFT, in place
+function fft(re,im){
+  const n=re.length;
+  for(let i=1,j=0;i<n;i++){ let b=n>>1; for(;j&b;b>>=1) j^=b; j^=b; if(i<j){ let t=re[i]; re[i]=re[j]; re[j]=t; t=im[i]; im[i]=im[j]; im[j]=t; } }
+  for(let len=2;len<=n;len<<=1){
+    const a=-2*Math.PI/len, wr=Math.cos(a), wi=Math.sin(a);
+    for(let i=0;i<n;i+=len){ let cr=1, ci=0;
+      for(let k=0;k<len/2;k++){ const xr=re[i+k+len/2]*cr-im[i+k+len/2]*ci, xi=re[i+k+len/2]*ci+im[i+k+len/2]*cr;
+        re[i+k+len/2]=re[i+k]-xr; im[i+k+len/2]=im[i+k]-xi; re[i+k]+=xr; im[i+k]+=xi;
+        const t=cr*wr-ci*wi; ci=cr*wi+ci*wr; cr=t; } }
+  }
+}
+// onsets in a mono recording: spectral flux peaks, with loudness and low/mid/high balance for each hit
+async function findHits(x,sr,onProgress){
+  const N=1024, hop=Math.max(64,Math.round(sr*.005)), frames=Math.max(0,Math.floor((x.length-N)/hop));
+  const win=new Float32Array(N); for(let i=0;i<N;i++) win[i]=.5-.5*Math.cos(2*Math.PI*i/N);
+  const bin=f=>Math.max(1,Math.min(N/2-1,Math.round(f*N/sr)));
+  const B={l0:bin(30),l1:bin(160),m0:bin(160),m1:bin(2000),h0:bin(5000),h1:bin(16000)};
+  const flux=new Float32Array(frames), lo=new Float32Array(frames), mi=new Float32Array(frames), hi=new Float32Array(frames);
+  let prev=new Float32Array(N/2); const re=new Float32Array(N), im=new Float32Array(N);
+  for(let f=0;f<frames;f++){
+    const o=f*hop; for(let i=0;i<N;i++){ re[i]=x[o+i]*win[i]; im[i]=0; }
+    fft(re,im);
+    let fl=0, l=0, m=0, h=0; const cur=new Float32Array(N/2);
+    for(let k=1;k<N/2;k++){ const p=re[k]*re[k]+im[k]*im[k], lg=Math.log1p(20*Math.sqrt(p)); cur[k]=lg; const d=lg-prev[k]; if(d>0) fl+=d;
+      if(k>=B.l0&&k<B.l1) l+=p; else if(k>=B.m0&&k<B.m1) m+=p; else if(k>=B.h0&&k<B.h1) h+=p; }
+    prev=cur; flux[f]=fl; lo[f]=l; mi[f]=m; hi[f]=h;
+    if(f%1500===0){ if(onProgress) onProgress(f/frames); await new Promise(r=>setTimeout(r,0)); }
+  }
+  const sorted=Array.from(flux).sort((a,b)=>a-b), p99=sorted[Math.floor(sorted.length*.99)]||0, floor=p99*.12;
+  const W=Math.round(.15*sr/hop), gap=Math.round(.045*sr/hop), hits=[];
+  let last=-1e9, acc=0; const pre=new Float64Array(frames+1); for(let f=0;f<frames;f++){ acc+=flux[f]; pre[f+1]=acc; }
+  for(let f=2;f<frames-4;f++){
+    const v=flux[f]; if(v<floor) continue;
+    let peak=true; for(let d=1;d<=4;d++) if(flux[f-d]>v||flux[f+d]>v){ peak=false; break; } if(!peak) continue;
+    const a=Math.max(0,f-W), b=Math.min(frames,f+W), mean=(pre[b]-pre[a])/(b-a); if(v<mean*1.35) continue;
+    if(f-last<gap) continue; last=f;
+    let L=0, M=0, H=0; for(let d=0;d<6&&f+d<frames;d++){ L+=lo[f+d]; M+=mi[f+d]; H+=hi[f+d]; }
+    const b4=Math.max(0,f-3); L=Math.max(L*.15,L-6*lo[b4]); M=Math.max(M*.15,M-6*mi[b4]); H=Math.max(H*.15,H-6*hi[b4]);
+    let rms=0; const s0=f*hop+N/2, n=Math.round(.04*sr); for(let i=0;i<n&&s0+i<x.length;i++) rms+=x[s0+i]*x[s0+i];
+    hits.push({t:(f*hop+N/2)/sr, level:Math.sqrt(rms/n), low:L, mid:M, high:H});
+  }
+  return hits;
+}
+const median=a=>{ if(!a.length) return 0; const b=a.slice().sort((p,q)=>p-q); return b[Math.floor(b.length/2)]; };
+// hits (seconds from the first sample) → a song on the grid. o: {bpm,beats,div,what,t0 (time of the first beat after the count-in, same clock),clicks:[times]}
+function hitsToSong(hits,o){
+  if(!hits.length) return null;
+  const lvMed=median(hits.map(h=>h.level))||1e-9;
+  // a quiet hit right on a click is the click coming back through the microphone
+  hits=hits.filter(h=>!(h.level<lvMed*.35&&o.clicks.some(c=>Math.abs(c-h.t)<.03)));
+  // rattles and room noise far quieter than the playing are not hits
+  hits=hits.filter(h=>h.level>=lvMed*.1);
+  hits=hits.filter(h=>h.t>o.t0-60/o.bpm/4);
+  if(!hits.length) return null;
+  const beat=60/o.bpm;
+  // The whole take comes in a little late (the phone's speaker and microphone delay, usually a few hundredths of a second).
+  // Try every shift from -0.05 to +0.25 s and keep the one that puts the hits closest to the grid;
+  // a shift one grid step away fits just as well, so among equal fits take the one nearest a usual phone delay.
+  const fitShift=g=>{
+    let best=Infinity; const fits=[];
+    for(let sft=-.05;sft<=.25001;sft+=.001){
+      let e=0; for(const h of hits){ const p=(h.t-o.t0-sft)/g, d=p-Math.round(p); e+=d*d*Math.sqrt(h.level); }
+      fits.push([sft,e]); if(e<best) best=e;
+    }
+    let shift=0, near=Infinity;
+    for(const [sft,e] of fits) if(e<=best*1.1+1e-9&&Math.abs(sft-.05)<near){ near=Math.abs(sft-.05); shift=sft; }
+    return {shift,err:best};
+  };
+  let shift;
+  if(o.div==='auto'){ const a=fitShift(beat/4), t=fitShift(beat/3); shift=(a.err<=t.err*1.15?a:t).shift; }
+  else shift=fitShift(beat/o.div).shift;
+  // which drums each hit is, and where it falls, in beats from the first beat after the count-in
+  const ev=[];
+  for(const h of hits){
+    const pb=(h.t-o.t0-shift)/beat; if(pb<-.2) continue;
+    const tot=h.low+h.mid+h.high||1e-12, lf=h.low/tot, hf=h.high/tot;
+    let rows=['sn'];
+    if(o.what==='kit'){
+      // a hit can be several drums at once: deep sound → bass drum, middle → snare, hiss → hi-hat
+      const mf=h.mid/tot; rows=[];
+      if(lf>.18) rows.push('bd'); if(mf>.3) rows.push('sn'); if(hf>.2) rows.push('hh');
+      if(!rows.length) rows=[lf>=mf&&lf>=hf?'bd':hf>mf?'hh':'sn'];
+    }
+    const k=Math.floor(Math.max(0,Math.round(pb*24)/24)/o.beats);
+    ev.push({bar:k,pos:Math.max(0,pb-k*o.beats),rows,level:h.level});
+  }
+  if(!ev.length) return null;
+  const byBar={}; for(const e of ev) (byBar[e.bar]||(byBar[e.bar]=[])).push(e);
+  // each bar on its own grid: with "Авто" the plainest one the playing fits — sixteenths, triplets, thirty-seconds, then sextuplets
+  const divFor=list=>{
+    if(o.div!=='auto') return o.div;
+    if(!list||!list.length) return 4;
+    let pick=0, bestN=Infinity;
+    for(const d of [4,3,8,6]){
+      const step=beat/d, dev=list.map(e=>Math.abs(e.pos*d-Math.round(e.pos*d))*step);
+      if(Math.max(...dev)<=Math.max(.022,.28*step)) return d;
+      const rms=Math.sqrt(dev.reduce((a,v)=>a+v*v,0)/dev.length)/step; if(rms<bestN){ bestN=rms; pick=d; }
+    }
+    return pick||4;
+  };
+  const keys=Object.keys(byBar).map(Number), b0=Math.min(...keys), nb=Math.min(64,Math.max(...keys)-b0+1);
+  const divs=[]; for(let i=0;i<nb;i++) divs.push(divFor(byBar[b0+i]));
+  const bars=divs.map(d=>{ const c={}; for(const r of ROWS) c[r]=Array(o.beats*d).fill(null); return {div:d,c}; });
+  for(const e of ev){
+    let bi=e.bar-b0; if(bi<0||bi>=nb) continue;
+    const d=divs[bi]; let slot=Math.round(e.pos*d);
+    if(slot>=o.beats*d){ bi++; slot=0; if(bi>=nb) continue; }    // a hit a hair before the next bar line starts that bar
+    for(const r of e.rows){ const cur=bars[bi].c[r][slot]; if(!cur||cur.level<e.level) bars[bi].c[r][slot]={r,level:e.level}; }
+  }
+  const medBy={}; for(const r of ['sn','hh','bd']){ const lv=[]; for(const br of bars) for(const c of br.c[r]) if(c) lv.push(c.level); medBy[r]=median(lv)||1e-9; }
+  for(const br of bars) for(const r of ROWS) br.c[r]=br.c[r].map(c=>{ if(!c) return '-'; const rel=c.level/medBy[r]; return r!=='bd'&&rel>1.7?'a':r==='sn'&&rel<.45?'g':'n'; });
+  return {bars:bars.map(b=>{ const c={}; for(const r of ROWS) c[r]=b.c[r].join(''); return {div:b.div,c}; })};
+}
+const Rec={
+  busy:false,on:false,stream:null,proc:null,src:null,chunks:[],len:0,tFirst:null,t0:0,clicks:[],timer:0,cfg:{bpm:100,beats:4,div:'auto',what:'sn',click:true},
+  canRecord(){ return !(window.claude&&typeof window.claude.use==='function')&&!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia); },
+  ui(){
+    const ok=this.canRecord();
+    $('recHelp').textContent=tx(ok?'recHelp':'recHelpClaude');
+    $('rBpm').value=this.cfg.bpm; $('rBeats').value=String(this.cfg.beats);
+    $('rWhat').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.what===this.cfg.what)));
+    $('rDiv').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.div===String(this.cfg.div))));
+    $('rClick').setAttribute('aria-pressed',String(this.cfg.click));
+    $('recBtn').disabled=!ok||this.busy; $('recBtn').textContent=tx(this.on?'recStop':'recStart'); $('recBtn').setAttribute('aria-pressed',String(this.on));
+    ['rDown','rUp','rBpm','rBeats','rClick'].forEach(id=>{ $(id).disabled=this.on||this.busy; });
+  },
+  async start(){
+    if(this.on||this.busy||!this.canRecord()) return;
+    const c=Snd.ensure(); if(!c){ toast(tx('tNoAudio')); return; }
+    if(Player.on) Player.stop(); if(Metro.on) Metro.stop();
+    try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){}
+    try{ this.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }
+    catch(e){ try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(err){} $('recStatus').textContent=tx('recNoMic')+' ('+((e&&e.name)||e)+')'; return; }
+    try{ if(c.state!=='running') await c.resume(); }catch(e){}
+    this.chunks=[]; this.len=0; this.tFirst=null; this.clicks=[]; this.on=true; this.ui(); keepAwake(true);
+    this.src=c.createMediaStreamSource(this.stream); this.proc=c.createScriptProcessor(4096,1,1); this.sink=c.createGain(); this.sink.gain.value=0;
+    this.src.connect(this.proc); this.proc.connect(this.sink); this.sink.connect(c.destination);
+    this.proc.onaudioprocess=e=>{ if(!this.on) return; const d=e.inputBuffer.getChannelData(0); if(this.tFirst===null) this.tFirst=c.currentTime-d.length/c.sampleRate; this.chunks.push(new Float32Array(d)); this.len+=d.length; if(this.len>c.sampleRate*300) this.stop(); };
+    const beat=60/this.cfg.bpm, start=c.currentTime+.35;
+    for(let i=0;i<this.cfg.beats;i++){ Snd.tick(start+i*beat,i===0); this.clicks.push(start+i*beat); }
+    this.t0=start+this.cfg.beats*beat; let nextClick=this.t0, k=0;
+    this.timer=setInterval(()=>{
+      const now=c.currentTime;
+      if(this.cfg.click) while(nextClick<now+.15){ Snd.tick(nextClick,k%this.cfg.beats===0); this.clicks.push(nextClick); nextClick+=beat; k++; }
+      $('recStatus').textContent=now<this.t0?tx('recCount',Math.max(1,Math.ceil((this.t0-now)/beat))):tx('recOn',Math.floor((now-this.t0)/(beat*this.cfg.beats))+1);
+    },40);
+  },
+  async stop(){
+    if(!this.on) return; this.on=false; clearInterval(this.timer); keepAwake(false);
+    const c=Snd.ensure(), sr=c?c.sampleRate:48000;
+    try{ this.proc.disconnect(); this.src.disconnect(); this.sink.disconnect(); }catch(e){}
+    try{ this.stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+    let lat=0; try{ lat=(c.outputLatency||0)+(c.baseLatency||0); }catch(e){}
+    try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+    this.busy=true; this.ui();
+    try{
+      const x=new Float32Array(this.len); let o=0; for(const ch of this.chunks){ x.set(ch,o); o+=ch.length; } this.chunks=[];
+      if(x.length<sr*1){ $('recStatus').textContent=tx('recShort'); return; }
+      $('recStatus').textContent=tx('recAnalyze');
+      const raw=await findHits(x,sr,p=>{ $('recStatus').textContent=tx('recAnalyze')+' '+Math.round(p*100)+'%'; });
+      // hits back on the clock the clicks were scheduled on
+      const hits=raw.map(h=>Object.assign(h,{t:h.t+(this.tFirst||0)-lat}));
+      const r=hitsToSong(hits,{bpm:this.cfg.bpm,beats:this.cfg.beats,div:this.cfg.div,what:this.cfg.what,t0:this.t0,clicks:this.clicks});
+      if(!r||!r.bars.length){ $('recStatus').textContent=tx('recNone'); return; }
+      const d=new Date(), hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+      const added=addSongs([{title:tx('recTitle',hm),bpm:this.cfg.bpm,sig:this.cfg.beats+'/4',bars:r.bars}]);
+      $('recStatus').textContent='';
+      if(added.length){ $('recPanel').hidden=true; toast(tx('recDone',added[0].bars.length),7000); }
+    } finally { this.busy=false; this.ui(); }
+  }
+};
+function wireMetroRec(){
+  $('btnMetro').addEventListener('click',()=>{ Metro.ui(); Metro.dots(-1); $('metroPanel').hidden=false; });
+  const closeMetro=()=>{ if(Metro.on) Metro.stop(); $('metroPanel').hidden=true; };
+  $('metroClose').addEventListener('click',closeMetro);
+  $('metroPanel').addEventListener('click',e=>{ if(e.target===$('metroPanel')) closeMetro(); });
+  $('mPlay').addEventListener('click',()=>{ Metro.on?Metro.stop():Metro.start(); });
+  $('mDown').addEventListener('click',()=>Metro.setBpm(metroCfg.bpm-1));
+  $('mUp').addEventListener('click',()=>Metro.setBpm(metroCfg.bpm+1));
+  $('mSlider').addEventListener('input',e=>Metro.setBpm(+e.target.value));
+  $('mBeats').addEventListener('change',e=>{ metroCfg.beats=clamp(+e.target.value||4,1,7); Metro.save(); Metro.dots(-1); });
+  $('mSub').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; metroCfg.sub=+b.dataset.sub; Metro.save(); Metro.ui(); });
+  $('mAccent').addEventListener('click',()=>{ metroCfg.accent=!metroCfg.accent; Metro.save(); Metro.ui(); });
+  $('mTap').addEventListener('click',()=>Metro.tap());
+  $('btnRec').addEventListener('click',()=>{ Rec.cfg.bpm=song().bpm; const S=SIGS[song().sig]; if(S&&!S.compound&&[2,3,4].includes(S.beats)&&!S.cut) Rec.cfg.beats=S.beats; Rec.ui(); $('recStatus').textContent=''; $('recPanel').hidden=false; });
+  const closeRec=()=>{ if(Rec.on||Rec.busy) return; $('recPanel').hidden=true; };
+  $('recClose').addEventListener('click',closeRec);
+  $('recPanel').addEventListener('click',e=>{ if(e.target===$('recPanel')) closeRec(); });
+  $('recBtn').addEventListener('click',()=>{ Rec.on?Rec.stop():Rec.start(); });
+  $('rDown').addEventListener('click',()=>{ Rec.cfg.bpm=clamp(Rec.cfg.bpm-5,40,240); Rec.ui(); });
+  $('rUp').addEventListener('click',()=>{ Rec.cfg.bpm=clamp(Rec.cfg.bpm+5,40,240); Rec.ui(); });
+  $('rBpm').addEventListener('change',e=>{ Rec.cfg.bpm=clamp(Math.round(+e.target.value)||Rec.cfg.bpm,40,240); Rec.ui(); });
+  $('rBeats').addEventListener('change',e=>{ Rec.cfg.beats=+e.target.value||4; });
+  $('rWhat').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||Rec.on) return; Rec.cfg.what=b.dataset.what; Rec.ui(); });
+  $('rDiv').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||Rec.on) return; Rec.cfg.div=b.dataset.div==='auto'?'auto':+b.dataset.div; Rec.ui(); });
+  $('rClick').addEventListener('click',()=>{ Rec.cfg.click=!Rec.cfg.click; Rec.ui(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ if(Metro.on) Metro.stop(); if(Rec.on) Rec.stop(); } });
+}
 function init(){
+  wireMetroRec();
   const d=Store.loadLocal();
   if(d&&I18N[d.lang]) LANG=d.lang; else { const pref=(navigator.languages||[navigator.language||'']).map(x=>String(x).slice(0,2).toLowerCase()).find(x=>I18N[x]); if(pref) LANG=pref; }
   if(d&&Array.isArray(d.songs)){ state.songs=d.songs.map(unpack); if([1,2,4].includes(d.bpl)) state.bpl=d.bpl; state.click=!!d.click; state.curSong=d.cur; }
@@ -1581,6 +1980,7 @@ function init(){
     if(b.dataset.add){ addBar(); return; }
     state.cur=+b.dataset.bar; markCur(); scrollToBar(state.cur,true);
   });
+  $('swing').addEventListener('change',e=>{ const s=song(); s.swing=clamp(+e.target.value||0,0,100); Store.save(s); if(state.view==='sheet') renderSheet(); });
   $('sig').addEventListener('change',e=>{
     const s=song(), A=SIGS[s.sig], B=SIGS[e.target.value]; if(!B) return;
     pushUndo(); s.bars=s.bars.map(b=>remapBar(b,A.beats,b.div,B.beats,B.compound?3:(A.compound?4:b.div))); s.sig=e.target.value; Store.save(s); renderEditor();
@@ -1614,7 +2014,8 @@ function init(){
   $('btnClosePanel').addEventListener('click',()=>{ $('songsPanel').hidden=true; });
   $('songsPanel').addEventListener('click',e=>{ if(e.target===$('songsPanel')) $('songsPanel').hidden=true; });
   $('songList').addEventListener('click',e=>{
-    const o=e.target.closest('[data-open]'), d=e.target.closest('[data-del]');
+    const o=e.target.closest('[data-open]'), d=e.target.closest('[data-del]'), mv=e.target.closest('[data-move]');
+    if(mv){ openFolderMenu(mv.dataset.move,mv); return; }
     if(o){ setSong(o.dataset.open); $('songsPanel').hidden=true; }
     else if(d) armed(d,tx('sure'),()=>{
       const s=state.songs.find(x=>x.id===d.dataset.del); if(!s) return;
@@ -1624,8 +2025,29 @@ function init(){
       Store.remove(s); renderSongs(); renderAll();
     });
   });
+  $('folderBar').addEventListener('click',e=>{
+    const pk=e.target.closest('[data-folder-pick]');
+    if(pk){ const v=pk.dataset.folderPick; state.folder=v===''||v===NO_FOLDER?v:($('folderBar')._names[+v]||''); saveFolders(); renderSongs(); return; }
+    if(e.target.closest('#folderAdd')){ openFolderBox(null); return; }
+    const del=e.target.closest('#folderDel');
+    if(del) armed(del,tx('sure'),()=>{
+      const f=curFolder(); if(!f) return;
+      for(const s of state.songs) if(s.folder===f){ s.folder=''; Store.save(s); }
+      folderNames=folderNames.filter(x=>x!==f); state.folder=''; saveFolders(); renderSongs(); toast(tx('folderDeleted'));
+    });
+  });
+  const makeFolder=()=>{
+    const f=$('folderName').value.trim().slice(0,40); if(!f){ $('folderName').focus(); return; }
+    if(!folderNames.includes(f)) folderNames.push(f);
+    $('folderBox').hidden=true;
+    if(folderMove){ const id=folderMove; folderMove=null; saveFolders(); moveSong(id,f); }
+    else { state.folder=f; saveFolders(); renderSongs(); }
+  };
+  $('folderSave').addEventListener('click',makeFolder);
+  $('folderName').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); makeFolder(); } });
+  $('folderCancel').addEventListener('click',()=>{ $('folderBox').hidden=true; folderMove=null; });
   $('btnNew').addEventListener('click',()=>{
-    const n=unpack({id:newId(),title:tx('newSong'),bpm:96,sig:'4/4',bars:[]}); state.songs.unshift(n); Store.save(n); setSong(n.id); $('songsPanel').hidden=true; $('title').focus(); $('title').select();
+    const n=unpack({id:newId(),title:tx('newSong'),bpm:96,sig:'4/4',bars:[],folder:curFolder()}); state.songs.unshift(n); Store.save(n); setSong(n.id); $('songsPanel').hidden=true; $('title').focus(); $('title').select();
   });
   $('btnRep').addEventListener('click',()=>{
     const s=song(), bar=curBar(); pushUndo();
