@@ -149,6 +149,10 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .songrow .open[aria-current="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .songrow b{display:block;font:700 21px/1.15 var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .songrow small{color:var(--muted);font-size:13px}
+.songrow .open{position:relative}.songrow .ord{position:absolute;right:8px;top:50%;transform:translateY(-50%);min-width:30px;height:30px;padding:0 6px;border-radius:15px;background:var(--accent);color:#fff;font:700 15px/30px var(--body);text-align:center}
+.picking .songrow .open[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}.picking .songrow .open{padding-right:46px}
+.pickbar{position:sticky;bottom:-16px;margin:0 -16px -16px;padding:10px 16px;background:var(--surface);border-top:1px solid var(--line-strong);display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.pickbar[hidden]{display:none}
+.pickbar #pickInfo{font:600 15px/1.2 var(--body)}.chip.go{background:var(--accent);color:#fff;border-color:var(--accent)}.chip.go:disabled{opacity:.45}
 .panelrow{display:flex;gap:8px;justify-content:space-between;align-items:center}
 .hdrbtns{display:flex;gap:8px}.hdrbtns.wrap{flex-wrap:wrap}
 .recmeter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.recmeter[hidden]{display:none}.recmeter i{display:block;height:100%;width:0;background:var(--accent);transition:width .08s linear}
@@ -274,6 +278,8 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <h2 id="songsH">Мои песни</h2>
       <span class="hdrbtns"><button class="chip" id="btnImport" type="button">+ PDF</button><button class="chip" id="btnClosePanel" type="button">Закрыть</button></span>
     </div>
+    <button class="chip" id="btnPick" type="button">Собрать из песен и рудиментов</button>
+    <p class="hint" id="pickHint" hidden></p>
     <p class="hint" id="importHint"></p>
     <div class="folders" id="folderBar" aria-label="Папки"></div>
     <div class="keybox" id="folderBox" hidden>
@@ -281,6 +287,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <div class="hdrbtns"><button class="chip" id="folderSave" type="button">Создать</button><button class="chip" id="folderCancel" type="button">Отмена</button></div>
     </div>
     <div id="songList" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="pickbar" id="pickBar" hidden><span id="pickInfo"></span><span class="hdrbtns"><button class="chip" id="pickUndo" type="button">↶</button><button class="chip" id="pickCancel" type="button">Отмена</button><button class="chip go" id="pickGo" type="button">Соединить</button></span></div>
     <button class="chip" id="btnNew" type="button">Новая песня</button>
     <div class="photorow"><button class="chip" id="btnPhoto" type="button" hidden>Ноты с фото (ИИ)</button><button class="chip" id="btnKey" type="button" hidden aria-expanded="false">Ключ API</button></div>
     <div class="keybox" id="keyBox" hidden>
@@ -352,12 +359,12 @@ const I18N={
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
   untitled:'Без названия',demoTitle:'Пример: рок-бит',barN:'Такт {0}',addBar:'Добавить такт',cellAria:'{0}, клетка {1}',handAria:'Рука, клетка {0}',
-  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
+  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',pickBtn:'Собрать из песен и рудиментов',pickHint:'Нажимайте песни и рудименты в том порядке, в каком они должны идти, — можно переходить между папками. Одну и ту же можно нажать несколько раз. Потом «Соединить»: получится новая песня, которую можно играть, менять и сохранить в PDF.',pickInfo:'Выбрано: {0} · тактов: {1}',pickGo:'Соединить',pickCancel:'Отмена',compTitle:'Сборник',compDone:'Соединено частей: {0}, тактов: {1}. PDF — во вкладке «Ноты».',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
   st_cloud:'Песни сохраняются в вашем аккаунте Claude и откроются на любом устройстве.',st_local:'Песни сохраняются только в этом браузере на этом устройстве.',
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phCheck:'{0} ещё раз смотрит на сомнительные такты ({1})…',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
   copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save a backup',restoreBtn:'Restore from a backup',backupH:'Backup',backupHint:'All songs, rudiments and folders in one file. Keep it in Files or send it to yourself: if the phone clears the app’s storage, the songs can come back. {0}',backupLast:'Last backup: {0}.',backupNever:'No backup saved yet.',tBackupSaved:'Backup saved: {0} songs.',tRestored:'Songs restored: {0}. The rest were already in the list.',tRestoredAll:'Songs restored: {0}.',backupFile:'drum songs',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
   hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. Hold a cell for flam, drag, buzz, cross-stick and triplet. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',flam:'Flam',flamAcc:'Flam >',drag:'Drag',dragAcc:'Drag >',buzz:'Buzz z',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
@@ -368,16 +375,16 @@ const I18N={
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
   untitled:'Untitled',demoTitle:'Example: rock beat',barN:'Bar {0}',addBar:'Add a bar',cellAria:'{0}, cell {1}',handAria:'Hand, cell {0}',
-  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
+  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',pickBtn:'Combine songs and rudiments',pickHint:'Tap songs and rudiments in the order they should go; you can switch folders. The same one can be tapped more than once. Then “Join”: you get a new song to play, change and save as a PDF.',pickInfo:'Picked: {0} · bars: {1}',pickGo:'Join',pickCancel:'Cancel',compTitle:'Collection',compDone:'Joined {0} parts, {1} bars. The PDF is under “Sheet”.',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
   st_cloud:'Songs are saved to your Claude account and open on any device.',st_local:'Songs are saved only in this browser on this device.',
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phCheck:'{0} is taking a second look at doubtful bars ({1})…',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.'}
 };
 let LANG='ru';
-const tx=(k,a,b)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; if(a!==undefined) v=v.replace('{0}',a); if(b!==undefined) v=v.replace('{1}',b); return v; };
-const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnRestore':'restoreBtn','#backupH':'backupH','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
+const tx=(k,...args)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; args.forEach((a,i)=>{ if(a!==undefined) v=v.replace('{'+i+'}',a); }); return v; };
+const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnPick':'pickBtn','#pickGo':'pickGo','#pickCancel':'pickCancel','#pickHint':'pickHint','#btnRestore':'restoreBtn','#backupH':'backupH','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
   '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
 const ARIA={'#folderBar':'foldersAria','#swing':'swingAria','#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
@@ -406,6 +413,11 @@ const SIGS={
   '12/8':{beats:4,top:12,bot:8,compound:true}
 };
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+// A bar may have a time of its own (sg), as in a song put together from pieces in different times; otherwise the song's.
+// The song's own time is always its first bar's.
+const sigOf=(s,b)=>b&&b.sg&&SIGS[b.sg]?b.sg:s.sig, SOf=(s,b)=>SIGS[sigOf(s,b)];
+function normSigs(s){ const eff=s.bars.map(b=>sigOf(s,b)); if(eff.length) s.sig=eff[0]; s.bars.forEach((b,i)=>{ if(eff[i]===s.sig) delete b.sg; else b.sg=eff[i]; }); }
+const songSigs=s=>[...new Set(s.bars.map(b=>sigOf(s,b)))];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f=n=>Math.round(n*100)/100;
 const newId=()=>'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -421,7 +433,7 @@ const isAcc=v=>v==='a'||v==='F'||v==='D', graceN=v=>v==='f'||v==='F'?1:v==='d'||
 function validCell(k,ch){ return k==='st'?(ch==='R'||ch==='L'):(ch==='n'||ch==='a'||ch==='g'||ch==='3'||(ch==='o'&&k==='hh')||(ch==='x'&&k==='sn')||(!!ch&&ch.length===1&&ORN.includes(ch)&&STICK_DRUMS.includes(k))); }
 // a stroke moved to a row that cannot have it keeps what it can: a plain note, or an accented one
 const fitCell=(k,v)=>validCell(k,v)?v:(isAcc(v)?'a':v==='g'?'g':'n');
-function barMeta(b){ const m={}; if(b&&b.rs) m.rs=true; if(b&&b.re) m.re=true; if(b&&typeof b.lb==='string'&&b.lb.trim()) m.lb=b.lb.trim().slice(0,6); if(b&&+b.tm>=40&&+b.tm<=240) m.tm=Math.round(+b.tm); return m; }
+function barMeta(b){ const m={}; if(b&&typeof b.sg==='string'&&SIGS[b.sg]) m.sg=b.sg; if(b&&typeof b.nm==='string'&&b.nm.trim()) m.nm=b.nm.trim().slice(0,60); if(b&&b.rs) m.rs=true; if(b&&b.re) m.re=true; if(b&&typeof b.lb==='string'&&b.lb.trim()) m.lb=b.lb.trim().slice(0,6); if(b&&+b.tm>=40&&+b.tm<=240) m.tm=Math.round(+b.tm); return m; }
 // tempo in force at a bar: the last written tempo change, scaled by how far the song's tempo control has been moved from its written tempo
 function tempoAt(s,bi){ let t=0; for(let j=Math.min(bi,s.bars.length-1);j>=0;j--) if(s.bars[j].tm){ t=s.bars[j].tm; break; } if(!t) return s.bpm; return t*s.bpm/(s.ref||s.bpm); }
 function unpack(d){
@@ -429,9 +441,10 @@ function unpack(d){
   const sig=SIGS[d.sig]?d.sig:'4/4', S=SIGS[sig];
   const s={id:d.id!=null&&String(d.id)?String(d.id):newId(),title:typeof d.title==='string'?d.title:tx('untitled'),by:typeof d.by==='string'?d.by.slice(0,80):'',ref:+d.ref>=40&&+d.ref<=240?Math.round(+d.ref):0,swing:clamp(Math.round(+d.swing)||0,0,100),folder:typeof d.folder==='string'?d.folder.trim().slice(0,40):'',bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
   for(const b of (Array.isArray(d.bars)?d.bars:[])){
-    const div=S.compound?3:(b&&[3,4,6,8].includes(b.div)?b.div:4), n=S.beats*div, c={};
+    const bs=b&&typeof b.sg==='string'&&SIGS[b.sg]&&b.sg!==sig?b.sg:'', BS=bs?SIGS[bs]:S;
+    const div=BS.compound?3:(b&&[3,4,6,8].includes(b.div)?b.div:4), n=BS.beats*div, c={};
     for(const k of ROWS){ const str=b&&b.c&&typeof b.c[k]==='string'?b.c[k]:''; const a=[]; for(let i=0;i<n;i++) a.push(validCell(k,str[i])?str[i]:'-'); c[k]=a; }
-    s.bars.push(Object.assign({div,c},barMeta(b)));
+    const nb=Object.assign({div,c},barMeta(b)); if(!bs) delete nb.sg; s.bars.push(nb);
   }
   if(!s.bars.length) s.bars.push(emptyBar(sig,4));
   return s;
@@ -681,7 +694,8 @@ function labelSVG(s,W){
   o.push('</svg>'); return o.join('');
 }
 function barSVG(s,bi,W){
-  const S=SIGS[s.sig], bar=s.bars[bi], ink='currentColor', last=bi===s.bars.length-1;
+  const bar=s.bars[bi], S=SOf(s,bar), ink='currentColor', last=bi===s.bars.length-1;
+  const newSig=bi>0&&sigOf(s,s.bars[bi-1])!==sigOf(s,bar), sigW=newSig?3.3*ED.sp:0;
   const o=[`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f(W)} ${ED.H}" width="${f(W)}" height="${ED.H}" role="img" aria-label="${tx('barN',bi+1)}">`];
   drawStaff(o,0,W,ED.y0,ED.sp,ink);
   let hx=5;
@@ -690,7 +704,9 @@ function barSVG(s,bi,W){
   if(bar.tm){ tempoMark(o,hx,13,bar.tm,ink,10); hx+=44; }
   if(bar.rs){ miniRepeat(o,hx,3,ink,'start'); o.push(`<rect x="0" y="${f(ED.y0)}" width="2.6" height="${f(4*ED.sp)}" fill="${ink}"/>`); }
   if(bar.re){ miniRepeat(o,W-5,3,ink,'end'); }
-  drawBar(o,S,bar,{x0:0,slotW:W/(S.beats*bar.div),y0:ED.y0,sp:ED.sp,ink});
+  if(bar.nm){ const nx=hx+(bar.rs?11:0), room=Math.max(0,(W-nx-(bar.re?14:4))/6.2); if(room>=3) o.push(`<text x="${f(nx)}" y="13" font-family="Helvetica,Arial,sans-serif" font-size="11" font-weight="700" fill="${ink}">${esc(bar.nm.length>room?bar.nm.slice(0,Math.max(1,Math.floor(room)-1))+'…':bar.nm)}</text>`); }
+  if(newSig) drawSig(o,(bar.rs?4:0)+.5*ED.sp,ED.y0,ED.sp,S,ink);
+  drawBar(o,S,bar,{x0:sigW,slotW:(W-sigW)/(S.beats*bar.div),y0:ED.y0,sp:ED.sp,ink});
   if(bar.re) o.push(`<rect x="${f(W-2.6)}" y="${f(ED.y0)}" width="2.6" height="${f(4*ED.sp)}" fill="${ink}"/>`);
   else if(last){ barline(o,W-5,ED.y0,ED.sp,ink); barline(o,W-1.6,ED.y0,ED.sp,ink,.4); } else barline(o,W-.5,ED.y0,ED.sp,ink);
   o.push('</svg>'); return o.join('');
@@ -702,10 +718,12 @@ function sheetLayout(s,bpl,minW){
   for(let q=0;q<nSys;q++){
     let up=1,down=.6,lb=false;
     let anySt=false, anyHp=false;
-    for(let j=q*bpl;j<Math.min(s.bars.length,(q+1)*bpl);j++){ const e=extent(S,s.bars[j]); up=Math.max(up,e.up); down=Math.max(down,e.down); if(s.bars[j].lb) lb=true; if(s.bars[j].c.st.some(v=>v!=='-')) anySt=true; if(s.bars[j].c.hp.some(v=>v!=='-')) anyHp=true; }
+    let nm=false;
+    for(let j=q*bpl;j<Math.min(s.bars.length,(q+1)*bpl);j++){ const e=extent(SOf(s,s.bars[j]),s.bars[j]); up=Math.max(up,e.up); down=Math.max(down,e.down); if(s.bars[j].lb) lb=true; if(s.bars[j].nm) nm=true; if(s.bars[j].c.st.some(v=>v!=='-')) anySt=true; if(s.bars[j].c.hp.some(v=>v!=='-')) anyHp=true; }
     // the line's sticking row sits under its lowest notehead, which may be in another bar
     if(anySt&&anyHp) down=Math.max(down,2.7+1.1);
-    const topSp=Math.max(up+.35,lb?4.2:3.6); sys.push({topSp,h:(topSp+4+down+1.0)*sp});
+    // a part's name goes on a line of its own over everything else
+    const topSp=Math.max(up+.35,lb?4.2:3.6)+(nm?2:0); sys.push({topSp,h:(topSp+4+down+1.0)*sp,nm});
   }
   return {sp,mx,lead,barW,S,sys,W:Math.round(2*mx+lead+bpl*barW),headH:66,nSys};
 }
@@ -719,21 +737,30 @@ function sheetSVG(s,opt){
   const sans=`font-family="Helvetica Neue,Helvetica,Arial,sans-serif"`;
   if(head){
     o.push(`<text x="${mx}" y="32" ${sans} font-weight="700" font-size="22" fill="${ink}">${esc(s.title||tx('untitled'))}</text>`);
-    o.push(`<text x="${mx}" y="52" ${sans} font-size="12.5" fill="${ink}" opacity=".7">${esc(tx('tempoLine',s.bpm,s.sig)+(s.swing&&!SIGS[s.sig].compound?' · '+tx(s.swing>=100?'swShuffle':'swOn'):''))}</text>`);
+    o.push(`<text x="${mx}" y="52" ${sans} font-size="12.5" fill="${ink}" opacity=".7">${esc(tx('tempoLine',s.bpm,songSigs(s).join(', '))+(s.swing&&!SIGS[s.sig].compound?' · '+tx(s.swing>=100?'swShuffle':'swOn'):''))}</text>`);
     if(s.by) o.push(`<text x="${W-mx}" y="52" text-anchor="end" font-family="Times New Roman,Times,serif" font-size="14" fill="${ink}">${esc(s.by)}</text>`);
   }
   let yAcc=top;
   for(let q=q0;q<q1;q++){
     const topSp=L.sys[q].topSp, sysH=L.sys[q].h, y0=yAcc+topSp*sp, k=Math.min(bpl,s.bars.length-q*bpl), xEnd=mx+lead+k*barW;
     drawStaff(o,mx,xEnd,y0,sp,ink); barline(o,mx,y0,sp,ink); drawClef(o,mx+.8*sp,y0,sp,ink);
-    if(q===0) drawSig(o,mx+3.9*sp,y0,sp,S,ink);
+    // the time at the head of the first line, and at the head of any line that starts with a new one
+    const b0=s.bars[q*bpl];
+    if(q===0||sigOf(s,s.bars[q*bpl-1])!==sigOf(s,b0)) drawSig(o,mx+3.9*sp,y0,sp,SOf(s,b0),ink);
+    if(L.sys[q].nm){
+      // each part's name over its first bar, cut short where the next part's name begins
+      for(let j=0;j<k;j++){ const bar=s.bars[q*bpl+j]; if(!bar.nm) continue;
+        let end=k; for(let jj=j+1;jj<k;jj++) if(s.bars[q*bpl+jj].nm){ end=jj; break; }
+        const x=j===0?mx:mx+lead+j*barW+2, room=(mx+lead+end*barW-x-6)/7.1, t=bar.nm.length>room?bar.nm.slice(0,Math.max(1,Math.floor(room)-1))+'…':bar.nm;
+        o.push(`<text x="${f(x)}" y="${f(yAcc+13)}" ${sans} font-weight="700" font-size="13" fill="${ink}">${esc(t)}</text>`); }
+    }
     // one sticking row for the whole line: under the lowest notehead of any bar in it
     let lowPos=0; for(let j=0;j<k;j++){ const c=s.bars[q*bpl+j].c; for(const inst of INST) if(c[inst.id].some(v=>v!=='-')) lowPos=Math.max(lowPos,inst.pos); }
     for(let j=0;j<k;j++){
-      const bi=q*bpl+j, bar=s.bars[bi], bx=mx+lead+j*barW, n=S.beats*bar.div;
+      const bi=q*bpl+j, bar=s.bars[bi], bx=mx+lead+j*barW, BS=SOf(s,bar), n=BS.beats*bar.div, newSig=j>0&&sigOf(s,s.bars[bi-1])!==sigOf(s,bar);
       const prevRe=j>0&&s.bars[bi-1].re, padR=bar.re?1.9*sp:.6*sp, yb=y0-2.6*sp, numW=String(bi+1).length*5.9;
       const boxW=bar.lb?Math.max(12*1.25,12*.68*bar.lb.length+6):0;
-      let padL=bar.rs?2.5*sp:1.6*sp;
+      let padL=(bar.rs?2.5*sp:1.6*sp)+(newSig?3*sp:0);
       // keep the first stem clear of the label and bar number drawn to its left
       const need=3+(boxW?boxW+5:0)+numW+3, slot0=(barW-padL-padR)/n;
       if(padL+slot0/2+.56*sp<need) padL=need-slot0/2-.56*sp;
@@ -742,7 +769,8 @@ function sheetSVG(s,opt){
       if(bar.tm){ if(j===0) tempoMark(o,mx,yb,bar.tm,ink,11); else tempoMark(o,bx+2,y0-topSp*sp+10,bar.tm,ink,11); }
       o.push(`<text x="${f(tx0)}" y="${f(yb)}" ${sans} font-size="10" font-weight="700" fill="${ink}" opacity=".55">${bi+1}</text>`);
       if(bar.rs) drawRepeat(o,bx,y0,sp,ink,'start',prevRe);
-      drawBar(o,S,bar,{x0:bx+padL,slotW:(barW-padL-padR)/n,y0,sp,ink,lowPos});
+      if(newSig) drawSig(o,bx+(bar.rs?2.2*sp:.7*sp),y0,sp,BS,ink);
+      drawBar(o,BS,bar,{x0:bx+padL,slotW:(barW-padL-padR)/n,y0,sp,ink,lowPos});
       if(bar.re) drawRepeat(o,bx+barW,y0,sp,ink,'end');
       else if(bi===s.bars.length-1){ barline(o,bx+barW-.55*sp,y0,sp,ink); barline(o,bx+barW-.2*sp,y0,sp,ink,.4); } else barline(o,bx+barW,y0,sp,ink);
       if(opt.hits) o.push(`<rect class="hit" data-bar="${bi}" x="${f(bx)}" y="${f(y0-topSp*sp)}" width="${f(barW)}" height="${f(sysH)}" fill="transparent"/>`);
@@ -926,7 +954,7 @@ const Snd=(()=>{
 
 /* ---------- state ---------- */
 const $=id=>document.getElementById(id);
-const state={songs:[],curSong:null,cur:0,staff:false,tool:'n',view:'grid',loop:false,click:false,bpl:2,undo:[],folder:''};
+const state={songs:[],curSong:null,cur:0,staff:false,tool:'n',view:'grid',loop:false,click:false,bpl:2,undo:[],folder:'',pick:null};
 const LS='drumbook.v1';
 const song=()=>state.songs.find(s=>s.id===state.curSong)||state.songs[0];
 const curBar=()=>{ const s=song(); state.cur=clamp(state.cur,0,s.bars.length-1); return s.bars[state.cur]; };
@@ -1050,7 +1078,7 @@ function markCur(){
   centerChip(); renderTools();
 }
 function barGridHTML(s,bi){
-  const bar=s.bars[bi], S=SIGS[s.sig], div=bar.div, n=S.beats*div, cnt={4:['','e','&','a'],3:['','&','a'],6:['','·','·','&','·','·'],8:['','·','e','·','&','·','a','·']}[div]||[];
+  const bar=s.bars[bi], S=SOf(s,bar), div=bar.div, n=S.beats*div, cnt={4:['','e','&','a'],3:['','&','a'],6:['','·','·','&','·','·'],8:['','·','e','·','&','·','a','·']}[div]||[];
   const cls=i=>(i%div===0?' b0':'')+(Math.floor(i/div)%2?' alt':'');
   let h='';
   for(let i=0;i<n;i++) h+=`<div class="cnt${i%div===0?' b0':''}">${S.compound?i+1:(i%div===0?(S.cut?(Math.floor(i/div)%2?'&':Math.floor(i/div)/2+1):Math.floor(i/div)+1):cnt[i%div])}</div>`;
@@ -1061,13 +1089,13 @@ function barGridHTML(s,bi){
 // The ribbon: instrument names stay pinned on the left, every bar of the song sits side by side to the right.
 function renderTape(){
   const s=song(), tape=$('tape'), W=tape.clientWidth; if(!W) return;
-  LBL=labelW(); const most=Math.max(...s.bars.map(b=>SIGS[s.sig].beats*b.div)); BARW=Math.max(140,(W-LBL)/(W>=700?2:1),most*26); padW=W; ED=edDims(state.staff);
+  LBL=labelW(); const most=Math.max(...s.bars.map(b=>SOf(s,b).beats*b.div)); BARW=Math.max(140,(W-LBL)/(W>=700?2:1),most*26); padW=W; ED=edDims(state.staff);
   $('pad').classList.toggle('staffmode',!!state.staff);
   tape.style.setProperty('--barw',BARW+'px');
   let h=`<div class="labels"><div class="lnot">${labelSVG(s,LBL)}</div><div class="cnt"></div>`;
   for(const inst of INST) h+=`<div class="lab f-${inst.fam}" data-row="${inst.id}" role="button" tabindex="0" aria-haspopup="menu" aria-label="${esc(tx('rowAria',tx('i_'+inst.id)))}">${tx('i_'+inst.id)}</div>`;
   h+=`<div class="lab st" data-row="st" role="button" tabindex="0" aria-haspopup="menu" aria-label="${esc(tx('rowAria',tx('hands')))}">${tx('hands')}</div></div>`;
-  s.bars.forEach((b,i)=>{ h+=`<section class="barblk" data-bar="${i}"><div class="bnot">${barSVG(s,i,BARW)}</div><div class="bgrid" style="--n:${SIGS[s.sig].beats*b.div}">${barGridHTML(s,i)}</div></section>`; });
+  s.bars.forEach((b,i)=>{ h+=`<section class="barblk" data-bar="${i}"><div class="bnot">${barSVG(s,i,BARW)}</div><div class="bgrid" style="--n:${SOf(s,b).beats*b.div}">${barGridHTML(s,i)}</div></section>`; });
   h+=`<button type="button" class="addblk" data-add="1" aria-label="${tx('addBar')}">+</button><div class="playhead" id="ph" hidden></div><div class="stf" id="stf" hidden><i class="col"></i><i class="hd"></i><b class="tip"></b></div>`;
   tape.innerHTML=h; tape.scrollLeft=state.cur*BARW;
 }
@@ -1097,7 +1125,7 @@ function closeMenu(){ menuFor=null; $('noteMenu').hidden=true; document.querySel
 // Tapping a row name fills that whole row in the current bar
 function openRowMenu(row,el){
   const s=song(), bi=state.cur, bar=s.bars[bi]; if(!bar) return;
-  const S=SIGS[s.sig], m=$('noteMenu');
+  const S=SOf(s,bar), m=$('noteMenu');
   const d=bar.div, opts=row==='st'?[['RL','stRL'],['LR','stLR'],['acc','stAcc'],['-','clearRow']]
     :[['all',S.compound?'fillAll8c':{4:'fillAll16',3:'fillAllT',6:'fillAll6',8:'fillAll32'}[d]]]
       .concat(d===8?[['s2','fill16'],['s4','fill8']]:d===4?[['s2','fill8']]:d===6?[['s2','fill8t']]:[],[['4','fill4'],['-','clearRow']]);
@@ -1111,7 +1139,7 @@ function openRowMenu(row,el){
 }
 function fillRow(bi,row,mode){
   const s=song(), bar=s.bars[bi]; if(!bar) return;
-  const n=SIGS[s.sig].beats*bar.div, a=bar.c[row], div=bar.div, before=a.join('');
+  const n=SOf(s,bar).beats*bar.div, a=bar.c[row], div=bar.div, before=a.join('');
   if(row==='st'){
     const hit=i=>INST.some(it=>{ const v=bar.c[it.id][i]; return v&&v!=='-'; }), acc=i=>INST.some(it=>bar.c[it.id][i]==='a');
     let any=false; for(let i=0;i<n;i++) if(hit(i)) any=true;
@@ -1147,7 +1175,7 @@ let staffDrag=null;
 function staffPoint(e){
   const tape=$('tape'), r=tape.getBoundingClientRect(), s=song();
   const xc=e.clientX-r.left+tape.scrollLeft-LBL, bi=clamp(Math.floor(xc/BARW),0,s.bars.length-1);
-  const n=SIGS[s.sig].beats*s.bars[bi].div, sw=BARW/n, slot=clamp(Math.floor((xc-bi*BARW)/sw),0,n-1);
+  const n=SOf(s,s.bars[bi]).beats*s.bars[bi].div, sw=BARW/n, slot=clamp(Math.floor((xc-bi*BARW)/sw),0,n-1);
   const pos=(e.clientY-r.top-ED.y0)/(ED.sp/2); let inst=INST[0], best=1e9;
   for(const it of INST){ const d=Math.abs(it.pos-pos); if(d<best){ best=d; inst=it; } }
   return {bi,slot,inst,sw,cx:LBL+bi*BARW+(slot+.5)*sw,cy:ED.y0+inst.pos*ED.sp/2};
@@ -1199,10 +1227,10 @@ function scrollToBar(i,smooth){
   const tape=$('tape'); if(!BARW) return;
   try{ tape.scrollTo({left:i*BARW,behavior:smooth?'smooth':'auto'}); }catch(e){ tape.scrollLeft=i*BARW; }
 }
-function addBar(){ const s=song(); pushUndo(); s.bars.push(emptyBar(s.sig,s.bars[s.bars.length-1].div)); state.cur=s.bars.length-1; Store.save(s); renderEditor(); }
+function addBar(){ const s=song(), lb=s.bars[s.bars.length-1]; pushUndo(); const nb=emptyBar(sigOf(s,lb),lb.div); if(lb.sg) nb.sg=lb.sg; s.bars.push(nb); state.cur=s.bars.length-1; Store.save(s); renderEditor(); }
 function renderTools(){
-  const s=song(), bar=curBar(), S=SIGS[s.sig];
-  $('sig').value=s.sig; $('swing').value=String([0,30,60,100].includes(s.swing)?s.swing:(s.swing?60:0)); $('swing').disabled=SIGS[s.sig].compound;
+  const s=song(), bar=curBar(), S=SOf(s,bar);
+  $('sig').value=sigOf(s,bar); $('swing').value=String([0,30,60,100].includes(s.swing)?s.swing:(s.swing?60:0)); $('swing').disabled=SIGS[s.sig].compound;
   $('divSeg').hidden=S.compound;
   $('divSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.div===bar.div)));
   $('btnUndo').disabled=!state.undo.length;
@@ -1295,6 +1323,23 @@ function saveFolders(){ try{ localStorage.setItem(FOLD_SLOT,JSON.stringify(folde
 function allFolders(){ const set=new Set(folderNames); for(const s of state.songs) if(s.folder) set.add(s.folder); return [...set].sort((a,b)=>a.localeCompare(b,LANG)); }
 const curFolder=()=>state.folder&&state.folder!==NO_FOLDER&&state.folder!==LIB?state.folder:'';
 let folderMove=null;   // a song waiting for a new folder's name
+// Putting a new song together: songs picked in order (the same one may come more than once), joined bar after bar.
+// Each part keeps its own time; its name goes over its first bar.
+function partName(p){ return String(p.title||tx('untitled')).trim().slice(0,60); }
+function joinSongs(ids){
+  const parts=ids.map(id=>state.songs.find(x=>x.id===id)).filter(Boolean); if(!parts.length) return null;
+  const bars=[];
+  for(const p of parts) p.bars.forEach((b,i)=>{
+    const nb=Object.assign({div:b.div,c:{}},barMeta(b)); for(const k of ROWS) nb.c[k]=b.c[k].join(''); nb.sg=sigOf(p,b); delete nb.nm;
+    if(i===0) nb.nm=partName(p);
+    // a tempo written inside a part is kept relative to the new song's tempo
+    if(nb.tm){ nb.tm=clamp(Math.round(nb.tm*parts[0].bpm/(p.ref||p.bpm)),40,240); }
+    bars.push(nb);
+  });
+  const n=unpack({id:newId(),title:tx('compTitle')+' · '+parts.length,bpm:parts[0].bpm,sig:sigOf(parts[0],parts[0].bars[0]),swing:parts[0].swing,folder:curFolder(),bars});
+  normSigs(n); return {song:n,parts:parts.length};
+}
+function setPick(on){ state.pick=on?[]:null; $('songsPanel').classList.toggle('picking',!!on); renderSongs(); if(on) try{ $('pickHint').scrollIntoView({block:'nearest'}); }catch(e){} }
 function renderSongs(){
   // the rudiments have their own chip; "All" is the person's own songs
   const folders=allFolders().filter(f=>f!==LIB);
@@ -1315,10 +1360,20 @@ function renderSongs(){
   }
   for(const s of list){
     const where=!state.folder&&s.folder?' · '+esc(s.folder):'';
-    h+=`<div class="songrow"><button type="button" class="open" data-open="${s.id}" aria-current="${s.id===song().id}"><b>${esc(s.title||tx('untitled'))}</b><small>${s.bars.length} ${plural(s.bars.length)} · ${SIGS[s.sig]&&SIGS[s.sig].free?tx('sigNone'):s.sig} · ${tx('tempoWord')} ${s.bpm}${where}</small></button><button type="button" class="chip" data-move="${s.id}" aria-haspopup="menu">${tx('folderMove')}</button><button type="button" class="chip" data-del="${s.id}">${tx('del')}</button></div>`;
+    h+=`<div class="songrow"><button type="button" class="open" data-open="${s.id}" aria-current="${s.id===song().id}"><b>${esc(s.title||tx('untitled'))}</b><small>${s.bars.length} ${plural(s.bars.length)} · ${songSigs(s).join(', ')} · ${tx('tempoWord')} ${s.bpm}${where}</small></button><button type="button" class="chip" data-move="${s.id}" aria-haspopup="menu">${tx('folderMove')}</button><button type="button" class="chip" data-del="${s.id}">${tx('del')}</button></div>`;
   }
   if(!list.length&&state.folder!==LIB) h=`<p class="hint">${tx('folderEmpty')}</p>`;
   $('songList').innerHTML=h;
+  const pk=state.pick;
+  $('btnPick').hidden=!!pk; $('pickHint').hidden=!pk; $('pickBar').hidden=!pk;
+  if(pk){
+    // the order number of every time a song was picked
+    $('songList').querySelectorAll('[data-open]').forEach(b=>{ const id=b.dataset.open, at=[]; pk.forEach((x,i)=>{ if(x===id) at.push(i+1); });
+      b.setAttribute('aria-pressed',String(at.length>0)); if(at.length) b.insertAdjacentHTML('beforeend',`<span class="ord">${at.join(',')}</span>`); });
+    $('songList').querySelectorAll('[data-move],[data-del],#libRestore').forEach(x=>{ x.hidden=true; });
+    const nb=pk.reduce((a,id)=>{ const x=state.songs.find(y=>y.id===id); return a+(x?x.bars.length:0); },0);
+    $('pickInfo').textContent=tx('pickInfo',pk.length,nb); $('pickGo').disabled=!pk.length; $('pickUndo').disabled=!pk.length;
+  }
 }
 function openFolderMenu(id,el){
   const m=$('noteMenu'), folders=allFolders(), s=state.songs.find(x=>x.id===id); if(!s) return;
@@ -1364,16 +1419,16 @@ const Player={
     while(!this.done&&this.next<now+.13){
       if(state.loop&&this.slot===0) this.bar=state.cur;
       const bar=s.bars[this.bar]; if(!bar){ this.done=true; this.queue.push({t:this.next,end:true}); break; }
-      const n=SIGS[s.sig].beats*bar.div; if(this.slot>=n) this.slot=0;
+      const BS=SOf(s,bar), n=BS.beats*bar.div; if(this.slot>=n) this.slot=0;
       const dur=60/tempoAt(s,this.bar)/bar.div;
       // swing: the eighth after the beat comes later (all the way to a triplet's third at "Шаффл"); sixteenths stay inside each half
       let at=this.next;
-      if(s.swing&&bar.div===4&&!SIGS[s.sig].compound){
+      if(s.swing&&bar.div===4&&!BS.compound){
         const d=s.swing/100/6, k=this.slot%4, p=[0,(.5+d)/2,.5+d,.5+d+(.5-d)/2][k];
         at=this.next+(p-k/4)*dur*4;
       }
       for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v==='3'){ for(let k=0;k<3;k++) Snd.hit(inst.id,'n',at+k*dur*2/3); } else if(v&&v!=='-') Snd.hit(inst.id,v,at,dur); }
-      if(state.click&&this.slot%(bar.div*(SIGS[s.sig].cut?2:1))===0) Snd.tick(this.next,this.slot===0);
+      if(state.click&&this.slot%(bar.div*(BS.cut?2:1))===0) Snd.tick(this.next,this.slot===0);
       this.queue.push({t:this.next,bar:this.bar,slot:this.slot,n});
       this.next+=dur; this.slot++;
       if(this.slot>=n){ this.slot=0; if(!state.loop){
@@ -1619,6 +1674,7 @@ function parseLoose(t){
 // Gemini through the person's own Google AI Studio key (free tier).
 // Streamed with thought summaries on, so data keeps arriving while it thinks: a long silence lets a phone drop the connection.
 let gemFrom=0;   // the model that answered last time is asked first next time
+let gemHiRes=true;   // asks for the pictures in full detail, until Google says it does not take that
 let gemWaitUI=null;   // shows the countdown while Gemini is busy
 async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
   opt=opt||{};
@@ -1626,7 +1682,7 @@ async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
   for(const b of imgs) parts.push({inline_data:{mime_type:'image/jpeg',data:await blobB64(b)}});
   parts.push({text:prompt+'\n\nReply with the JSON only, no other text.'});
   let maxOut=65536;
-  const bodyFor=th=>JSON.stringify({contents:[{role:'user',parts}],generationConfig:Object.assign({responseMimeType:'application/json',maxOutputTokens:maxOut},th?{thinkingConfig:Object.assign({includeThoughts:true},opt.budget?{thinkingBudget:opt.budget}:{})}:{})});
+  const bodyFor=th=>JSON.stringify({contents:[{role:'user',parts}],generationConfig:Object.assign({responseMimeType:'application/json',maxOutputTokens:maxOut},gemHiRes?{mediaResolution:'MEDIA_RESOLUTION_HIGH'}:{},th?{thinkingConfig:Object.assign({includeThoughts:true},opt.budget?{thinkingBudget:opt.budget}:{})}:{})});
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   // one request; resolves {value} or {err}
   const attempt=async(model,th)=>{
@@ -1681,6 +1737,7 @@ async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
       const mi=(gemFrom+k)%GEM_MODELS.length, model=GEM_MODELS[mi]; if(dead.has(model)) continue;
       let th=true, res=await attempt(model,th);
       // a model that takes fewer output tokens, or no thought summaries: ask it again within its limits
+      if(res.err&&res.err.code==='gem'&&res.err.status===400&&/media.?resolution/i.test(res.err.message)){ gemHiRes=false; res=await attempt(model,th); }
       if(res.err&&res.err.code==='gem'&&res.err.status===400&&/max.?output|output.?tokens/i.test(res.err.message)){ maxOut=32768; res=await attempt(model,th); }
       if(res.err&&res.err.code==='gem'&&res.err.status===400&&/think|thought/i.test(res.err.message)){ th=false; res=await attempt(model,th); }
       // a dropped connection gets one more try on the same model
@@ -1726,6 +1783,33 @@ async function askAI(prompt,imgs,signal,onText,onThink,budget){
   catch(e){ if(e&&e.code==='empty_completion') return {text:'',finish:'MAX_TOKENS'}; throw e; }
 }
 async function readPage(imgs,signal,ui){
+  const r=await readPage1(imgs,signal,ui);
+  if(r.songs.length&&!r.partial) await secondLook(r.songs,imgs,signal,ui);
+  return r;
+}
+// one more look, only at the bars whose reading breaks the rules (a wrong number of slots, stickings that do not match the notes)
+async function secondLook(acc,imgs,signal,ui){
+  const bad=[]; acc.forEach((x,si)=>x.bars.forEach((b,bi)=>{ if(b._why&&b._why.length) bad.push({si,bi,why:b._why}); }));
+  if(!bad.length) return;
+  if(ui.check) ui.check(bad.length);
+  const shown=bad.slice(0,16), plain=acc.map(x=>Object.assign({},x,{bars:x.bars.map(b=>Object.assign({},b))}));
+  const prompt=photoPrompt(imgs.length)+'\n\nYOU ALREADY READ THIS PAGE. Your reading, with songs and bars numbered from 1 in this order:\n'+JSON.stringify({songs:plain})
+    +'\n\nThese bars break the rules:\n'+shown.map(q=>'- song '+(q.si+1)+' "'+(acc[q.si].title||'')+'", bar '+(q.bi+1)+': '+q.why.join('; ')).join('\n')
+    +'\n\nLook at those bars on the page again, beat by beat, and write each of them again in full (all its rows). Reply with only JSON of this form: {"fix":[{"song":1,"bar":3,"div":4,"c":{"sn":"...","st":"..."}}]}. Leave out a bar that was right after all.';
+  let v;
+  try{ const {text}=await askAI(prompt,imgs,signal,ui.onText,ui.onThink,0); v=parseLoose(text); if(v===undefined) v=salvage(text); }
+  catch(e){ if(e&&e.code==='cancelled') throw e; return; }   // the first reading stands
+  const fix=v&&Array.isArray(v.fix)?v.fix:[];
+  for(const f of fix){
+    const si=(+f.song||0)-1, bi=(+f.bar||0)-1, x=acc[si], old=x&&x.bars[bi]; if(!old||!f.c) continue;
+    const t=tidyReading([{sig:x.sig,bars:[Object.assign({},f,{sg:f.sg||old.sg})]}])[0].bars[0]; if(!t) continue;
+    // a new reading that still breaks the rules is kept only when it breaks fewer of them
+    if(t._why&&t._why.length>=(old._why||[]).length) continue;
+    for(const k of ['lb','rs','re','tm']) if(t[k]===undefined&&old[k]!==undefined) t[k]=old[k];
+    x.bars[bi]=t;
+  }
+}
+async function readPage1(imgs,signal,ui){
   const acc=[], notes=[]; let budget=0, strict=false, partial=false, emptyNote='';
   for(let round=1;round<=8;round++){
     if(round>1) ui.round(round);
@@ -1733,7 +1817,7 @@ async function readPage(imgs,signal,ui){
     const {text,finish}=await askAI(prompt,imgs,signal,ui.onText,ui.onThink,budget);
     let v=parseLoose(text); const whole=v!==undefined;
     if(!whole) v=salvage(text);
-    const list=songsOf(v).filter(x=>x.bars.length);
+    const list=tidyReading(songsOf(v)).filter(x=>x.bars.length);
     if(v&&typeof v.note==='string'&&v.note.trim()) notes.push(v.note.trim().slice(0,300));
     if(list.length){
       const before=acc.reduce((n,x)=>n+x.bars.length,0);
@@ -1776,24 +1860,26 @@ async function photoParts(file){
   return out;
 }
 function photoPrompt(n){
-  return `You are reading a photo of drum-set sheet music and writing it out as data for a drum notation app.
+  return `You are reading a photo of drum sheet music and writing it out, exactly as printed, as data for a drum notation app. Being right matters more than being quick.
 
 ${n>1?`Image 1 is the whole page. Images 2 to ${n} are overlapping horizontal strips of the same page, from top to bottom, at higher resolution: read the notes from the strips and use image 1 for the layout, titles and reading order. A line of music near a strip edge appears in two strips: write every bar exactly once.`:'The image is the whole page.'}
 Read in the order a musician would. If the exercises are set in two columns, follow their labels (for example A to H down the left column, then I to P down the right).
 
 Reply with only JSON of this form:
-{"songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[{"div":4,"lb":"A","rs":true,"re":true,"c":{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----","st":"R-L-R-L-R-L-R-L-"}}]}],"note":""}
+{"key":"snare: filled ovals in the 3rd space; hi-hat: x heads above the top line; bass drum: ovals in the 1st space; sticking under the staff","songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[{"div":4,"lb":"A","rs":true,"re":true,"c":{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----","st":"R-L-R-L-R-L-R-L-"}}]}],"note":""}
+
+First, "key": one short sentence saying how this page writes each drum it uses: the page's own drum key if one is printed, otherwise where each kind of notehead sits and what it looks like. Decide this before writing any bar, and keep to it for the whole page.
 
 Rules:
 - One song per exercise heading on the page (such as "Ex.3"). With no heading, one song for the page, titled with any title printed on it, else "".
 - swing: 100 when the page asks for a shuffle or swung eighths (a mark like ♫ = ♩♪ in triplets, or the word "Swing" or "Shuffle"); leave it out otherwise.
 - bpm: the printed tempo (♩ = 110), else 100. A tempo change printed over a bar: "tm" with that tempo on that bar.
-- sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". A 2/2 bar has the same 16 sixteenth slots as 4/4.
-- div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets, 6 when it has sixteenth-note triplets (sextuplets: six notes to a beat under a 6, or two 3s), 8 when it has thirty-second notes (three beams); always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3, 24 with div 6, 32 with div 8. A single sixteenth-note triplet inside a sixteenth bar can instead be written with "3", as below.
-- c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar.
+- sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". A 2/2 bar has the same 16 sixteenth slots as 4/4. When a new time signature is printed in the middle of a piece, put "sg" with it on that bar and on every bar after it that is in it (for example "sg":"3/4").
+- div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets, 6 when it has sixteenth-note triplets (sextuplets: six notes to a beat under a 6, or two 3s), 8 when it has thirty-second notes (three beams); always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3, 24 with div 6, 32 with div 8; 8 in 2/4 with div 4; 6 in 6/8. A single sixteenth-note triplet inside a sixteenth bar can instead be written with "3", as below.
+- c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar. Use only the row names below.
 - Rests are silence, never notes: a rest gets NO character, only "-" on the slots it covers. Tell them apart: a note has a notehead (a filled oval, or an x) with a stem that joins the beam or has a flag; a rest has no notehead and no stem to the beam. An eighth rest looks like a small 7 with one dot-flag, a sixteenth rest like a 7 with two, a quarter rest like a vertical squiggle; rests sit in the middle of the staff, often under a beam. For example, sixteenths R, L, R and then a sixteenth rest in one beat are "nnn-", not "nnnn".
 - Work beat by beat: in each beat, name every symbol in order as a note or a rest and its length, add up the lengths (a beat is 4 sixteenths, or 3 triplet eighths), and only then place the notes on their slots. If a sticking row is printed, the number of letters in a bar equals the number of notes in it, so use the letters to check that no rest was taken for a note.
-- Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one.
+- Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one. Music for one drum only (a snare or pad exercise, on one line or on the middle of the staff) is all "sn".
   cr crash: x on a ledger line above the staff
   hh hi-hat: x in the space just above line 5
   rd ride: x on line 5
@@ -1803,11 +1889,62 @@ Rules:
   ft floor tom: in the space between lines 2 and 3
   bd bass drum: in the space between lines 1 and 2
   hp hi-hat pedal (foot): x below the staff
-- Characters: "n" a plain note, "a" an accented note (> or ^ by it), "g" a ghost note (in brackets), "o" an open hi-hat (small circle over it; hh only), "x" a cross-stick (x or circled x in the snare space; sn only), "3" a sixteenth-note triplet that starts on this slot and fills it and the next one (only with div 4 and on an even slot; the next slot is "-"). On sn, t1, t2 and ft also: "f" a flam (one small grace note just before the note, usually with a slash through its flag), "F" an accented flam, "d" a drag (two small grace notes before it), "D" an accented drag, "z" a buzz stroke (a z across the stem). Grace notes take no slot of their own, and the sticking row has only the main note's letter.
+- Marks. Every note is "n" unless one of these is clearly printed on that very note:
+  "a" accent: > or ^ over or under the note.
+  "g" ghost note: its notehead in parentheses ( ).
+  "o" open hi-hat: a small circle over a hi-hat note (a "+" there means closed: "n"). hh only.
+  "x" cross-stick (rim click): ONLY when the notehead in the snare space is itself drawn as an X or a circled X, or the music says "cross stick", "rim" or "side stick". sn only. An ordinary snare note has a filled oval head and is "n", never "x". Hi-hat, ride and crash notes are always drawn with x heads: on their own rows they are "n", not "x".
+  "f" flam: one small grace note (a tiny note, usually with a slash through its flag) printed just before the note; "F" the same with an accent. sn, t1, t2, ft only.
+  "d" drag: two small grace notes just before the note; "D" the same with an accent. sn, t1, t2, ft only.
+  "z" buzz: a z drawn across the note's stem. sn, t1, t2, ft only.
+  "3": a sixteenth-note triplet that starts on this slot and fills it and the next one (only with div 4 and on an even slot; the next slot is "-").
+  Grace notes are not notes of their own: they take no slot and no sticking letter. In a sticking like "lR" or "llR" the small letters are the grace notes: write only the capital one.
 - st (sticking): the letters R and L printed in a row under the staff (sometimes over it), one letter per note, read left to right. Whenever a bar has them, copy them: each letter goes on the slot of the note it stands under — the first letter on the bar's first note, the second on its second note, and so on. Never leave them out. If two alternative sticking rows are printed for the same bar, write the bar twice: first with the upper sticking, then with the lower (same notes, same label).
 - lb: the label of an exercise (A, B, 1, 2…) printed at its start, often circled or boxed, at most 6 characters, only on the bar where it is printed. Small bar numbers printed over barlines are not labels.
 - rs / re: true on a bar that starts with a start-repeat sign |: / ends with an end-repeat sign :|. Leave out when false.
+- Before you answer, check every bar: each row string has exactly beats × div characters; when there is a sticking row, its letters equal the notes played by the hands (every row but bd and hp); each mark is one listed above, on a row that allows it.
 - Give your best reading of anything hard to make out, and say what you guessed in "note": one or two short sentences in ${LANG==='en'?'English':'Russian'}, or "" if everything was clear.`;
+}
+// What the AI wrote, put into the app's own form. Row names and marks it may write its own way are mapped; a mark a row
+// cannot have becomes the nearest one that it can (an x on a cymbal is how a cymbal is drawn: a plain stroke).
+// Anything else written on a slot means a note is there. Bars that still break the rules are marked for a second look.
+const ROW_ALIAS={sn:'sn',snare:'sn',sd:'sn',snaredrum:'sn',hh:'hh',hihat:'hh',hat:'hh',hats:'hh',bd:'bd',kick:'bd',bass:'bd',bassdrum:'bd',kickdrum:'bd',rd:'rd',ride:'rd',cr:'cr',crash:'cr',cymbal:'cr',t1:'t1',tom:'t1',tom1:'t1',hightom:'t1',ht:'t1',t2:'t2',tom2:'t2',midtom:'t2',mt:'t2',ft:'ft',floortom:'ft',floor:'ft',tom3:'ft',lt:'ft',lowtom:'ft',hp:'hp',hhpedal:'hp',hihatpedal:'hp',hhfoot:'hp',pedal:'hp',foot:'hp',st:'st',sticking:'st',hands:'st',hand:'st'};
+function fixMark(k,ch){
+  if('-._0 '.includes(ch)) return '-';
+  let v=ch==='N'?'n':ch==='A'||ch==='>'||ch==='^'?'a':ch==='G'||ch==='('||ch===')'?'g':ch==='Z'?'z':ch==='O'?'o':ch==='+'?'n':ch;
+  if(v==='x'||v==='X') v=k==='sn'?'x':'n';
+  if(validCell(k,v)) return v;
+  return isAcc(v)?'a':'n';
+}
+function tidyReading(list){
+  for(const x of list){
+    const base=SIGS[x.sig]?x.sig:'4/4';
+    x.bars=x.bars.filter(b=>b&&typeof b==='object');
+    for(const b of x.bars){
+      const sig=typeof b.sg==='string'&&SIGS[b.sg]?b.sg:base, S=SIGS[sig], div=S.compound?3:([3,4,6,8].includes(+b.div)?+b.div:4), n=S.beats*div, c={}, why=[];
+      b.div=div; if(sig===base) delete b.sg;
+      for(const [k0,v0] of Object.entries(b.c&&typeof b.c==='object'?b.c:{})){
+        const k=ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(!k||typeof v0!=='string') continue;
+        let v=v0.replace(/[\s|,;:]/g,'');
+        // in a sticking the small letters are grace notes (lR); a sticking written all in small letters is the hands themselves
+        if(k==='st'&&!/[RL]/.test(v)) v=v.toUpperCase();
+        v=k==='st'?[...v].map(ch=>ch==='R'||ch==='L'?ch:'-').join(''):[...v].map(ch=>fixMark(k,ch)).join('');
+        if(v.length!==n) why.push(`the ${k} row has ${v.length} characters, it needs ${n} (${sig} with div ${div})`);
+        v=(v+'-'.repeat(n)).slice(0,n);
+        // the same drum written twice keeps every note
+        c[k]=c[k]?[...c[k]].map((q,i)=>q!=='-'?q:v[i]).join(''):v;
+      }
+      if(c.st&&/[RL]/.test(c.st)){
+        // a sticking row means an exercise for the hands: a cross-stick there is a misread snare stroke
+        if(c.sn) c.sn=c.sn.replace(/x/g,'n');
+        const hands=['cr','hh','rd','t1','t2','sn','ft'], notes=[...Array(n).keys()].filter(i=>hands.some(r=>c[r]&&c[r][i]!=='-')).length, letters=(c.st.match(/[RL]/g)||[]).length;
+        if(notes!==letters) why.push(`${letters} sticking letters but ${notes} notes played by the hands`);
+      }
+      b.c=c;
+      if(why.length) Object.defineProperty(b,'_why',{value:why,enumerable:false,configurable:true,writable:true}); else delete b._why;
+    }
+  }
+  return list;
 }
 async function readPhotos(files){
   if(!PhotoMode||photoCtl) return;
@@ -1825,6 +1962,7 @@ async function readPhotos(files){
         onText:({text})=>{ sawText=true; const m=text.match(/"c"\s*:/g); photoState(tx('phWrite',have+(m?m.length:0),ai)+(part>1?' · '+tx('phPart',part):'')); },
         onThink:()=>{ if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         round:n=>{ part=n; sawText=false; photoState(tx('phMore',ai,n)); },
+        check:n=>{ sawText=true; photoState(tx('phCheck',ai,n)); },
         wait:(left,n)=>{ if(left>0) photoState(tx('phWait',left,n)); else if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         got:n=>{ have=n; }
       };
@@ -2400,18 +2538,21 @@ function init(){
   });
   $('swing').addEventListener('change',e=>{ const s=song(); s.swing=clamp(+e.target.value||0,0,100); Store.save(s); if(state.view==='sheet') renderSheet(); });
   $('sig').addEventListener('change',e=>{
-    const s=song(), A=SIGS[s.sig], B=SIGS[e.target.value]; if(!B) return;
-    pushUndo(); s.bars=s.bars.map(b=>remapBar(b,A.beats,b.div,B.beats,B.compound?3:(A.compound?4:b.div))); s.sig=e.target.value; Store.save(s); renderEditor();
+    const s=song(), cur=state.cur, from=sigOf(s,s.bars[cur]), to=e.target.value, A=SIGS[from], B=SIGS[to]; if(!B||from===to) return;
+    let a=cur, z=cur; while(a>0&&sigOf(s,s.bars[a-1])===from) a--; while(z<s.bars.length-1&&sigOf(s,s.bars[z+1])===from) z++;
+    pushUndo();
+    for(let i=a;i<=z;i++){ const b=s.bars[i], nb=remapBar(b,A.beats,b.div,B.beats,B.compound?3:(A.compound?4:b.div)); nb.sg=to; s.bars[i]=nb; }
+    normSigs(s); Store.save(s); renderEditor(); if(state.view==='sheet') renderSheet();
   });
   $('divSeg').addEventListener('click',e=>{
     const b=e.target.closest('button'); if(!b) return; const s=song(), bar=curBar(), nd=+b.dataset.div; if(nd===bar.div) return;
-    pushUndo(); s.bars[state.cur]=remapBar(bar,SIGS[s.sig].beats,bar.div,SIGS[s.sig].beats,nd); Store.save(s); renderEditor();
+    const BS=SOf(s,bar); pushUndo(); s.bars[state.cur]=remapBar(bar,BS.beats,bar.div,BS.beats,nd); Store.save(s); renderEditor();
   });
-  $('btnDup').addEventListener('click',()=>{ const s=song(); pushUndo(); s.bars.splice(state.cur+1,0,JSON.parse(JSON.stringify(curBar()))); state.cur++; Store.save(s); renderEditor(); });
-  $('btnClear').addEventListener('click',()=>{ const s=song(); pushUndo(); s.bars[state.cur]=Object.assign(emptyBar(s.sig,curBar().div),barMeta(curBar())); Store.save(s); renderEditor(); });
+  $('btnDup').addEventListener('click',()=>{ const s=song(); pushUndo(); const cp=JSON.parse(JSON.stringify(curBar())); delete cp.nm; s.bars.splice(state.cur+1,0,cp); state.cur++; Store.save(s); renderEditor(); });
+  $('btnClear').addEventListener('click',()=>{ const s=song(); pushUndo(); s.bars[state.cur]=Object.assign(emptyBar(sigOf(s,curBar()),curBar().div),barMeta(curBar())); Store.save(s); renderEditor(); });
   $('btnDel').addEventListener('click',e=>armed(e.currentTarget,tx('sureDel'),()=>{
     const s=song(); pushUndo();
-    if(s.bars.length>1){ s.bars.splice(state.cur,1); state.cur=Math.min(state.cur,s.bars.length-1); } else s.bars[0]=emptyBar(s.sig,s.bars[0].div);
+    if(s.bars.length>1){ s.bars.splice(state.cur,1); state.cur=Math.min(state.cur,s.bars.length-1); normSigs(s); } else s.bars[0]=Object.assign(emptyBar(s.sig,s.bars[0].div),barMeta(s.bars[0]));
     Store.save(s); renderEditor();
   }));
   $('btnUndo').addEventListener('click',undo);
@@ -2429,9 +2570,10 @@ function init(){
   $('loop').addEventListener('click',()=>{ state.loop=!state.loop; $('loop').setAttribute('aria-pressed',String(state.loop)); });
   $('click').addEventListener('click',()=>{ state.click=!state.click; $('click').setAttribute('aria-pressed',String(state.click)); Store.saveLocal(); });
   $('btnSongs').addEventListener('click',()=>{ renderSongs(); $('songsPanel').hidden=false; });
-  $('btnClosePanel').addEventListener('click',()=>{ $('songsPanel').hidden=true; });
+  $('btnClosePanel').addEventListener('click',()=>{ $('songsPanel').hidden=true; if(state.pick) setPick(false); });
   $('songsPanel').addEventListener('click',e=>{ if(e.target===$('songsPanel')) $('songsPanel').hidden=true; });
   $('songList').addEventListener('click',e=>{
+    if(state.pick){ const o=e.target.closest('[data-open]'); if(o){ state.pick.push(o.dataset.open); renderSongs(); } return; }
     if(e.target.closest('#libRestore')){ const n=ensureLibrary(true); renderSongs(); toast(tx('libRestored',n)); return; }
     const o=e.target.closest('[data-open]'), d=e.target.closest('[data-del]'), mv=e.target.closest('[data-move]');
     if(mv){ openFolderMenu(mv.dataset.move,mv); return; }
@@ -2505,6 +2647,14 @@ function init(){
   $('filePhoto').addEventListener('change',e=>{ const fs=e.target.files; if(fs&&fs.length) readPhotos(fs); });
   $('photoStop').addEventListener('click',()=>{ if(photoCtl) photoCtl.abort(); });
   $('btnExport').addEventListener('click',saveBackup);
+  $('btnPick').addEventListener('click',()=>setPick(true));
+  $('pickCancel').addEventListener('click',()=>setPick(false));
+  $('pickUndo').addEventListener('click',()=>{ if(state.pick&&state.pick.length){ state.pick.pop(); renderSongs(); } });
+  $('pickGo').addEventListener('click',()=>{
+    const r=state.pick&&joinSongs(state.pick); if(!r) return;
+    setPick(false); state.songs=state.songs.filter(x=>!x.demo); state.songs.unshift(r.song); Store.save(r.song); setSong(r.song.id);
+    $('songsPanel').hidden=true; toast(tx('compDone',r.parts,r.song.bars.length),7000);
+  });
   $('btnRestore').addEventListener('click',()=>{ $('fileImport').value=''; $('fileImport').click(); });
   $('btnPng').addEventListener('click',()=>exportFile('png'));
   $('btnPdf').addEventListener('click',()=>exportFile('pdf'));
