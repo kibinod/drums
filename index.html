@@ -418,16 +418,6 @@ function analyzeBar(S,bar){
       // a '3' on an even sixteenth is a triplet filling that eighth: three notes, no room for others on the next sixteenth
       const tri=new Set(); if(div===4) slots.forEach((n,j)=>{ if(j%2===0&&n.some(x=>x.v==='3')) tri.add(j); });
       tri.forEach(j=>{ const k=on.indexOf(j+1); if(k>=0) on.splice(k,1); });
-      // a beat with a note off the eighths is written all in sixteenths, gaps as rests, so it reads the way the grid looks
-      if(div===4&&!tri.size&&on.some(j=>j%2===1)){
-        for(let j=0;j<4;j++){
-          if(slots[j].length) items.push({t:'note',slot:j,notes:slots[j],beams:2,dot:false});
-          else if(j%2===0&&!slots[j+1].length){ items.push({t:'rest',slot:j,kind:'8'}); j++; }
-          else items.push({t:'rest',slot:j,kind:'16'});
-        }
-        beats.push({items,tuplet:false,tri:[],base:b*div,span:true});
-        continue;
-      }
       const g=on[0];
       if(div===4){ if(g===1) items.push({t:'rest',slot:0,kind:'16'}); else if(g===2) items.push({t:'rest',slot:0,kind:'8'}); else if(g===3) items.push({t:'rest',slot:0,kind:'8'},{t:'rest',slot:2,kind:'16'}); }
       else { if(g===1) items.push({t:'rest',slot:0,kind:'8'}); else if(g===2) items.push({t:'rest',slot:0,kind:'q'}); }
@@ -447,16 +437,11 @@ function analyzeBar(S,bar){
     }
     beats.push({items,tuplet,tri:items.tri||[],base:b*div});
   }
-  const empty=b=>b.items.length===1&&b.items[0].t==='rest'&&b.items[0].kind==='q';
-  if(!S.compound&&beats.every(empty)) return [{items:[{t:'rest',slot:(S.beats*div-1)/2,kind:'w'}],tuplet:false,tri:[],base:0}];
-  if(!S.compound&&S.beats===4){
-    for(const q of [2,0]) if(empty(beats[q])&&empty(beats[q+1])) beats.splice(q,2,{items:[{t:'rest',slot:div-.5,kind:'h'}],tuplet:false,tri:[],base:q*div});
-  }
   if(S.cut&&div===4){
     const plain=b=>!b.tuplet&&!b.tri.length&&b.items.length===2&&b.items.every(it=>it.t==='note'&&it.beams===1&&!it.dot);
     const out=[];
     for(let q=0;q<beats.length;q++){
-      if(beats[q].base%(2*div)===0&&q+1<beats.length&&beats[q+1].base===beats[q].base+div&&plain(beats[q])&&plain(beats[q+1])){
+      if(q%2===0&&q+1<beats.length&&plain(beats[q])&&plain(beats[q+1])){
         out.push({items:beats[q].items.concat(beats[q+1].items.map(it=>Object.assign({},it,{slot:it.slot+div}))),tuplet:false,tri:[],base:beats[q].base}); q++;
       } else out.push(beats[q]);
     }
@@ -466,9 +451,7 @@ function analyzeBar(S,bar){
 }
 function restGlyph(kind,x,y,sp,ink,dot){
   let s=`<g transform="translate(${f(x)},${f(y)}) scale(${f(sp)})">`;
-  if(kind==='h') s+=`<rect x="-.62" y="-.52" width="1.24" height=".52" fill="${ink}"/><line x1="-.95" y1="0" x2=".95" y2="0" stroke="${ink}" stroke-width=".1"/>`;
-  else if(kind==='w') s+=`<rect x="-.62" y="-1" width="1.24" height=".52" fill="${ink}"/><line x1="-.95" y1="-1" x2=".95" y2="-1" stroke="${ink}" stroke-width=".1"/>`;
-  else if(kind==='q'){
+  if(kind==='q'){
     s+=`<path fill="${ink}" d="M-.3-1.5L.42-.6Q-.1-.2 0 .1L.5.78Q-.2.55-.12 1.05 0 1.4.24 1.52-.75 1.3-.62.62-.5.2.06.42L-.52-.32Q.02-.75-.1-1.1Z"/>`;
     if(dot) s+=`<circle cx=".85" cy="-.5" r=".17" fill="${ink}"/>`;
   } else if(kind==='8'){
@@ -519,7 +502,7 @@ function drawBar(o,S,bar,g){
     const groups=[]; let cur=[];
     for(const it of b.items){
       if(it.t==='note'&&it.beams>0) cur.push(it);
-      else if(it.t==='note'||!(b.tuplet||b.span)){ if(cur.length) groups.push(cur); cur=[]; }
+      else if(it.t==='note'||!b.tuplet){ if(cur.length) groups.push(cur); cur=[]; }
     }
     if(cur.length) groups.push(cur);
     for(const grp of groups){
@@ -1456,6 +1439,8 @@ Rules:
 - sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". A 2/2 bar has the same 16 sixteenth slots as 4/4.
 - div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets; always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3.
 - c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar.
+- Rests are silence, never notes: a rest gets NO character, only "-" on the slots it covers. Tell them apart: a note has a notehead (a filled oval, or an x) with a stem that joins the beam or has a flag; a rest has no notehead and no stem to the beam. An eighth rest looks like a small 7 with one dot-flag, a sixteenth rest like a 7 with two, a quarter rest like a vertical squiggle; rests sit in the middle of the staff, often under a beam. For example, sixteenths R, L, R and then a sixteenth rest in one beat are "nnn-", not "nnnn".
+- Work beat by beat: in each beat, name every symbol in order as a note or a rest and its length, add up the lengths (a beat is 4 sixteenths, or 3 triplet eighths), and only then place the notes on their slots. If a sticking row is printed, the number of letters in a bar equals the number of notes in it, so use the letters to check that no rest was taken for a note.
 - Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one.
   cr crash: x on a ledger line above the staff
   hh hi-hat: x in the space just above line 5
