@@ -162,10 +162,12 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .photobox[hidden]{display:none}
 .photorow{display:flex;gap:8px}.photorow #btnPhoto{flex:1}
 .sheetbox>*{flex-shrink:0}
+.keybox h3{margin:0;font:700 17px/1.2 var(--body)}
 .keybox{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px}.keybox[hidden]{display:none}
 .keybox input{height:42px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:16px/1 var(--body);background:var(--surface);color:inherit;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .lab[data-row]{cursor:pointer}
 .lab[data-row]:active,.lab[data-row][aria-expanded="true"]{background:var(--line)}
+.folders .chip.lib{border-style:dashed}
 .notemenu .mh{flex:0 0 100%;font:600 13px/1.3 var(--body);color:var(--muted);padding:2px 4px 4px}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 14px;border-radius:10px;font-size:14px;z-index:20;max-width:calc(100% - 32px);text-align:center}
 .nf .lab{font:700 12.5px/32px var(--body);text-transform:none;letter-spacing:0;padding-left:6px}
@@ -288,8 +290,10 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
     </div>
     <div class="photobox" id="photoBox" hidden role="status" aria-live="polite"><span id="photoStatus"></span><button class="chip" id="photoStop" type="button">Стоп</button></div>
     <p class="hint" id="photoHint" hidden></p>
-    <div class="panelrow">
-      <button class="chip" id="btnExport" type="button" hidden>Сохранить все в файл</button>
+    <div class="keybox" id="backupBox">
+      <h3 id="backupH">Резервная копия</h3>
+      <p class="hint" id="backupHint"></p>
+      <div class="hdrbtns wrap"><button class="chip" id="btnExport" type="button">Сохранить копию</button><button class="chip" id="btnRestore" type="button">Восстановить из копии</button></div>
     </div>
     <input type="file" id="fileImport" accept="application/pdf,.pdf,application/json,.json" hidden>
     <input type="file" id="filePhoto" accept="image/*" multiple hidden>
@@ -339,8 +343,8 @@ const DRUM_SAMPLES={"bd":"SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAA
 /* ---------- language ---------- */
 const I18N={
  ru:{songs:'Песни',songTitle:'Название песни',view:'Вид',grid:'Сетка',sheet:'Ноты',bars:'Такты',timeSig:'Размер',division:'Деление такта',d16:'16-е',trip:'Триоли',
-  copyBar:'Копия такта',repBtn:'Повтор',importBtn:'+ PDF',exportBtn:'Сохранить все в файл',tImported:'Добавлено песен: {0}',tBadFile:'В этом файле нет песен для программы.',clear:'Очистить',del:'Удалить',undo:'Отменить',notationAria:'Нотная запись такта',strokeType:'Тип удара',hit:'Удар',accent:'Акцент >',ghost:'Гост ( )',
-  hintGrid:'Нажмите на клетку, чтобы поставить удар. Второе нажатие на хэт делает его открытым. Такты идут лентой: листайте её влево и вправо.',ribbon:'Лента тактов',staffBtn:'Писать на стане',openHat:'Открытый ○',xstick:'Кросс-стик ⊗',triplet:'Триоль ³',remove:'Убрать',hintHold:' Удерживайте клетку или ноту, чтобы выбрать акцент или гост.',hintStaff:'Нажмите на нотный стан, чтобы поставить ноту: линейка задаёт барабан. Ноту можно перетащить на другую линейку или долю, нажатие по ноте убирает её. Ленту в этом режиме листайте по сетке.',
+  copyBar:'Копия такта',repBtn:'Повтор',importBtn:'+ PDF',exportBtn:'Сохранить копию',restoreBtn:'Восстановить из копии',backupH:'Резервная копия',backupHint:'Все песни, рудименты и папки — в одном файле. Сохраните его в «Файлы» или отправьте себе: если телефон очистит память программы, песни можно будет вернуть. {0}',backupLast:'Последняя копия: {0}.',backupNever:'Копию ещё не сохраняли.',tBackupSaved:'Копия сохранена: песен {0}.',tRestored:'Восстановлено песен: {0}. Остальные уже были в списке.',tRestoredAll:'Восстановлено песен: {0}.',backupFile:'барабанные песни',tImported:'Добавлено песен: {0}',tBadFile:'В этом файле нет песен для программы.',clear:'Очистить',del:'Удалить',undo:'Отменить',notationAria:'Нотная запись такта',strokeType:'Тип удара',hit:'Удар',accent:'Акцент >',ghost:'Гост ( )',
+  hintGrid:'Нажмите на клетку, чтобы поставить удар. Второе нажатие на хэт делает его открытым. Удержите клетку — там флэм, драг, дробь, кросс-стик и триоль. Такты идут лентой: листайте её влево и вправо.',ribbon:'Лента тактов',staffBtn:'Писать на стане',openHat:'Открытый ○',xstick:'Кросс-стик ⊗',flam:'Флэм',flamAcc:'Флэм >',drag:'Драг',dragAcc:'Драг >',buzz:'Дробь z',triplet:'Триоль ³',remove:'Убрать',hintHold:' Удерживайте клетку или ноту, чтобы выбрать акцент или гост.',hintStaff:'Нажмите на нотный стан, чтобы поставить ноту: линейка задаёт барабан. Ноту можно перетащить на другую линейку или долю, нажатие по ноте убирает её. Ленту в этом режиме листайте по сетке.',
   credits:'Звуки: записи настоящей установки Virtuosity Drums (Versilian Studios и Karoryfer Samples), лицензия CC0.',
   perLine:'Тактов в строке',pdf:'Скачать PDF',png:'Сохранить картинку',hintSheet:'Нажмите на такт, чтобы открыть его в сетке.',
   dlOff:'Без входа в Claude скачивание PDF недоступно. Откройте страницы картинками и сохраните их.',pages:'Страницы картинками',pagesBack:'Назад к нотам',pagesHint:'Нажмите на страницу и удерживайте, чтобы сохранить её в Фото или поделиться.',tPages:'Готовлю страницы…',pageAlt:'Страница {0}',dlOn:'PDF делается на листах A4, по столько тактов в строке, сколько выбрано выше.',
@@ -348,15 +352,15 @@ const I18N={
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
   untitled:'Без названия',demoTitle:'Пример: рок-бит',barN:'Такт {0}',addBar:'Добавить такт',cellAria:'{0}, клетка {1}',handAria:'Рука, клетка {0}',
-  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
+  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
   st_cloud:'Песни сохраняются в вашем аккаунте Claude и откроются на любом устройстве.',st_local:'Песни сохраняются только в этом браузере на этом устройстве.',
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
   sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
-  copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save all to a file',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
-  hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
+  copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save a backup',restoreBtn:'Restore from a backup',backupH:'Backup',backupHint:'All songs, rudiments and folders in one file. Keep it in Files or send it to yourself: if the phone clears the app’s storage, the songs can come back. {0}',backupLast:'Last backup: {0}.',backupNever:'No backup saved yet.',tBackupSaved:'Backup saved: {0} songs.',tRestored:'Songs restored: {0}. The rest were already in the list.',tRestoredAll:'Songs restored: {0}.',backupFile:'drum songs',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
+  hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. Hold a cell for flam, drag, buzz, cross-stick and triplet. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',flam:'Flam',flamAcc:'Flam >',drag:'Drag',dragAcc:'Drag >',buzz:'Buzz z',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
   credits:'Sounds: recordings of a real kit, Virtuosity Drums (Versilian Studios and Karoryfer Samples), CC0 license.',
   perLine:'Bars per line',pdf:'Download PDF',png:'Save image',hintSheet:'Tap a bar to open it in the grid.',
   dlOff:'PDF download is not available without signing in to Claude. Open the pages as images and save them.',pages:'Pages as images',pagesBack:'Back to the sheet',pagesHint:'Press and hold a page to save it to Photos or share it.',tPages:'Preparing the pages…',pageAlt:'Page {0}',dlOn:'The PDF uses A4 pages, with as many bars per line as selected above.',
@@ -364,7 +368,7 @@ const I18N={
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
   untitled:'Untitled',demoTitle:'Example: rock beat',barN:'Bar {0}',addBar:'Add a bar',cellAria:'{0}, cell {1}',handAria:'Hand, cell {0}',
-  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
+  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
   st_cloud:'Songs are saved to your Claude account and open on any device.',st_local:'Songs are saved only in this browser on this device.',
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
@@ -373,7 +377,7 @@ const I18N={
 };
 let LANG='ru';
 const tx=(k,a,b)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; if(a!==undefined) v=v.replace('{0}',a); if(b!==undefined) v=v.replace('{1}',b); return v; };
-const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
+const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnRestore':'restoreBtn','#backupH':'backupH','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
   '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
 const ARIA={'#folderBar':'foldersAria','#swing':'swingAria','#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
@@ -411,13 +415,19 @@ function emptyBar(sig,div){
   const c={}; for(const k of ROWS) c[k]=Array(S.beats*div).fill('-');
   return {div,c};
 }
-function validCell(k,ch){ return k==='st'?(ch==='R'||ch==='L'):(ch==='n'||ch==='a'||ch==='g'||ch==='3'||(ch==='o'&&k==='hh')||(ch==='x'&&k==='sn')); }
+// flam, accented flam, drag, accented drag, buzz: strokes of the drums played with sticks
+const ORN='fFdDz', STICK_DRUMS=['sn','t1','t2','ft'];
+const isAcc=v=>v==='a'||v==='F'||v==='D', graceN=v=>v==='f'||v==='F'?1:v==='d'||v==='D'?2:0;
+function validCell(k,ch){ return k==='st'?(ch==='R'||ch==='L'):(ch==='n'||ch==='a'||ch==='g'||ch==='3'||(ch==='o'&&k==='hh')||(ch==='x'&&k==='sn')||(!!ch&&ch.length===1&&ORN.includes(ch)&&STICK_DRUMS.includes(k))); }
+// a stroke moved to a row that cannot have it keeps what it can: a plain note, or an accented one
+const fitCell=(k,v)=>validCell(k,v)?v:(isAcc(v)?'a':v==='g'?'g':'n');
 function barMeta(b){ const m={}; if(b&&b.rs) m.rs=true; if(b&&b.re) m.re=true; if(b&&typeof b.lb==='string'&&b.lb.trim()) m.lb=b.lb.trim().slice(0,6); if(b&&+b.tm>=40&&+b.tm<=240) m.tm=Math.round(+b.tm); return m; }
 // tempo in force at a bar: the last written tempo change, scaled by how far the song's tempo control has been moved from its written tempo
 function tempoAt(s,bi){ let t=0; for(let j=Math.min(bi,s.bars.length-1);j>=0;j--) if(s.bars[j].tm){ t=s.bars[j].tm; break; } if(!t) return s.bpm; return t*s.bpm/(s.ref||s.bpm); }
 function unpack(d){
+  if(!d||typeof d!=='object') d={};
   const sig=SIGS[d.sig]?d.sig:'4/4', S=SIGS[sig];
-  const s={id:String(d.id),title:typeof d.title==='string'?d.title:tx('untitled'),by:typeof d.by==='string'?d.by.slice(0,80):'',ref:+d.ref>=40&&+d.ref<=240?Math.round(+d.ref):0,swing:clamp(Math.round(+d.swing)||0,0,100),folder:typeof d.folder==='string'?d.folder.trim().slice(0,40):'',bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
+  const s={id:d.id!=null&&String(d.id)?String(d.id):newId(),title:typeof d.title==='string'?d.title:tx('untitled'),by:typeof d.by==='string'?d.by.slice(0,80):'',ref:+d.ref>=40&&+d.ref<=240?Math.round(+d.ref):0,swing:clamp(Math.round(+d.swing)||0,0,100),folder:typeof d.folder==='string'?d.folder.trim().slice(0,40):'',bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
   for(const b of (Array.isArray(d.bars)?d.bars:[])){
     const div=S.compound?3:(b&&[3,4,6,8].includes(b.div)?b.div:4), n=S.beats*div, c={};
     for(const k of ROWS){ const str=b&&b.c&&typeof b.c[k]==='string'?b.c[k]:''; const a=[]; for(let i=0;i<n;i++) a.push(validCell(k,str[i])?str[i]:'-'); c[k]=a; }
@@ -552,6 +562,23 @@ function drawBar(o,S,bar,g){
         if(n.inst.pos<=-2) o.push(`<line x1="${f(cx-.95*sp)}" y1="${f(yOf(-2))}" x2="${f(cx+.95*sp)}" y2="${f(yOf(-2))}" stroke="${ink}" stroke-width="${f(.11*sp)}"/>`);
         if(n.inst.head==='x'||n.v==='x'){ const d=.48*sp; o.push(`<path d="M${f(cx-d)} ${f(y-d)}L${f(cx+d)} ${f(y+d)}M${f(cx-d)} ${f(y+d)}L${f(cx+d)} ${f(y-d)}" stroke="${ink}" stroke-width="${f(.16*sp)}" stroke-linecap="round" fill="none"/>`); }
         else o.push(`<ellipse cx="${f(cx)}" cy="${f(y)}" rx="${f(.63*sp)}" ry="${f(.42*sp)}" transform="rotate(-22 ${f(cx)} ${f(y)})" fill="${ink}"/>`);
+        const gn=graceN(n.v);
+        if(gn){
+          // grace notes: small heads just before the note, stems up; a flam's has a slashed flag, a drag's two share a double beam
+          const gk=.54, gxs=gn===1?[cx-1.4*sp]:[cx-2.2*sp,cx-1.4*sp], top=y-2.5*sp;
+          for(const gx of gxs){
+            o.push(`<ellipse cx="${f(gx)}" cy="${f(y)}" rx="${f(.63*sp*gk)}" ry="${f(.42*sp*gk)}" transform="rotate(-22 ${f(gx)} ${f(y)})" fill="${ink}"/>`);
+            o.push(`<line x1="${f(gx+.3*sp)}" y1="${f(y-.1*sp)}" x2="${f(gx+.3*sp)}" y2="${f(top)}" stroke="${ink}" stroke-width="${f(.09*sp)}"/>`);
+          }
+          if(gn===1){ const sx=gxs[0]+.3*sp; o.push(`<path transform="translate(${f(sx)},${f(top)}) scale(${f(sp*gk)})" fill="${ink}" d="M0 0C.1.9 1.25 1.2.85 2.6 1 1.7.35 1.3 0 1Z"/><line x1="${f(sx-.55*sp)}" y1="${f(top+1.55*sp)}" x2="${f(sx+.6*sp)}" y2="${f(top+.35*sp)}" stroke="${ink}" stroke-width="${f(.09*sp)}"/>`); }
+          else { const xa=gxs[0]+.3*sp, xb=gxs[1]+.3*sp; for(const q of [0,.5]) o.push(`<rect x="${f(xa-.05*sp)}" y="${f(top+q*sp)}" width="${f(xb-xa+.1*sp)}" height="${f(.28*sp)}" fill="${ink}"/>`); }
+          o.push(`<path d="M${f(gxs[0]-.2*sp)} ${f(y+.55*sp)}Q${f((gxs[0]+cx)/2)} ${f(y+1.35*sp)} ${f(cx-.5*sp)} ${f(y+.6*sp)}" fill="none" stroke="${ink}" stroke-width="${f(.08*sp)}"/>`);
+        }
+        if(n.v==='z'){
+          // buzz: a z across the stem, between the note and its beams
+          const bb=stemTop+(it.beams>0?(it.beams-1)*.78*sp+.5*sp:0), zy=Math.max(bb+.5*sp,(bb+y-.4*sp)/2), zx=cx+sdx;
+          o.push(`<path d="M${f(zx-.42*sp)} ${f(zy-.36*sp)}H${f(zx+.42*sp)}L${f(zx-.42*sp)} ${f(zy+.36*sp)}H${f(zx+.42*sp)}" fill="none" stroke="${ink}" stroke-width="${f(.14*sp)}" stroke-linejoin="round"/>`);
+        }
         if(n.v==='g') o.push(`<path d="M${f(cx-.85*sp)} ${f(y-.6*sp)}Q${f(cx-1.25*sp)} ${f(y)} ${f(cx-.85*sp)} ${f(y+.6*sp)}M${f(cx+.9*sp)} ${f(y-.6*sp)}Q${f(cx+1.3*sp)} ${f(y)} ${f(cx+.9*sp)} ${f(y+.6*sp)}" stroke="${ink}" stroke-width="${f(.11*sp)}" fill="none" stroke-linecap="round"/>`);
         if(it.dot) dots.add(f(n.inst.pos%2===0?y-.5*sp:y));
       }
@@ -559,7 +586,7 @@ function drawBar(o,S,bar,g){
       let my=stemTop-.75*sp, cnt=0; const mx=cx+.25*sp;
       if(it.notes.some(n=>n.v==='o')){ o.push(`<circle cx="${f(mx)}" cy="${f(my)}" r="${f(.33*sp)}" fill="none" stroke="${ink}" stroke-width="${f(.12*sp)}"/>`); my-=.95*sp; cnt++; }
       // An accent over the stem means every drum in that stroke. When only some are accented, the sign sits at its own notehead.
-      const acc=it.notes.filter(n=>n.v==='a');
+      const acc=it.notes.filter(n=>isAcc(n.v));
       if(acc.length&&acc.length===it.notes.length){ o.push(`<path d="M${f(mx-.6*sp)} ${f(my-.36*sp)}L${f(mx+.6*sp)} ${f(my)}L${f(mx-.6*sp)} ${f(my+.36*sp)}" fill="none" stroke="${ink}" stroke-width="${f(.14*sp)}" stroke-linecap="round" stroke-linejoin="round"/>`); cnt++; }
       else for(const n of acc){
         // directly above its own head; if another head sits right there, to the left of the head instead
@@ -605,6 +632,9 @@ function drawBar(o,S,bar,g){
     if(v==='-'||(i%2===1&&triAt(i-1))) return;
     if(triAt(i)){ const o2=v==='R'?'L':'R'; stTxt(xOf(i),v); stTxt(xOf(i+.74),o2); stTxt(xOf(i+1.48),v); }
     else stTxt(xOf(i),v);
+    // the grace notes of a flam or a drag are the other hand's, written small before the main letter (lR, llR)
+    let gn=0; for(const inst of INST) gn=Math.max(gn,graceN(bar.c[inst.id][i]));
+    if(gn){ const gl=v==='R'?'l':'r'; for(let k=0;k<gn;k++) o.push(`<text x="${f(xOf(i)-(.95+k*.55)*sp)}" y="${f(stY)}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="600" font-size="${f(.85*sp)}" fill="${ink}">${gl}</text>`); }
   });
 }
 // repeat sign; 'start' begins at x and reads thick-thin-dots, 'end' finishes at x and reads dots-thin-thick
@@ -636,7 +666,7 @@ function barline(o,x,y0,sp,ink,w){ o.push(`<line x1="${f(x)}" y1="${f(y0)}" x2="
 
 function extent(S,bar){
   let minPos=99,hasO=false,hasA=false,hasT=false,any=false;
-  for(const inst of INST) for(const v of bar.c[inst.id]){ if(v==='-') continue; any=true; if(inst.pos<minPos) minPos=inst.pos; if(v==='o') hasO=true; if(v==='a') hasA=true; if(v==='3') hasT=true; }
+  for(const inst of INST) for(const v of bar.c[inst.id]){ if(v==='-') continue; any=true; if(inst.pos<minPos) minPos=inst.pos; if(v==='o') hasO=true; if(isAcc(v)) hasA=true; if(v==='3') hasT=true; }
   let up=1; if(any){ up=Math.max(3-minPos/2,1.3)+((hasO||hasA)?1.3:0)+((hasO&&hasA)?.95:0)+(((bar.div===3||bar.div===6)&&!S.compound)||hasT?1.3:0); }
   const hp=bar.c.hp.some(v=>v!=='-'); let down=hp?1.3:.6;
   // the sticking row under the staff, and a little air before the next line so it reads with its own notes
@@ -865,18 +895,26 @@ const Snd=(()=>{
     return ctx;
   }
   function choke(t){ if(openHat){ try{ openHat.gain.setTargetAtTime(0,t,.02); }catch(e){} openHat=null; } }
-  function hit(id,v,t){
-    if(!ctx) return; const k=KIT[id]; if(!k) return; const e=k[v]||k.n;
+  // a flam or a drag: soft grace strokes just before; a buzz: the stroke and its quick bounces dying away over the note
+  function hit(id,v,t,dur){
+    if(!ctx||!KIT[id]) return;
+    const gn=graceN(v);
+    if(gn){ const gap=gn===1?.03:.026; for(let j=gn;j>=1;j--) one(id,'g',t-j*gap,1); one(id,isAcc(v)?'a':'n',t,1); return; }
+    if(v==='z'){ const span=clamp(dur||.18,.09,.4); one(id,'n',t,1); let j=1; for(let q=.024;q<span-.006;q+=.024,j++) one(id,'g',t+q,Math.pow(.88,j)*1.4); return; }
+    one(id,v,t,1);
+  }
+  function one(id,v,t,gm){
+    const k=KIT[id]; const e=k[v]||k.n;
     let b=bufs[e[0]];
     if(!b){ const fk=FALL[e[0]]; try{ b=synth[fk]||(synth[fk]=toBuffer(Synth.get(fk))); }catch(err){ return; } }
     const src=ctx.createBufferSource(); src.buffer=b; src.playbackRate.value=(e[2]||1)*(1+(Math.random()-.5)*.012);
     let node=src;
     if(v==='g'&&id!=='sn'){ const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=6000; node.connect(lp); node=lp; }
-    const g=ctx.createGain(); g.gain.value=e[1]*(1+(Math.random()-.5)*.12); node.connect(g); node=g;
+    const g=ctx.createGain(); g.gain.value=e[1]*gm*(1+(Math.random()-.5)*.12); node.connect(g); node=g;
     const pan=PAN[id]; if(pan&&ctx.createStereoPanner){ const p=ctx.createStereoPanner(); p.pan.value=pan; node.connect(p); node=p; }
     node.connect(out);
     if(id==='hh'||id==='hp'){ choke(t); if(v==='o') openHat=g; }
-    src.start(t);
+    src.start(Math.max(t,ctx.currentTime));
   }
   function tick(t,strong,soft){
     if(!ctx) return; const os=ctx.createOscillator(), g=ctx.createGain(); os.type='square'; os.frequency.value=strong?1900:soft?1000:1350;
@@ -920,7 +958,7 @@ const Store={
       if(l&&(l.updated||0)>(+x.updated||0)){ merged.push(l); this.push(l); }
       else { const s=unpack(Object.assign({},x,{id})); s.synced=true; merged.push(s); }
     });
-    for(const l of locals) if(!remote.has(l.id)&&!l.synced){ merged.push(l); this.push(l); }
+    for(const l of locals) if(!remote.has(l.id)&&!l.synced){ merged.push(l); if(!(l.folder===LIB&&!l.updated)) this.push(l); }
     if(merged.length){
       merged.sort((a,b)=>(b.updated||0)-(a.updated||0));
       const keep=merged.some(s=>s.id===state.curSong);
@@ -976,14 +1014,21 @@ function tapCell(bi,row,i){
 }
 function mark(inst,v){
   if(!v||v==='-') return '';
-  const dy=v==='a'?2.5:0; let s='<svg viewBox="-10 -10 20 20" aria-hidden="true">';
+  const dy=isAcc(v)?2.5:0; let s='<svg viewBox="-10 -10 20 20" aria-hidden="true">';
   if(v==='o') s+='<circle r="5.2" fill="none" stroke="currentColor" stroke-width="2"/>';
   else if(v==='3') s+='<circle cx="-3.2" cy="3" r="3.4" fill="currentColor"/><text x="4.2" y="1" text-anchor="middle" font-family="Times New Roman,serif" font-style="italic" font-weight="700" font-size="11" fill="currentColor">3</text>';
   else if(v==='x') s+='<path d="M-3.6-3.6L3.6 3.6M-3.6 3.6L3.6-3.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle r="7" fill="none" stroke="currentColor" stroke-width="1.2"/>';
+  else if(graceN(v)){
+    // the stroke, with one small grace note (flam) or two (drag) just before it
+    const n=graceN(v); s+=`<circle cx="2.4" cy="${dy}" r="4.2" fill="currentColor"/>`;
+    for(let k=0;k<n;k++) s+=`<circle cx="${f(-4.4-k*3.5)}" cy="${f(dy-3.3)}" r="1.9" fill="currentColor"/>`;
+    if(n===1) s+=`<path d="M-7.4 ${f(dy-.2)}L-1.6 ${f(dy-6.6)}" stroke="currentColor" stroke-width="1.1"/>`;
+  }
+  else if(v==='z') s+='<circle cy="2" r="4.3" fill="currentColor"/><path d="M-3.2-9H3.2L-3.2-3.6H3.2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>';
   else if(inst.head==='x'){ const d=v==='g'?2.8:4.2; s+=`<path d="M${-d} ${dy-d}L${d} ${dy+d}M${-d} ${dy+d}L${d} ${dy-d}" stroke="currentColor" stroke-width="${v==='g'?1.7:2.4}" stroke-linecap="round" fill="none"/>`; }
   else s+=`<circle cy="${dy}" r="${v==='g'?3:4.6}" fill="currentColor"/>`;
   if(v==='g') s+='<path d="M-5.5-6Q-9 0-5.5 6M5.5-6Q9 0 5.5 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
-  if(v==='a') s+='<path d="M-4.5-9L4.5-7-4.5-5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  if(isAcc(v)) s+='<path d="M-4.5-9L4.5-7-4.5-5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
   return s+'</svg>';
 }
 
@@ -1040,6 +1085,7 @@ function setNote(bi,row,i,v){
 function openMenu(bi,row,i,x,y){
   const m=$('noteMenu'), cur=song().bars[bi].c[row][i], opts=[['n','hit'],['a','accent'],['g','ghost']];
   if(row==='hh') opts.push(['o','openHat']); if(row==='sn') opts.push(['x','xstick']);
+  if(STICK_DRUMS.includes(row)) opts.push(['f','flam'],['F','flamAcc'],['d','drag'],['D','dragAcc'],['z','buzz']);
   if(song().bars[bi].div===4&&i%2===0&&row!=='st') opts.push(['3','triplet']);
   if(cur!=='-') opts.push(['-','remove']);
   m.innerHTML=opts.map(o=>`<button type="button" role="menuitemradio" data-v="${o[0]}" aria-checked="${o[0]===cur}" aria-pressed="${o[0]===cur}">${tx(o[1])}</button>`).join('');
@@ -1119,7 +1165,7 @@ function staffCommit(d){
   if(same){ tapCell(a.bi,a.inst.id,a.slot); return; }
   pushUndo();
   s.bars[a.bi].c[a.inst.id][a.slot]='-';
-  const v=d.grabbed==='o'&&b.inst.id!=='hh'?'n':d.grabbed; s.bars[b.bi].c[b.inst.id][b.slot]=v;
+  const v=fitCell(b.inst.id,d.grabbed); s.bars[b.bi].c[b.inst.id][b.slot]=v;
   Store.save(s); refreshBar(a.bi); if(b.bi!==a.bi) refreshBar(b.bi);
   if(!Player.on){ const c=Snd.ensure(); if(c) Snd.hit(b.inst.id,v,c.currentTime+.01); }
 }
@@ -1178,36 +1224,105 @@ function renderAll(){
   $('loop').setAttribute('aria-pressed',String(state.loop)); $('click').setAttribute('aria-pressed',String(state.click));
   if(state.view==='grid') renderEditor(); else renderSheet();
 }
+/* ---------- the 40 standard rudiments (the PAS list), in a folder of their own ---------- */
+const LIB='#lib', LIB_SLOT='drumbook.lib', LIB_VER='1';
+const folderLabel=f=>f===LIB?tx('libFolder'):f;
+// [number, name, Russian name, tempo, time, bars: [grid, snare, sticking]]. Snare: n note, a accent, f/F flam, d/D drag, z buzz.
+// Grace notes belong to the other hand and are not written in the sticking (lR = flam on R).
+const RUDIMENTS=[
+ [1,'Single Stroke Roll','Одиночная дробь',90,'4/4',[[4,'nnnnnnnnnnnnnnnn','RLRLRLRLRLRLRLRL']]],
+ [2,'Single Stroke Four','Четыре одиночных',80,'2/4',[[6,'nnna--nnna--','RLRL--LRLR--']]],
+ [3,'Single Stroke Seven','Семь одиночных',70,'2/4',[[6,'nnnnnna-----','RLRLRLR-----'],[6,'nnnnnna-----','LRLRLRL-----']]],
+ [4,'Multiple Bounce Roll','Многоударная дробь',70,'4/4',[[4,'zzzzzzzzzzzzzzzz','RLRLRLRLRLRLRLRL']]],
+ [5,'Triple Stroke Roll','Тройная дробь',70,'2/4',[[6,'nnnnnnnnnnnn','RRRLLLRRRLLL']]],
+ [6,'Double Stroke Open Roll','Двойная дробь',80,'4/4',[[4,'nnnnnnnnnnnnnnnn','RRLLRRLLRRLLRRLL']]],
+ [7,'Five Stroke Roll','Пятиударная дробь',70,'2/4',[[8,'nnnna---nnnna---','RRLLR---LLRRL---']]],
+ [8,'Six Stroke Roll','Шестиударная дробь',70,'2/4',[[8,'a-nnnna-a-nnnna-','R-LLRRL-R-LLRRL-']]],
+ [9,'Seven Stroke Roll','Семиударная дробь',70,'2/4',[[8,'--nnnnnna-------','--RRLLRRL-------'],[8,'--nnnnnna-------','--LLRRLLR-------']]],
+ [10,'Nine Stroke Roll','Девятиударная дробь',70,'2/4',[[8,'nnnnnnnna-------','RRLLRRLLR-------'],[8,'nnnnnnnna-------','LLRRLLRRL-------']]],
+ [11,'Ten Stroke Roll','Десятиударная дробь',70,'2/4',[[8,'nnnnnnnna---a---','RRLLRRLLR---L---']]],
+ [12,'Eleven Stroke Roll','Одиннадцатиударная дробь',70,'2/4',[[8,'--nnnnnnnnnna---','--RRLLRRLLRRL---'],[8,'--nnnnnnnnnna---','--LLRRLLRRLLR---']]],
+ [13,'Thirteen Stroke Roll','Тринадцатиударная дробь',70,'2/4',[[8,'nnnnnnnnnnnna---','RRLLRRLLRRLLR---'],[8,'nnnnnnnnnnnna---','LLRRLLRRLLRRL---']]],
+ [14,'Fifteen Stroke Roll','Пятнадцатиударная дробь',70,'3/4',[[8,'--nnnnnnnnnnnnnna-------','--RRLLRRLLRRLLRRL-------'],[8,'--nnnnnnnnnnnnnna-------','--LLRRLLRRLLRRLLR-------']]],
+ [15,'Seventeen Stroke Roll','Семнадцатиударная дробь',70,'3/4',[[8,'nnnnnnnnnnnnnnnna-------','RRLLRRLLRRLLRRLLR-------'],[8,'nnnnnnnnnnnnnnnna-------','LLRRLLRRLLRRLLRRL-------']]],
+ [16,'Single Paradiddle','Парадидл',90,'4/4',[[4,'annnannnannnannn','RLRRLRLLRLRRLRLL']]],
+ [17,'Double Paradiddle','Двойной парадидл',90,'6/8',[[3,'annnnn','RLRLRR'],[3,'annnnn','LRLRLL']]],
+ [18,'Triple Paradiddle','Тройной парадидл',90,'4/4',[[4,'annnnnnnannnnnnn','RLRLRLRRLRLRLRLL']]],
+ [19,'Single Paradiddle-Diddle','Парадидл-дидл',90,'6/8',[[3,'annnnn','RLRRLL']]],
+ [20,'Flam','Флэм',70,'4/4',[[4,'f---f---f---f---','R---L---R---L---']]],
+ [21,'Flam Accent','Флэм-акцент',80,'4/4',[[3,'FnnFnnFnnFnn','RLRLRLRLRLRL']]],
+ [22,'Flam Tap','Флэм-тап',80,'4/4',[[4,'FnFnFnFnFnFnFnFn','RRLLRRLLRRLLRRLL']]],
+ [23,'Flamacue','Фламакью',80,'4/4',[[4,'fannf---fannf---','RLRLR---LRLRL---']]],
+ [24,'Flam Paradiddle','Флэм-парадидл',80,'4/4',[[4,'FnnnFnnnFnnnFnnn','RLRRLRLLRLRRLRLL']]],
+ [25,'Single Flammed Mill','Флэм-милл',80,'4/4',[[4,'FnnnFnnnFnnnFnnn','RRLRLLRLRRLRLLRL']]],
+ [26,'Flam Paradiddle-Diddle','Флэм-парадидл-дидл',80,'6/8',[[3,'Fnnnnn','RLRRLL'],[3,'Fnnnnn','LRLLRR']]],
+ [27,'Pataflafla','Патафлафла',80,'4/4',[[4,'fnnffnnffnnffnnf','RLRLRLRLRLRLRLRL']]],
+ [28,'Swiss Army Triplet','Швейцарская триоль',80,'4/4',[[3,'FnnFnnFnnFnn','RRLRRLRRLRRL']]],
+ [29,'Inverted Flam Tap','Обратный флэм-тап',80,'4/4',[[4,'FnFnFnFnFnFnFnFn','RLLRRLLRRLLRRLLR']]],
+ [30,'Flam Drag','Флэм-драг',80,'2/4',[[6,'F-nnn-F-nnn-','R-LLR-L-RRL-']]],
+ [31,'Drag','Драг',70,'4/4',[[4,'d---d---d---d---','R---L---R---L---']]],
+ [32,'Single Drag Tap','Драг-тап',80,'4/4',[[4,'d-a-d-a-d-a-d-a-','R-L-L-R-R-L-L-R-']]],
+ [33,'Double Drag Tap','Двойной драг-тап',80,'4/4',[[3,'ddaddaddadda','RRLLLRRRLLLR']]],
+ [34,'Lesson 25','Урок 25',80,'4/4',[[4,'dna-dna-dna-dna-','RLR-LRL-RLR-LRL-']]],
+ [35,'Single Dragadiddle','Драгадидл',70,'2/4',[[8,'ann-n-n-ann-n-n-','RRL-R-R-LLR-L-L-']]],
+ [36,'Drag Paradiddle #1','Драг-парадидл №1',80,'2/4',[[4,'a---dnnn','R---RLRR'],[4,'a---dnnn','L---LRLL']]],
+ [37,'Drag Paradiddle #2','Драг-парадидл №2',80,'2/4',[[4,'a-d-dnnn','R-R-RLRR'],[4,'a-d-dnnn','L-L-LRLL']]],
+ [38,'Single Ratamacue','Ратамакью',80,'2/4',[[6,'dnna--dnna--','RLRL--LRLR--']]],
+ [39,'Double Ratamacue','Двойной ратамакью',80,'2/4',[[6,'d--dnna-----','R--RLRL-----'],[6,'d--dnna-----','L--LRLR-----']]],
+ [40,'Triple Ratamacue','Тройной ратамакью',80,'2/4',[[6,'d--d--dnna--','R--R--RLRL--'],[6,'d--d--dnna--','L--L--LRLR--']]]
+];
+const libId=n=>'lib'+String(n).padStart(2,'0');
+function libSongs(){
+  return RUDIMENTS.map(([n,en,ru,bpm,sig,bars])=>unpack({id:libId(n),title:n+'. '+(LANG==='en'?en:ru+' · '+en),bpm,sig,folder:LIB,updated:0,
+    bars:bars.map(([div,sn,st],i)=>Object.assign({div,c:{sn,st}},i===0?{rs:true}:{},i===bars.length-1?{re:true}:{}))}));
+}
+// put in the rudiments that are not there: once when the app first meets this library, and again when asked
+function ensureLibrary(force){
+  let v=''; try{ v=localStorage.getItem(LIB_SLOT)||''; }catch(e){}
+  if(v===LIB_VER&&!force) return 0;
+  const have=new Set(state.songs.map(x=>x.id)), add=libSongs().filter(x=>!have.has(x.id));
+  for(const x of add) state.songs.push(x);
+  try{ localStorage.setItem(LIB_SLOT,LIB_VER); }catch(e){}
+  // the rudiments as they come are the same everywhere: only ones the person changes go to the cloud
+  if(add.length) Store.saveLocal();
+  return add.length;
+}
 /* ---------- folders: a song may sit in one folder; the list shows one folder at a time ---------- */
 const FOLD_SLOT='drumbook.folders', FOLD_CUR='drumbook.folder', NO_FOLDER='#none';
 let folderNames=(()=>{ try{ const a=JSON.parse(localStorage.getItem(FOLD_SLOT)||'[]'); return Array.isArray(a)?a.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim().slice(0,40)):[]; }catch(e){ return []; } })();
 try{ state.folder=localStorage.getItem(FOLD_CUR)||''; }catch(e){}
 function saveFolders(){ try{ localStorage.setItem(FOLD_SLOT,JSON.stringify(folderNames)); localStorage.setItem(FOLD_CUR,state.folder); }catch(e){} }
 function allFolders(){ const set=new Set(folderNames); for(const s of state.songs) if(s.folder) set.add(s.folder); return [...set].sort((a,b)=>a.localeCompare(b,LANG)); }
-const curFolder=()=>state.folder&&state.folder!==NO_FOLDER?state.folder:'';
+const curFolder=()=>state.folder&&state.folder!==NO_FOLDER&&state.folder!==LIB?state.folder:'';
 let folderMove=null;   // a song waiting for a new folder's name
 function renderSongs(){
-  const folders=allFolders();
-  if(state.folder&&state.folder!==NO_FOLDER&&!folders.includes(state.folder)) state.folder='';
-  const real=state.songs.filter(x=>!x.demo), cnt=f=>real.filter(x=>f===NO_FOLDER?!x.folder:x.folder===f).length;
+  // the rudiments have their own chip; "All" is the person's own songs
+  const folders=allFolders().filter(f=>f!==LIB);
+  if(state.folder&&state.folder!==NO_FOLDER&&state.folder!==LIB&&!folders.includes(state.folder)) state.folder='';
+  const mine=state.songs.filter(x=>!x.demo), real=mine.filter(x=>x.folder!==LIB), cnt=f=>mine.filter(x=>f===NO_FOLDER?!x.folder:x.folder===f).length;
   let fb=`<button type="button" class="chip" data-folder-pick="" aria-pressed="${!state.folder}">${tx('folderAll')}</button>`;
+  fb+=`<button type="button" class="chip lib" data-folder-pick="${LIB}" aria-pressed="${state.folder===LIB}">${tx('libFolder')} · ${cnt(LIB)}</button>`;
   folders.forEach((f,i)=>{ fb+=`<button type="button" class="chip" data-folder-pick="${i}" aria-pressed="${state.folder===f}">${esc(f)} · ${cnt(f)}</button>`; });
   if(folders.length) fb+=`<button type="button" class="chip" data-folder-pick="${NO_FOLDER}" aria-pressed="${state.folder===NO_FOLDER}">${tx('folderNone')} · ${cnt(NO_FOLDER)}</button>`;
   fb+=`<button type="button" class="chip" id="folderAdd">${tx('folderAdd')}</button>`;
   if(curFolder()) fb+=`<button type="button" class="chip" id="folderDel">${tx('folderDel')}</button>`;
   $('folderBar').innerHTML=fb; $('folderBar')._names=folders;
   let h='';
-  const list=state.songs.filter(x=>!state.folder||x.demo&&!real.length||(state.folder===NO_FOLDER?!x.folder:x.folder===state.folder));
+  const list=state.folder===LIB?state.songs.filter(x=>x.folder===LIB).sort((a,b)=>a.id.localeCompare(b.id)):state.songs.filter(x=>x.folder!==LIB&&(!state.folder||x.demo&&!real.length||(state.folder===NO_FOLDER?!x.folder:x.folder===state.folder)));
+  if(state.folder===LIB){
+    const ids=new Set(state.songs.map(x=>x.id)), gone=RUDIMENTS.filter(r=>!ids.has(libId(r[0]))).length;
+    h+=`<p class="hint">${tx('libHint')}</p>`+(gone?`<button type="button" class="chip" id="libRestore">${tx('libRestore',gone)}</button>`:'');
+  }
   for(const s of list){
     const where=!state.folder&&s.folder?' · '+esc(s.folder):'';
     h+=`<div class="songrow"><button type="button" class="open" data-open="${s.id}" aria-current="${s.id===song().id}"><b>${esc(s.title||tx('untitled'))}</b><small>${s.bars.length} ${plural(s.bars.length)} · ${SIGS[s.sig]&&SIGS[s.sig].free?tx('sigNone'):s.sig} · ${tx('tempoWord')} ${s.bpm}${where}</small></button><button type="button" class="chip" data-move="${s.id}" aria-haspopup="menu">${tx('folderMove')}</button><button type="button" class="chip" data-del="${s.id}">${tx('del')}</button></div>`;
   }
-  if(!list.length) h=`<p class="hint">${tx('folderEmpty')}</p>`;
+  if(!list.length&&state.folder!==LIB) h=`<p class="hint">${tx('folderEmpty')}</p>`;
   $('songList').innerHTML=h;
 }
 function openFolderMenu(id,el){
   const m=$('noteMenu'), folders=allFolders(), s=state.songs.find(x=>x.id===id); if(!s) return;
-  m.innerHTML=`<div class="mh">${esc(tx('folderFor',s.title||tx('untitled')))}</div>`+folders.map((f,i)=>`<button type="button" role="menuitem" data-v="${i}" aria-pressed="${s.folder===f}">${esc(f)}</button>`).join('')
+  m.innerHTML=`<div class="mh">${esc(tx('folderFor',s.title||tx('untitled')))}</div>`+folders.map((f,i)=>`<button type="button" role="menuitem" data-v="${i}" aria-pressed="${s.folder===f}">${esc(folderLabel(f))}</button>`).join('')
     +`<button type="button" role="menuitem" data-v="${NO_FOLDER}">${tx('folderNone')}</button><button type="button" role="menuitem" data-v="#new">${tx('folderAdd')}</button>`;
   m.hidden=false; menuFor={kind:'folder',id,names:folders};
   const r=el.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight, vw=document.documentElement.clientWidth, vh=window.innerHeight;
@@ -1215,7 +1330,7 @@ function openFolderMenu(id,el){
 }
 function moveSong(id,f){
   const s=state.songs.find(x=>x.id===id); if(!s) return;
-  s.folder=f||''; Store.save(s); renderSongs(); toast(f?tx('folderMoved',f):tx('folderMovedNone'));
+  s.folder=f||''; Store.save(s); renderSongs(); toast(f?tx('folderMoved',folderLabel(f)):tx('folderMovedNone'));
 }
 function openFolderBox(moveId){ folderMove=moveId||null; $('folderBox').hidden=false; $('folderName').value=''; try{ $('folderName').focus(); }catch(e){} }
 function plural(n){ if(LANG==='en') return n===1?'bar':'bars'; const a=n%10,b=n%100; return a===1&&b!==11?'такт':(a>=2&&a<=4&&(b<12||b>14))?'такта':'тактов'; }
@@ -1257,7 +1372,7 @@ const Player={
         const d=s.swing/100/6, k=this.slot%4, p=[0,(.5+d)/2,.5+d,.5+d+(.5-d)/2][k];
         at=this.next+(p-k/4)*dur*4;
       }
-      for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v==='3'){ for(let k=0;k<3;k++) Snd.hit(inst.id,'n',at+k*dur*2/3); } else if(v&&v!=='-') Snd.hit(inst.id,v,at); }
+      for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v==='3'){ for(let k=0;k<3;k++) Snd.hit(inst.id,'n',at+k*dur*2/3); } else if(v&&v!=='-') Snd.hit(inst.id,v,at,dur); }
       if(state.click&&this.slot%(bar.div*(SIGS[s.sig].cut?2:1))===0) Snd.tick(this.next,this.slot===0);
       this.queue.push({t:this.next,bar:this.bar,slot:this.slot,n});
       this.next+=dur; this.slot++;
@@ -1378,6 +1493,25 @@ async function makePdf(s,bpl){
   return new Blob(parts,{type:'application/pdf'});
 }
 
+/* ---------- backup: every song and folder in one .json file ---------- */
+const BACKUP_AT='drumbook.backupAt';
+function backupHint(){
+  let at=0; try{ at=+localStorage.getItem(BACKUP_AT)||0; }catch(e){}
+  const when=at?tx('backupLast',new Date(at).toLocaleDateString(LANG==='en'?'en-GB':'ru-RU',{day:'numeric',month:'long',year:'numeric'}).replace(/\.$/,'')):tx('backupNever');
+  const el=$('backupHint'); if(el) el.textContent=tx('backupHint',when);
+}
+async function saveBackup(){
+  if(!downloads||exporting) return; exporting=true;
+  try{
+    const songs=state.songs.filter(x=>!x.demo).map(x=>Object.assign(pack(x,true),/^lib\d\d$/.test(x.id)?{id:x.id}:{}));
+    const data=JSON.stringify({app:'drumbook',v:2,backup:true,saved:new Date().toISOString(),folders:folderNames,songs},null,1);
+    const d=new Date(), ymd=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    await downloads.save({filename:tx('backupFile')+' '+ymd+'.json',data:new Blob([data],{type:'application/json'})});
+    try{ localStorage.setItem(BACKUP_AT,String(Date.now())); }catch(e){}
+    backupHint(); toast(tx('tBackupSaved',songs.length));
+  }catch(err){ if(!err||err.code!=='declined') toast(tx('tFile')); }
+  exporting=false;
+}
 /* ---------- adding songs from a PDF or a .json file ---------- */
 function bytesText(u){ let t=''; for(let i=0;i<u.length;i+=8192) t+=String.fromCharCode.apply(null,u.subarray(i,i+8192)); return t; }
 const PDF_MARK='{"app":"drumbook"';
@@ -1410,13 +1544,23 @@ async function songsFromPdf(buf){
 }
 function songKey(s){ const d=pack(s,true); delete d.updated; delete d.folder; return JSON.stringify(d); }
 // adds songs (plain data) to the top of the list, skipping any already there; returns the songs added
-function addSongs(list){
-  list=(Array.isArray(list)?list:[]).filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,200);
+function addSongs(list,restore){
+  list=(Array.isArray(list)?list:[]).filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,restore?5000:200);
   const have=new Set(state.songs.filter(x=>!x.demo).map(songKey));
-  const added=list.map(x=>unpack(Object.assign({folder:curFolder()},x,{id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
+  // a rudiment changed in the backup takes the place of the same rudiment still as it came; a missing one keeps its own place
+  const replaced=[];
+  if(restore) list=list.filter(x=>{
+    if(typeof x.id!=='string'||!/^lib\d\d$/.test(x.id)) return true;
+    const i=state.songs.findIndex(y=>y.id===x.id); if(i<0||state.songs[i].updated) return true;
+    const n=unpack(Object.assign({},x,{id:x.id,folder:typeof x.folder==='string'?x.folder:LIB}));
+    if(songKey(n)!==songKey(state.songs[i])){ state.songs[i]=n; Store.save(n); replaced.push(n); }
+    return false;
+  });
+  const ids=new Set(state.songs.map(x=>x.id));
+  const added=list.map(x=>unpack(Object.assign({folder:restore?'':curFolder()},x,{id:restore&&/^lib\d\d$/.test(x.id)&&!ids.has(x.id)?x.id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
   for(let i=added.length-1;i>=0;i--){ state.songs.unshift(added[i]); Store.save(added[i]); }
   if(added.length){ state.songs=state.songs.filter(x=>!x.demo); setSong(added[0].id); }
-  return added;
+  return added.concat(replaced);
 }
 
 /* ---------- notes from a photo: Claude reads the page ---------- */
@@ -1659,7 +1803,7 @@ Rules:
   ft floor tom: in the space between lines 2 and 3
   bd bass drum: in the space between lines 1 and 2
   hp hi-hat pedal (foot): x below the staff
-- Characters: "n" a plain note, "a" an accented note (> or ^ by it), "g" a ghost note (in brackets), "o" an open hi-hat (small circle over it; hh only), "x" a cross-stick (x or circled x in the snare space; sn only), "3" a sixteenth-note triplet that starts on this slot and fills it and the next one (only with div 4 and on an even slot; the next slot is "-").
+- Characters: "n" a plain note, "a" an accented note (> or ^ by it), "g" a ghost note (in brackets), "o" an open hi-hat (small circle over it; hh only), "x" a cross-stick (x or circled x in the snare space; sn only), "3" a sixteenth-note triplet that starts on this slot and fills it and the next one (only with div 4 and on an even slot; the next slot is "-"). On sn, t1, t2 and ft also: "f" a flam (one small grace note just before the note, usually with a slash through its flag), "F" an accented flam, "d" a drag (two small grace notes before it), "D" an accented drag, "z" a buzz stroke (a z across the stem). Grace notes take no slot of their own, and the sticking row has only the main note's letter.
 - st (sticking): the letters R and L printed in a row under the staff (sometimes over it), one letter per note, read left to right. Whenever a bar has them, copy them: each letter goes on the slot of the note it stands under — the first letter on the bar's first note, the second on its second note, and so on. Never leave them out. If two alternative sticking rows are printed for the same bar, write the bar twice: first with the upper sticking, then with the lower (same notes, same label).
 - lb: the label of an exercise (A, B, 1, 2…) printed at its start, often circled or boxed, at most 6 characters, only on the bar where it is printed. Small bar numbers printed over barlines are not labels.
 - rs / re: true on a bar that starts with a start-repeat sign |: / ends with an end-repeat sign :|. Leave out when false.
@@ -1730,6 +1874,7 @@ function applyLang(){
   $('dlNote').textContent=tx(downloads?'dlOn':pagesShown?'pagesHint':'dlOff');
   $('photoHint').textContent=tx(PhotoMode==='api'?'photoHintApi':'photoHint'); try{ if(!$('metroPanel').hidden) Metro.ui(); if(!$('recPanel').hidden) Rec.ui(); }catch(e){} $('folderName').placeholder=tx('folderNamePh'); if(!$('songsPanel').hidden) renderSongs(); $('apiKey').placeholder=tx('keyPhGem'); $('keyHelp').textContent=tx('keyHelpGem');
   $('btnPages').textContent=tx(pagesShown?'pagesBack':'pages'); $('btnPages').hidden=!!downloads; $('btnExport').hidden=!downloads;
+  backupHint();
   $('langSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANG)));
   Store.status();
 }
@@ -2220,8 +2365,14 @@ function init(){
   wireMetroRec();
   const d=Store.loadLocal();
   if(d&&I18N[d.lang]) LANG=d.lang; else { const pref=(navigator.languages||[navigator.language||'']).map(x=>String(x).slice(0,2).toLowerCase()).find(x=>I18N[x]); if(pref) LANG=pref; }
-  if(d&&Array.isArray(d.songs)){ state.songs=d.songs.map(unpack); if([1,2,4].includes(d.bpl)) state.bpl=d.bpl; state.click=!!d.click; state.curSong=d.cur; }
+  if(d&&Array.isArray(d.songs)){
+    // damaged entries are left out, and two songs never share an id
+    const seen=new Set();
+    state.songs=d.songs.filter(x=>x&&typeof x==='object'&&Array.isArray(x.bars)).map(x=>{ try{ const s=unpack(x); if(seen.has(s.id)) s.id=newId(); seen.add(s.id); return s; }catch(e){ return null; } }).filter(Boolean);
+    if([1,2,4].includes(d.bpl)) state.bpl=d.bpl; state.click=!!d.click; state.curSong=d.cur;
+  }
   if(!state.songs.length) state.songs=[demoSong()];
+  ensureLibrary(false);
   if(!state.songs.some(s=>s.id===state.curSong)) state.curSong=state.songs[0].id;
   $('play').innerHTML=PLAY_ICON;
 
@@ -2281,6 +2432,7 @@ function init(){
   $('btnClosePanel').addEventListener('click',()=>{ $('songsPanel').hidden=true; });
   $('songsPanel').addEventListener('click',e=>{ if(e.target===$('songsPanel')) $('songsPanel').hidden=true; });
   $('songList').addEventListener('click',e=>{
+    if(e.target.closest('#libRestore')){ const n=ensureLibrary(true); renderSongs(); toast(tx('libRestored',n)); return; }
     const o=e.target.closest('[data-open]'), d=e.target.closest('[data-del]'), mv=e.target.closest('[data-move]');
     if(mv){ openFolderMenu(mv.dataset.move,mv); return; }
     if(o){ setSong(o.dataset.open); $('songsPanel').hidden=true; }
@@ -2294,7 +2446,7 @@ function init(){
   });
   $('folderBar').addEventListener('click',e=>{
     const pk=e.target.closest('[data-folder-pick]');
-    if(pk){ const v=pk.dataset.folderPick; state.folder=v===''||v===NO_FOLDER?v:($('folderBar')._names[+v]||''); saveFolders(); renderSongs(); return; }
+    if(pk){ const v=pk.dataset.folderPick; state.folder=v===''||v===NO_FOLDER||v===LIB?v:($('folderBar')._names[+v]||''); saveFolders(); renderSongs(); return; }
     if(e.target.closest('#folderAdd')){ openFolderBox(null); return; }
     const del=e.target.closest('#folderDel');
     if(del) armed(del,tx('sure'),()=>{
@@ -2304,7 +2456,7 @@ function init(){
     });
   });
   const makeFolder=()=>{
-    const f=$('folderName').value.trim().slice(0,40); if(!f){ $('folderName').focus(); return; }
+    const f=$('folderName').value.trim().replace(/^#+\s*/,'').slice(0,40); if(!f){ $('folderName').focus(); return; }
     if(!folderNames.includes(f)) folderNames.push(f);
     $('folderBox').hidden=true;
     if(folderMove){ const id=folderMove; folderMove=null; saveFolders(); moveSong(id,f); }
@@ -2324,16 +2476,19 @@ function init(){
   $('btnImport').addEventListener('click',()=>{ $('fileImport').value=''; $('fileImport').click(); });
   $('fileImport').addEventListener('change',async e=>{
     const file=e.target.files&&e.target.files[0]; if(!file) return;
-    let list=[], isPdf=/\.pdf$/i.test(file.name||'')||file.type==='application/pdf';
+    let list=[], isPdf=/\.pdf$/i.test(file.name||'')||file.type==='application/pdf', backup=null;
     try{
       const buf=await file.arrayBuffer();
       if(bytesText(new Uint8Array(buf,0,Math.min(5,buf.byteLength)))==='%PDF-'){ isPdf=true; list=await songsFromPdf(buf); }
-      else if(!isPdf){ const d=JSON.parse(new TextDecoder().decode(buf)); list=Array.isArray(d)?d:Array.isArray(d.songs)?d.songs:(d&&Array.isArray(d.bars)?[d]:[]); }
+      else if(!isPdf){ const d=JSON.parse(new TextDecoder().decode(buf).replace(/^\uFEFF/,'')); if(d&&d.backup) backup=d; list=Array.isArray(d)?d:d&&Array.isArray(d.songs)?d.songs:(d&&Array.isArray(d.bars)?[d]:[]); }
     }catch(err){ list=[]; }
-    list=list.filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,200);
-    if(!list.length){ toast(tx(isPdf?'tNoPdfData':'tBadFile')); return; }
+    list=list.filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,backup?5000:200);
+    if(backup&&Array.isArray(backup.folders)){ for(const f of backup.folders) if(typeof f==='string'&&f.trim()&&!f.startsWith('#')&&!folderNames.includes(f.trim().slice(0,40))) folderNames.push(f.trim().slice(0,40)); saveFolders(); }
+    if(!list.length){ if(backup){ renderSongs(); toast(tx('tDupe')); } else toast(tx(isPdf?'tNoPdfData':'tBadFile')); return; }
     // a song that is already in the list exactly as it is in the file is not added a second time
-    const added=addSongs(list);
+    const added=addSongs(list,!!backup);
+    // after a restore the list stays open, on "All" unless the folder in view got songs back
+    if(backup){ if(state.folder===NO_FOLDER||(curFolder()&&!added.some(x=>x.folder===state.folder))) state.folder=''; saveFolders(); renderSongs(); toast(tx(added.length<list.length?'tRestored':'tRestoredAll',added.length),6000); return; }
     if(!added.length){ toast(tx('tDupe')); $('songsPanel').hidden=true; return; }
     $('songsPanel').hidden=true; toast(tx('tImported',added.length));
   });
@@ -2349,14 +2504,8 @@ function init(){
   $('keyDel').addEventListener('click',e=>armed(e.currentTarget,tx('sure'),()=>{ try{ localStorage.removeItem(GEM_SLOT); }catch(err){} $('apiKey').value=''; toggleKeyBox(false); toast(tx('keyDeleted')); }));
   $('filePhoto').addEventListener('change',e=>{ const fs=e.target.files; if(fs&&fs.length) readPhotos(fs); });
   $('photoStop').addEventListener('click',()=>{ if(photoCtl) photoCtl.abort(); });
-  $('btnExport').addEventListener('click',async()=>{
-    if(!downloads||exporting) return; exporting=true;
-    try{
-      const data=JSON.stringify({app:'drumbook',v:1,songs:state.songs.filter(x=>!x.demo).map(x=>pack(x,true))},null,1);
-      await downloads.save({filename:(LANG==='en'?'drum songs':'барабанные песни')+'.json',data:new Blob([data],{type:'application/json'})});
-    }catch(err){ if(!err||err.code!=='declined') toast(tx('tFile')); }
-    exporting=false;
-  });
+  $('btnExport').addEventListener('click',saveBackup);
+  $('btnRestore').addEventListener('click',()=>{ $('fileImport').value=''; $('fileImport').click(); });
   $('btnPng').addEventListener('click',()=>exportFile('png'));
   $('btnPdf').addEventListener('click',()=>exportFile('pdf'));
   $('btnPages').addEventListener('click',togglePages);
