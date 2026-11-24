@@ -147,7 +147,11 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .songrow .open[aria-current="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .songrow b{display:block;font:700 21px/1.15 var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .songrow small{color:var(--muted);font-size:13px}
-.panelrow{display:flex;gap:8px;justify-content:space-between}
+.panelrow{display:flex;gap:8px;justify-content:space-between;align-items:center}
+.hdrbtns{display:flex;gap:8px}
+.lab[data-row]{cursor:pointer}
+.lab[data-row]:active,.lab[data-row][aria-expanded="true"]{background:var(--line)}
+.notemenu .mh{flex:0 0 100%;font:600 13px/1.3 var(--body);color:var(--muted);padding:2px 4px 4px}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 14px;border-radius:10px;font-size:14px;z-index:20;max-width:calc(100% - 32px);text-align:center}
 .nf .lab{font:700 12.5px/32px var(--body);text-transform:none;letter-spacing:0;padding-left:6px}
 .nf .chip,.nf .seg button,.nf .tools select{font:600 14px/1 var(--body);text-transform:none;letter-spacing:0}
@@ -185,6 +189,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <button class="chip" id="btnDup" type="button">Копия такта</button>
       <button class="chip" id="btnClear" type="button">Очистить</button>
       <button class="chip" id="btnDel" type="button">Удалить</button>
+      <button class="chip" id="btnRep" type="button" aria-pressed="false">Повтор</button>
       <button class="chip" id="btnUndo" type="button" disabled>Отменить</button>
       <button class="chip" id="btnStaff" type="button" aria-pressed="false">Писать на стане</button>
     </div>
@@ -243,10 +248,15 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
   <div class="sheetbox" role="dialog" aria-modal="true" aria-labelledby="songsH">
     <div class="panelrow">
       <h2 id="songsH">Мои песни</h2>
-      <button class="chip" id="btnClosePanel" type="button">Закрыть</button>
+      <span class="hdrbtns"><button class="chip" id="btnImport" type="button">+ PDF</button><button class="chip" id="btnClosePanel" type="button">Закрыть</button></span>
     </div>
+    <p class="hint" id="importHint"></p>
     <div id="songList" style="display:flex;flex-direction:column;gap:8px"></div>
     <button class="chip" id="btnNew" type="button">Новая песня</button>
+    <div class="panelrow">
+      <button class="chip" id="btnExport" type="button" hidden>Сохранить все в файл</button>
+    </div>
+    <input type="file" id="fileImport" accept="application/pdf,.pdf,application/json,.json" hidden>
   </div>
 </div>
 <div class="notemenu" id="noteMenu" hidden role="menu"></div>
@@ -262,11 +272,11 @@ const DRUM_SAMPLES={"bd":"SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAA
 /* ---------- language ---------- */
 const I18N={
  ru:{songs:'Песни',songTitle:'Название песни',view:'Вид',grid:'Сетка',sheet:'Ноты',bars:'Такты',timeSig:'Размер',division:'Деление такта',d16:'16-е',trip:'Триоли',
-  copyBar:'Копия такта',clear:'Очистить',del:'Удалить',undo:'Отменить',notationAria:'Нотная запись такта',strokeType:'Тип удара',hit:'Удар',accent:'Акцент >',ghost:'Гост ( )',
-  hintGrid:'Нажмите на клетку, чтобы поставить удар. Второе нажатие на хэт делает его открытым. Такты идут лентой: листайте её влево и вправо.',ribbon:'Лента тактов',staffBtn:'Писать на стане',openHat:'Открытый ○',remove:'Убрать',hintHold:' Удерживайте клетку или ноту, чтобы выбрать акцент или гост.',hintStaff:'Нажмите на нотный стан, чтобы поставить ноту: линейка задаёт барабан. Ноту можно перетащить на другую линейку или долю, нажатие по ноте убирает её. Ленту в этом режиме листайте по сетке.',
+  copyBar:'Копия такта',repBtn:'Повтор',importBtn:'+ PDF',exportBtn:'Сохранить все в файл',tImported:'Добавлено песен: {0}',tBadFile:'В этом файле нет песен для программы.',clear:'Очистить',del:'Удалить',undo:'Отменить',notationAria:'Нотная запись такта',strokeType:'Тип удара',hit:'Удар',accent:'Акцент >',ghost:'Гост ( )',
+  hintGrid:'Нажмите на клетку, чтобы поставить удар. Второе нажатие на хэт делает его открытым. Такты идут лентой: листайте её влево и вправо.',ribbon:'Лента тактов',staffBtn:'Писать на стане',openHat:'Открытый ○',xstick:'Кросс-стик ⊗',triplet:'Триоль ³',remove:'Убрать',hintHold:' Удерживайте клетку или ноту, чтобы выбрать акцент или гост.',hintStaff:'Нажмите на нотный стан, чтобы поставить ноту: линейка задаёт барабан. Ноту можно перетащить на другую линейку или долю, нажатие по ноте убирает её. Ленту в этом режиме листайте по сетке.',
   credits:'Звуки: записи настоящей установки Virtuosity Drums (Versilian Studios и Karoryfer Samples), лицензия CC0.',
   perLine:'Тактов в строке',pdf:'Скачать PDF',png:'Сохранить картинку',hintSheet:'Нажмите на такт, чтобы открыть его в сетке.',
-  dlOff:'Без входа в Claude скачивание PDF недоступно. Откройте страницы картинками и сохраните их.',pages:'Страницы картинками',pagesBack:'Назад к нотам',pagesHint:'Нажмите на страницу и удерживайте, чтобы сохранить её в Фото или поделиться.',tPages:'Готовлю страницы…',pageAlt:'Страница {0}',dlOn:'PDF делается на листах A4. Если выбран 1 такт в строке, в PDF будет по 2.',
+  dlOff:'Без входа в Claude скачивание PDF недоступно. Откройте страницы картинками и сохраните их.',pages:'Страницы картинками',pagesBack:'Назад к нотам',pagesHint:'Нажмите на страницу и удерживайте, чтобы сохранить её в Фото или поделиться.',tPages:'Готовлю страницы…',pageAlt:'Страница {0}',dlOn:'PDF делается на листах A4, по столько тактов в строке, сколько выбрано выше.',
   play:'Играть',stop:'Стоп',slower:'Темп меньше на 5',faster:'Темп больше на 5',tempoAria:'Темп, ударов в минуту',loop:'Цикл такта',metro:'Метроном',
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
@@ -276,13 +286,13 @@ const I18N={
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
-  copyBar:'Copy bar',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
-  hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
+  copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save all to a file',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
+  hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
   credits:'Sounds: recordings of a real kit, Virtuosity Drums (Versilian Studios and Karoryfer Samples), CC0 license.',
   perLine:'Bars per line',pdf:'Download PDF',png:'Save image',hintSheet:'Tap a bar to open it in the grid.',
-  dlOff:'PDF download is not available without signing in to Claude. Open the pages as images and save them.',pages:'Pages as images',pagesBack:'Back to the sheet',pagesHint:'Press and hold a page to save it to Photos or share it.',tPages:'Preparing the pages…',pageAlt:'Page {0}',dlOn:'The PDF uses A4 pages. With 1 bar per line selected, the PDF uses 2.',
+  dlOff:'PDF download is not available without signing in to Claude. Open the pages as images and save them.',pages:'Pages as images',pagesBack:'Back to the sheet',pagesHint:'Press and hold a page to save it to Photos or share it.',tPages:'Preparing the pages…',pageAlt:'Page {0}',dlOn:'The PDF uses A4 pages, with as many bars per line as selected above.',
   play:'Play',stop:'Stop',slower:'Tempo down by 5',faster:'Tempo up by 5',tempoAria:'Tempo, beats per minute',loop:'Loop bar',metro:'Metronome',
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
@@ -292,14 +302,14 @@ const I18N={
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.'}
 };
 let LANG='ru';
 const tx=(k,a,b)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; if(a!==undefined) v=v.replace('{0}',a); if(b!==undefined) v=v.replace('{1}',b); return v; };
-const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#btnDup':'copyBar','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
+const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
-  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong'};
-const ARIA={'#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
+  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#importHint':'importHint'};
+const ARIA={'#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
 
 /* ---------- model ---------- */
 const INST=[
@@ -332,20 +342,24 @@ function emptyBar(sig,div){
   const c={}; for(const k of ROWS) c[k]=Array(S.beats*div).fill('-');
   return {div,c};
 }
-function validCell(k,ch){ return k==='st'?(ch==='R'||ch==='L'):(ch==='n'||ch==='a'||ch==='g'||(ch==='o'&&k==='hh')); }
+function validCell(k,ch){ return k==='st'?(ch==='R'||ch==='L'):(ch==='n'||ch==='a'||ch==='g'||ch==='3'||(ch==='o'&&k==='hh')||(ch==='x'&&k==='sn')); }
+function barMeta(b){ const m={}; if(b&&b.rs) m.rs=true; if(b&&b.re) m.re=true; if(b&&typeof b.lb==='string'&&b.lb.trim()) m.lb=b.lb.trim().slice(0,6); if(b&&+b.tm>=40&&+b.tm<=240) m.tm=Math.round(+b.tm); return m; }
+// tempo in force at a bar: the last written tempo change, scaled by how far the song's tempo control has been moved from its written tempo
+function tempoAt(s,bi){ let t=0; for(let j=Math.min(bi,s.bars.length-1);j>=0;j--) if(s.bars[j].tm){ t=s.bars[j].tm; break; } if(!t) return s.bpm; return t*s.bpm/(s.ref||s.bpm); }
 function unpack(d){
   const sig=SIGS[d.sig]?d.sig:'4/4', S=SIGS[sig];
-  const s={id:String(d.id),title:typeof d.title==='string'?d.title:tx('untitled'),bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
+  const s={id:String(d.id),title:typeof d.title==='string'?d.title:tx('untitled'),by:typeof d.by==='string'?d.by.slice(0,80):'',ref:+d.ref>=40&&+d.ref<=240?Math.round(+d.ref):0,bpm:clamp(Math.round(+d.bpm)||96,40,240),sig,updated:+d.updated||0,synced:!!d.synced,bars:[]};
   for(const b of (Array.isArray(d.bars)?d.bars:[])){
     const div=S.compound?3:(b&&b.div===3?3:4), n=S.beats*div, c={};
     for(const k of ROWS){ const str=b&&b.c&&typeof b.c[k]==='string'?b.c[k]:''; const a=[]; for(let i=0;i<n;i++) a.push(validCell(k,str[i])?str[i]:'-'); c[k]=a; }
-    s.bars.push({div,c});
+    s.bars.push(Object.assign({div,c},barMeta(b)));
   }
   if(!s.bars.length) s.bars.push(emptyBar(sig,4));
   return s;
 }
 function pack(s,forCloud){
-  const d={title:s.title,bpm:s.bpm,sig:s.sig,updated:s.updated,bars:s.bars.map(b=>{const c={}; for(const k of ROWS) c[k]=b.c[k].join(''); return {div:b.div,c};})};
+  const d={title:s.title,bpm:s.bpm,sig:s.sig,updated:s.updated,bars:s.bars.map(b=>{const c={}; for(const k of ROWS) c[k]=b.c[k].join(''); return Object.assign({div:b.div,c},barMeta(b));})};
+  if(s.by) d.by=s.by; if(s.ref) d.ref=s.ref;
   if(!forCloud){ d.id=s.id; d.synced=!!s.synced; }
   return d;
 }
@@ -368,7 +382,7 @@ function remapBar(bar,oldBeats,oldDiv,newBeats,newDiv){
     }
     c[k]=a;
   }
-  return {div:newDiv,c};
+  return Object.assign({div:newDiv,c},barMeta(bar));
 }
 
 /* ---------- notation engine ---------- */
@@ -384,16 +398,27 @@ function analyzeBar(S,bar){
       if(on.length===1&&on[0]===0) items.push({t:'note',slot:0,notes:slots[0],beams:0,dot:false});
       else { tuplet=true; for(let j=0;j<3;j++) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:1,dot:false}:{t:'rest',slot:j,kind:'8'}); }
     } else {
+      // a '3' on an even sixteenth is a triplet filling that eighth: three notes, no room for others on the next sixteenth
+      const tri=new Set(); if(div===4) slots.forEach((n,j)=>{ if(j%2===0&&n.some(x=>x.v==='3')) tri.add(j); });
+      tri.forEach(j=>{ const k=on.indexOf(j+1); if(k>=0) on.splice(k,1); });
       const g=on[0];
       if(div===4){ if(g===1) items.push({t:'rest',slot:0,kind:'16'}); else if(g===2) items.push({t:'rest',slot:0,kind:'8'}); else if(g===3) items.push({t:'rest',slot:0,kind:'8'},{t:'rest',slot:2,kind:'16'}); }
       else { if(g===1) items.push({t:'rest',slot:0,kind:'8'}); else if(g===2) items.push({t:'rest',slot:0,kind:'q'}); }
       on.forEach((s,k)=>{
         const d=(k+1<on.length?on[k+1]:div)-s; let beams,dot=false;
+        if(tri.has(s)){
+          const tn=slots[s].filter(x=>x.v==='3').map(x=>({inst:x.inst,v:'n'})), first=slots[s].map(x=>x.v==='3'?{inst:x.inst,v:'n'}:x);
+          const at=items.length;
+          items.push({t:'note',slot:s,notes:first,beams:2,dot:false},{t:'note',slot:s+.74,notes:tn,beams:2,dot:false},{t:'note',slot:s+1.48,notes:tn,beams:2,dot:false});
+          (items.tri||(items.tri=[])).push(at);
+          if(d===3) items.push({t:'rest',slot:s+2,kind:'16'}); else if(d===4) items.push({t:'rest',slot:s+2,kind:'8'});
+          return;
+        }
         if(div===4){ beams=d===1?2:d===4?0:1; dot=d===3; } else { beams=d===1?1:0; dot=d===3; }
         items.push({t:'note',slot:s,notes:slots[s],beams,dot});
       });
     }
-    beats.push({items,tuplet});
+    beats.push({items,tuplet,tri:items.tri||[]});
   }
   return beats;
 }
@@ -422,13 +447,13 @@ function drawBar(o,S,bar,g){
       const cx=xOf(base+it.slot);
       if(it.t==='rest'){ o.push(restGlyph(it.kind,cx,y0+2*sp,sp,ink,it.dot)); continue; }
       const heads=it.notes.slice().sort((a,c)=>a.inst.pos-c.inst.pos), low=heads[heads.length-1];
-      const sy=yOf(low.inst.pos)-(low.inst.head==='x'?.45:.1)*sp;
+      const sy=yOf(low.inst.pos)-(low.inst.head==='x'||low.v==='x'?.45:.1)*sp;
       o.push(`<line x1="${f(cx+sdx)}" y1="${f(sy)}" x2="${f(cx+sdx)}" y2="${f(stemTop)}" stroke="${ink}" stroke-width="${f(.13*sp)}"/>`);
       const dots=new Set();
       for(const n of heads){
         const y=yOf(n.inst.pos);
         if(n.inst.pos<=-2) o.push(`<line x1="${f(cx-.95*sp)}" y1="${f(yOf(-2))}" x2="${f(cx+.95*sp)}" y2="${f(yOf(-2))}" stroke="${ink}" stroke-width="${f(.11*sp)}"/>`);
-        if(n.inst.head==='x'){ const d=.48*sp; o.push(`<path d="M${f(cx-d)} ${f(y-d)}L${f(cx+d)} ${f(y+d)}M${f(cx-d)} ${f(y+d)}L${f(cx+d)} ${f(y-d)}" stroke="${ink}" stroke-width="${f(.16*sp)}" stroke-linecap="round" fill="none"/>`); }
+        if(n.inst.head==='x'||n.v==='x'){ const d=.48*sp; o.push(`<path d="M${f(cx-d)} ${f(y-d)}L${f(cx+d)} ${f(y+d)}M${f(cx-d)} ${f(y+d)}L${f(cx+d)} ${f(y-d)}" stroke="${ink}" stroke-width="${f(.16*sp)}" stroke-linecap="round" fill="none"/>`); }
         else o.push(`<ellipse cx="${f(cx)}" cy="${f(y)}" rx="${f(.63*sp)}" ry="${f(.42*sp)}" transform="rotate(-22 ${f(cx)} ${f(y)})" fill="${ink}"/>`);
         if(n.v==='g') o.push(`<path d="M${f(cx-.85*sp)} ${f(y-.6*sp)}Q${f(cx-1.25*sp)} ${f(y)} ${f(cx-.85*sp)} ${f(y+.6*sp)}M${f(cx+.9*sp)} ${f(y-.6*sp)}Q${f(cx+1.3*sp)} ${f(y)} ${f(cx+.9*sp)} ${f(y+.6*sp)}" stroke="${ink}" stroke-width="${f(.11*sp)}" fill="none" stroke-linecap="round"/>`);
         if(it.dot) dots.add(f(n.inst.pos%2===0?y-.5*sp:y));
@@ -467,9 +492,41 @@ function drawBar(o,S,bar,g){
         for(let q=0;q<grp[0].beams;q++) o.push(`<path transform="translate(${f(xs[0])},${f(stemTop+q*.8*sp)}) scale(${f(sp)})" fill="${ink}" d="M0 0C.1.9 1.25 1.2.85 2.6 1 1.7.35 1.3 0 1Z"/>`);
       }
     }
+    for(const at of b.tri){ const xa=xOf(base+b.items[at].slot)+sdx, xb=xOf(base+b.items[at+2].slot)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.35*sp)}" fill="${ink}">3</text>`); }
     if(b.tuplet){ const xa=xOf(base)+sdx, xb=xOf(base+div-1)+sdx; o.push(`<text x="${f((xa+xb)/2)}" y="${f(stemTop-.55*sp-markMax*.95*sp)}" text-anchor="middle" font-family="'Times New Roman',Times,serif" font-style="italic" font-weight="700" font-size="${f(1.5*sp)}" fill="${ink}">3</text>`); }
   });
-  bar.c.st.forEach((v,i)=>{ if(v!=='-') o.push(`<text x="${f(xOf(i))}" y="${f(y0+7*sp)}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="700" font-size="${f(1.45*sp)}" fill="${ink}">${v}</text>`); });
+  let mm=0, anyT=false;
+  for(const b of beats){ if(b.tuplet||b.tri.length) anyT=true; for(const it of b.items){ if(it.t!=='note') continue; let c=0; if(it.notes.some(n=>n.v==='o')) c++; const ac=it.notes.filter(n=>n.v==='a'); if(ac.length&&ac.length===it.notes.length) c++; mm=Math.max(mm,c); } }
+  const stY=stemTop-.75*sp-mm*.95*sp-(anyT?1.5*sp:0);
+  const stTxt=(x,v)=>o.push(`<text x="${f(x)}" y="${f(stY)}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-weight="700" font-size="${f(1.3*sp)}" fill="${ink}">${v}</text>`);
+  const triAt=i=>div===4&&i%2===0&&INST.some(inst=>bar.c[inst.id][i]==='3');
+  bar.c.st.forEach((v,i)=>{
+    if(v==='-'||(i%2===1&&triAt(i-1))) return;
+    if(triAt(i)){ const o2=v==='R'?'L':'R'; stTxt(xOf(i),v); stTxt(xOf(i+.74),o2); stTxt(xOf(i+1.48),v); }
+    else stTxt(xOf(i),v);
+  });
+}
+// repeat sign; 'start' begins at x and reads thick-thin-dots, 'end' finishes at x and reads dots-thin-thick
+function drawRepeat(o,x,y0,sp,ink,side,noThick){
+  const d=side==='start'?1:-1, tw=.5*sp, thin=.12*sp, gapT=.3*sp, gapD=.42*sp;
+  const xThick=side==='start'?x:x-tw, xThin=x+d*(tw+gapT), xDot=xThin+d*(gapD+.2*sp);
+  if(!noThick) o.push(`<rect x="${f(xThick)}" y="${f(y0)}" width="${f(tw)}" height="${f(4*sp)}" fill="${ink}"/>`);
+  o.push(`<rect x="${f(xThin-thin/2)}" y="${f(y0)}" width="${f(thin)}" height="${f(4*sp)}" fill="${ink}"/>`);
+  for(const yy of [1.5,2.5]) o.push(`<circle cx="${f(xDot)}" cy="${f(y0+yy*sp)}" r="${f(.21*sp)}" fill="${ink}"/>`);
+}
+// small repeat mark for the ribbon's header row, where there is no room on the staff
+function miniRepeat(o,x,y,ink,side){
+  const d=side==='start'?1:-1;
+  o.push(`<rect x="${f(side==='start'?x:x-2.4)}" y="${f(y)}" width="2.4" height="11" fill="${ink}"/><rect x="${f(x+d*4)}" y="${f(y)}" width="1" height="11" fill="${ink}"/><circle cx="${f(x+d*6.6)}" cy="${f(y+3.6)}" r="1.25" fill="${ink}"/><circle cx="${f(x+d*6.6)}" cy="${f(y+7.4)}" r="1.25" fill="${ink}"/>`);
+}
+function tempoMark(o,x,y,bpm,ink,size){
+  const k=size/12;
+  o.push(`<ellipse cx="${f(x+3.4*k)}" cy="${f(y-2.2*k)}" rx="${f(3.4*k)}" ry="${f(2.4*k)}" transform="rotate(-22 ${f(x+3.4*k)} ${f(y-2.2*k)})" fill="${ink}"/><line x1="${f(x+6.5*k)}" y1="${f(y-2.6*k)}" x2="${f(x+6.5*k)}" y2="${f(y-13*k)}" stroke="${ink}" stroke-width="${f(1.1*k)}"/><text x="${f(x+9*k)}" y="${f(y)}" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-weight="700" font-size="${f(size)}" fill="${ink}">= ${bpm}</text>`);
+}
+function labelBox(o,x,y,text,ink,size){
+  const w=Math.max(size*1.25,size*.68*text.length+size*.5), h=size*1.3;
+  o.push(`<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="none" stroke="${ink}" stroke-width="1"/><text x="${f(x+w/2)}" y="${f(y+h*.78)}" text-anchor="middle" font-family="Times New Roman,Times,serif" font-weight="700" font-size="${f(size)}" fill="${ink}">${esc(text)}</text>`);
+  return w;
 }
 function drawStaff(o,x1,x2,y0,sp,ink){ for(let l=0;l<5;l++) o.push(`<line x1="${f(x1)}" y1="${f(y0+l*sp)}" x2="${f(x2)}" y2="${f(y0+l*sp)}" stroke="${ink}" stroke-width="${f(.09*sp)}" opacity=".75"/>`); }
 function drawClef(o,x,y0,sp,ink){ o.push(`<rect x="${f(x)}" y="${f(y0+sp)}" width="${f(.4*sp)}" height="${f(2*sp)}" fill="${ink}"/><rect x="${f(x+.75*sp)}" y="${f(y0+sp)}" width="${f(.4*sp)}" height="${f(2*sp)}" fill="${ink}"/>`); }
@@ -477,10 +534,10 @@ function drawSig(o,x,y0,sp,S,ink){ const a=`text-anchor="middle" font-family="'T
 function barline(o,x,y0,sp,ink,w){ o.push(`<line x1="${f(x)}" y1="${f(y0)}" x2="${f(x)}" y2="${f(y0+4*sp)}" stroke="${ink}" stroke-width="${f((w||.12)*sp)}"/>`); }
 
 function extent(S,bar){
-  let minPos=99,hasO=false,hasA=false,any=false;
-  for(const inst of INST) for(const v of bar.c[inst.id]){ if(v==='-') continue; any=true; if(inst.pos<minPos) minPos=inst.pos; if(v==='o') hasO=true; if(v==='a') hasA=true; }
-  let up=1; if(any){ up=Math.max(3-minPos/2,1.3)+((hasO||hasA)?1.3:0)+((hasO&&hasA)?.95:0)+((bar.div===3&&!S.compound)?1.3:0); }
-  let down=.6; if(bar.c.hp.some(v=>v!=='-')) down=1.3; if(bar.c.st.some(v=>v!=='-')) down=3.5;
+  let minPos=99,hasO=false,hasA=false,hasT=false,any=false;
+  for(const inst of INST) for(const v of bar.c[inst.id]){ if(v==='-') continue; any=true; if(inst.pos<minPos) minPos=inst.pos; if(v==='o') hasO=true; if(v==='a') hasA=true; if(v==='3') hasT=true; }
+  let up=1; if(any){ up=Math.max(3-minPos/2,1.3)+((hasO||hasA)?1.3:0)+((hasO&&hasA)?.95:0)+((bar.div===3&&!S.compound)||hasT?1.3:0); }
+  let down=.6; if(bar.c.hp.some(v=>v!=='-')) down=1.3; if(bar.c.st.some(v=>v!=='-')) up+=1.5;
   return {up,down};
 }
 let ED={sp:7.2,y0:6.6*7.2,H:Math.round((6.6+4+3.9)*7.2)};
@@ -494,39 +551,65 @@ function barSVG(s,bi,W){
   const S=SIGS[s.sig], bar=s.bars[bi], ink='currentColor', last=bi===s.bars.length-1;
   const o=[`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f(W)} ${ED.H}" width="${f(W)}" height="${ED.H}" role="img" aria-label="${tx('barN',bi+1)}">`];
   drawStaff(o,0,W,ED.y0,ED.sp,ink);
-  o.push(`<text x="5" y="13" font-family="Helvetica,Arial,sans-serif" font-size="11" font-weight="700" fill="${ink}" opacity=".55">${bi+1}</text>`);
+  let hx=5;
+  o.push(`<text x="${hx}" y="13" font-family="Helvetica,Arial,sans-serif" font-size="11" font-weight="700" fill="${ink}" opacity=".55">${bi+1}</text>`); hx+=String(bi+1).length*7+5;
+  if(bar.lb){ hx+=labelBox(o,hx,2,bar.lb,ink,11)+5; }
+  if(bar.tm){ tempoMark(o,hx,13,bar.tm,ink,10); hx+=44; }
+  if(bar.rs){ miniRepeat(o,hx,3,ink,'start'); o.push(`<rect x="0" y="${f(ED.y0)}" width="2.6" height="${f(4*ED.sp)}" fill="${ink}"/>`); }
+  if(bar.re){ miniRepeat(o,W-5,3,ink,'end'); }
   drawBar(o,S,bar,{x0:0,slotW:W/(S.beats*bar.div),y0:ED.y0,sp:ED.sp,ink});
-  if(last){ barline(o,W-5,ED.y0,ED.sp,ink); barline(o,W-1.6,ED.y0,ED.sp,ink,.4); } else barline(o,W-.5,ED.y0,ED.sp,ink);
+  if(bar.re) o.push(`<rect x="${f(W-2.6)}" y="${f(ED.y0)}" width="2.6" height="${f(4*ED.sp)}" fill="${ink}"/>`);
+  else if(last){ barline(o,W-5,ED.y0,ED.sp,ink); barline(o,W-1.6,ED.y0,ED.sp,ink,.4); } else barline(o,W-.5,ED.y0,ED.sp,ink);
   o.push('</svg>'); return o.join('');
 }
-function sheetLayout(s,bpl){
-  const sp=9, mx=16, lead=5.6*sp, barW=16*17+2.2*sp, S=SIGS[s.sig];
-  let up=1,down=.6; for(const b of s.bars){ const e=extent(S,b); up=Math.max(up,e.up); down=Math.max(down,e.down); }
-  const topSp=up+1.5, sysH=(topSp+4+down+1.4)*sp;
-  return {sp,mx,lead,barW,S,topSp,sysH,W:Math.round(2*mx+lead+bpl*barW),headH:66,nSys:Math.ceil(s.bars.length/bpl)};
+function sheetLayout(s,bpl,minW){
+  const sp=9, mx=16, lead=5.6*sp, S=SIGS[s.sig];
+  let barW=16*17+2.2*sp; if(minW&&2*mx+lead+bpl*barW<minW) barW=(minW-2*mx-lead)/bpl;
+  const nSys=Math.ceil(s.bars.length/bpl), sys=[];
+  for(let q=0;q<nSys;q++){
+    let up=1,down=.6,lb=false;
+    for(let j=q*bpl;j<Math.min(s.bars.length,(q+1)*bpl);j++){ const e=extent(S,s.bars[j]); up=Math.max(up,e.up); down=Math.max(down,e.down); if(s.bars[j].lb) lb=true; }
+    const topSp=Math.max(up+.35,lb?4.2:3.6); sys.push({topSp,h:(topSp+4+down+1.0)*sp});
+  }
+  return {sp,mx,lead,barW,S,sys,W:Math.round(2*mx+lead+bpl*barW),headH:66,nSys};
 }
 function sheetSVG(s,opt){
-  const L=sheetLayout(s,opt.bpl), sp=L.sp, mx=L.mx, lead=L.lead, barW=L.barW, S=L.S, topSp=L.topSp, sysH=L.sysH, W=L.W, bpl=opt.bpl, ink=opt.ink;
+  const L=sheetLayout(s,opt.bpl,opt.minW), sp=L.sp, mx=L.mx, lead=L.lead, barW=L.barW, S=L.S, W=L.W, bpl=opt.bpl, ink=opt.ink;
   const q0=opt.sys0||0, q1=opt.sys1==null?L.nSys:opt.sys1, head=opt.head!==false, top=head?L.headH:(opt.top||0);
-  const H=opt.H||Math.round(top+(q1-q0)*sysH+10);
+  let hSum=0; for(let q=q0;q<q1;q++) hSum+=L.sys[q].h;
+  const H=opt.H||Math.round(top+hSum+10);
   const o=[`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}"${opt.fixed?` width="${W}" height="${H}"`:''} role="img" aria-label="${esc(tx('sheetAria',s.title))}">`];
   if(opt.paper) o.push(`<rect width="${W}" height="${H}" fill="${opt.paper}"/>`);
   const sans=`font-family="Helvetica Neue,Helvetica,Arial,sans-serif"`;
   if(head){
     o.push(`<text x="${mx}" y="32" ${sans} font-weight="700" font-size="22" fill="${ink}">${esc(s.title||tx('untitled'))}</text>`);
     o.push(`<text x="${mx}" y="52" ${sans} font-size="12.5" fill="${ink}" opacity=".7">${esc(tx('tempoLine',s.bpm,s.sig))}</text>`);
+    if(s.by) o.push(`<text x="${W-mx}" y="52" text-anchor="end" font-family="Times New Roman,Times,serif" font-size="14" fill="${ink}">${esc(s.by)}</text>`);
   }
+  let yAcc=top;
   for(let q=q0;q<q1;q++){
-    const y0=top+(q-q0)*sysH+topSp*sp, k=Math.min(bpl,s.bars.length-q*bpl), xEnd=mx+lead+k*barW;
+    const topSp=L.sys[q].topSp, sysH=L.sys[q].h, y0=yAcc+topSp*sp, k=Math.min(bpl,s.bars.length-q*bpl), xEnd=mx+lead+k*barW;
     drawStaff(o,mx,xEnd,y0,sp,ink); barline(o,mx,y0,sp,ink); drawClef(o,mx+.8*sp,y0,sp,ink);
     if(q===0) drawSig(o,mx+3.9*sp,y0,sp,S,ink);
     for(let j=0;j<k;j++){
       const bi=q*bpl+j, bar=s.bars[bi], bx=mx+lead+j*barW, n=S.beats*bar.div;
-      o.push(`<text x="${f(bx+3)}" y="${f(y0-topSp*sp+10)}" ${sans} font-size="10" font-weight="700" fill="${ink}" opacity=".55">${bi+1}</text>`);
-      drawBar(o,S,bar,{x0:bx+1.6*sp,slotW:(barW-2.2*sp)/n,y0,sp,ink});
-      if(bi===s.bars.length-1){ barline(o,bx+barW-.55*sp,y0,sp,ink); barline(o,bx+barW-.2*sp,y0,sp,ink,.4); } else barline(o,bx+barW,y0,sp,ink);
+      const prevRe=j>0&&s.bars[bi-1].re, padR=bar.re?1.9*sp:.6*sp, yb=y0-2.6*sp, numW=String(bi+1).length*5.9;
+      const boxW=bar.lb?Math.max(12*1.25,12*.68*bar.lb.length+6):0;
+      let padL=bar.rs?2.5*sp:1.6*sp;
+      // keep the first stem clear of the label and bar number drawn to its left
+      const need=3+(boxW?boxW+5:0)+numW+3, slot0=(barW-padL-padR)/n;
+      if(padL+slot0/2+.56*sp<need) padL=need-slot0/2-.56*sp;
+      let tx0=bx+3;
+      if(bar.lb){ labelBox(o,bx+2,yb-12.6,bar.lb,ink,12); tx0=bx+2+boxW+5; }
+      if(bar.tm){ if(j===0) tempoMark(o,mx,yb,bar.tm,ink,11); else tempoMark(o,bx+2,y0-topSp*sp+10,bar.tm,ink,11); }
+      o.push(`<text x="${f(tx0)}" y="${f(yb)}" ${sans} font-size="10" font-weight="700" fill="${ink}" opacity=".55">${bi+1}</text>`);
+      if(bar.rs) drawRepeat(o,bx,y0,sp,ink,'start',prevRe);
+      drawBar(o,S,bar,{x0:bx+padL,slotW:(barW-padL-padR)/n,y0,sp,ink});
+      if(bar.re) drawRepeat(o,bx+barW,y0,sp,ink,'end');
+      else if(bi===s.bars.length-1){ barline(o,bx+barW-.55*sp,y0,sp,ink); barline(o,bx+barW-.2*sp,y0,sp,ink,.4); } else barline(o,bx+barW,y0,sp,ink);
       if(opt.hits) o.push(`<rect class="hit" data-bar="${bi}" x="${f(bx)}" y="${f(y0-topSp*sp)}" width="${f(barW)}" height="${f(sysH)}" fill="transparent"/>`);
     }
+    yAcc+=sysH;
   }
   if(opt.footer) o.push(`<text x="${f(W/2)}" y="${f(H-8)}" text-anchor="middle" ${sans} font-size="${f(W/62)}" fill="${ink}" opacity=".6">${esc(opt.footer)}</text>`);
   o.push('</svg>'); return {svg:o.join(''),W,H};
@@ -589,6 +672,7 @@ const Synth=(()=>{
       add(x,burst(.9,r,'hp',6500,.7,.05,.3,.5),.7); biquad(x,'hp',3600,.7); return finish(x,0); },
     hp(){ const r=rng(5), x=metal({dur:.16,n:36,fLo:600,fHi:11000,tauLo:.04,tauHi:.016,tilt:.1,seed:37,att:.001});
       add(x,burst(.16,r,'bp',5200,.9,.014,.03,.2),.6); biquad(x,'hp',2400,.7); return finish(x,0); },
+    xs(){ const r=rng(12), x=norm(membrane(.16,1250,.08,.004,[[1,1,.022],[2.21,.55,.014],[3.47,.3,.009]]),1); add(x,burst(.06,r,'bp',3200,1.4,.004,.012,.2),.6); add(x,norm(membrane(.16,410,0,1,[[1,1,.03]]),1),.35); return finish(x,1.3); },
     t1(){ return tom(.75,204,.26,6); }, t2(){ return tom(.9,152,.33,7); }, ft(){ return tom(1.2,99,.46,8); },
     cr(){ const r=rng(9), x=metal({dur:2.6,n:96,fLo:260,fHi:15000,tauLo:1.25,tauHi:.42,tilt:.12,seed:11,att:.004});
       add(x,burst(2.6,r,'hp',3200,.7,.09,.7,.3),.75); biquad(x,'hp',280,.7); return finish(x,0); },
@@ -608,7 +692,7 @@ const Snd=(()=>{
   // per drum and stroke: sample layer, gain, playback rate
   const KIT={
     bd:{a:['bd',1],n:['bd',.66],g:['bd',.24]},
-    sn:{a:['snA',.95],n:['snN',.6],g:['snG',.22]},
+    sn:{a:['snA',.95],n:['snN',.6],g:['snG',.22],x:['xs',.75]},
     hh:{a:['hhA',.6],n:['hhN',.42],g:['hhN',.16],o:['ho',.55]},
     hp:{a:['hp',.6],n:['hp',.42],g:['hp',.18]},
     t1:{a:['t1A',.95],n:['t1N',.6],g:['t1N',.22]},
@@ -618,7 +702,7 @@ const Snd=(()=>{
     rd:{a:['rdA',.7],n:['rdN',.5],g:['rdN',.2]}
   };
   const PAN={hh:.22,hp:.22,t1:-.25,t2:.1,ft:.35,cr:-.35,rd:.4};
-  const FALL={bd:'bd',snA:'sn',snN:'sn',snG:'sn',hhA:'hh',hhN:'hh',ho:'ho',hp:'hp',t1A:'t1',t1N:'t1',ftA:'ft',ftN:'ft',cr:'cr',rdA:'rd',rdN:'rd'};
+  const FALL={xs:'xs',bd:'bd',snA:'sn',snN:'sn',snG:'sn',hhA:'hh',hhN:'hh',ho:'ho',hp:'hp',t1A:'t1',t1N:'t1',ftA:'ft',ftN:'ft',cr:'cr',rdA:'rd',rdN:'rd'};
   const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   // iOS mutes Web Audio while the ring/silent switch is off. A playing media element moves
   // the page to the "playback" audio session, which the switch does not mute.
@@ -786,6 +870,8 @@ function mark(inst,v){
   if(!v||v==='-') return '';
   const dy=v==='a'?2.5:0; let s='<svg viewBox="-10 -10 20 20" aria-hidden="true">';
   if(v==='o') s+='<circle r="5.2" fill="none" stroke="currentColor" stroke-width="2"/>';
+  else if(v==='3') s+='<circle cx="-3.2" cy="3" r="3.4" fill="currentColor"/><text x="4.2" y="1" text-anchor="middle" font-family="Times New Roman,serif" font-style="italic" font-weight="700" font-size="11" fill="currentColor">3</text>';
+  else if(v==='x') s+='<path d="M-3.6-3.6L3.6 3.6M-3.6 3.6L3.6-3.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle r="7" fill="none" stroke="currentColor" stroke-width="1.2"/>';
   else if(inst.head==='x'){ const d=v==='g'?2.8:4.2; s+=`<path d="M${-d} ${dy-d}L${d} ${dy+d}M${-d} ${dy+d}L${d} ${dy-d}" stroke="currentColor" stroke-width="${v==='g'?1.7:2.4}" stroke-linecap="round" fill="none"/>`; }
   else s+=`<circle cy="${dy}" r="${v==='g'?3:4.6}" fill="currentColor"/>`;
   if(v==='g') s+='<path d="M-5.5-6Q-9 0-5.5 6M5.5-6Q9 0 5.5 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
@@ -826,8 +912,8 @@ function renderTape(){
   $('pad').classList.toggle('staffmode',!!state.staff);
   tape.style.setProperty('--barw',BARW+'px');
   let h=`<div class="labels"><div class="lnot">${labelSVG(s,LBL)}</div><div class="cnt"></div>`;
-  for(const inst of INST) h+=`<div class="lab f-${inst.fam}">${tx('i_'+inst.id)}</div>`;
-  h+=`<div class="lab st">${tx('hands')}</div></div>`;
+  for(const inst of INST) h+=`<div class="lab f-${inst.fam}" data-row="${inst.id}" role="button" tabindex="0" aria-haspopup="menu" aria-label="${esc(tx('rowAria',tx('i_'+inst.id)))}">${tx('i_'+inst.id)}</div>`;
+  h+=`<div class="lab st" data-row="st" role="button" tabindex="0" aria-haspopup="menu" aria-label="${esc(tx('rowAria',tx('hands')))}">${tx('hands')}</div></div>`;
   s.bars.forEach((b,i)=>{ h+=`<section class="barblk" data-bar="${i}"><div class="bnot">${barSVG(s,i,BARW)}</div><div class="bgrid" style="--n:${SIGS[s.sig].beats*b.div}">${barGridHTML(s,i)}</div></section>`; });
   h+=`<button type="button" class="addblk" data-add="1" aria-label="${tx('addBar')}">+</button><div class="playhead" id="ph" hidden></div><div class="stf" id="stf" hidden><i class="col"></i><i class="hd"></i><b class="tip"></b></div>`;
   tape.innerHTML=h; tape.scrollLeft=state.cur*BARW;
@@ -840,23 +926,57 @@ function refreshBar(bi){
 let menuFor=null, swallow=false;
 function setNote(bi,row,i,v){
   const s=song(), a=s.bars[bi]&&s.bars[bi].c[row]; if(!a||a[i]===v) return;
-  pushUndo(); a[i]=v; Store.save(s); refreshBar(bi);
+  pushUndo(); a[i]=v; if(v==='3'&&i+1<a.length) a[i+1]='-'; Store.save(s); refreshBar(bi);
   if(v!=='-'&&!Player.on){ const c=Snd.ensure(); if(c) Snd.hit(row,v,c.currentTime+.01); }
 }
 function openMenu(bi,row,i,x,y){
   const m=$('noteMenu'), cur=song().bars[bi].c[row][i], opts=[['n','hit'],['a','accent'],['g','ghost']];
-  if(row==='hh') opts.push(['o','openHat']); if(cur!=='-') opts.push(['-','remove']);
+  if(row==='hh') opts.push(['o','openHat']); if(row==='sn') opts.push(['x','xstick']);
+  if(song().bars[bi].div===4&&i%2===0&&row!=='st') opts.push(['3','triplet']);
+  if(cur!=='-') opts.push(['-','remove']);
   m.innerHTML=opts.map(o=>`<button type="button" role="menuitemradio" data-v="${o[0]}" aria-checked="${o[0]===cur}" aria-pressed="${o[0]===cur}">${tx(o[1])}</button>`).join('');
   m.hidden=false; menuFor={bi,row,i};
   const w=m.offsetWidth, h=m.offsetHeight, vw=document.documentElement.clientWidth;
   m.style.left=clamp(x-w/2,8,Math.max(8,vw-w-8))+'px'; m.style.top=(y-h-26<8?y+30:y-h-26)+'px';
 }
-function closeMenu(){ menuFor=null; $('noteMenu').hidden=true; }
+function closeMenu(){ menuFor=null; $('noteMenu').hidden=true; document.querySelectorAll('.lab[aria-expanded="true"]').forEach(l=>l.removeAttribute('aria-expanded')); }
+// Tapping a row name fills that whole row in the current bar
+function openRowMenu(row,el){
+  const s=song(), bi=state.cur, bar=s.bars[bi]; if(!bar) return;
+  const S=SIGS[s.sig], m=$('noteMenu');
+  const opts=row==='st'?[['RL','stRL'],['LR','stLR'],['acc','stAcc'],['-','clearRow']]
+    :[['all',bar.div===4?'fillAll16':S.compound?'fillAll8c':'fillAllT']].concat(bar.div===4?[['8','fill8']]:[],[['4','fill4'],['-','clearRow']]);
+  m.innerHTML=`<div class="mh">${esc(tx('barN',bi+1)+' · '+tx(row==='st'?'hands':'i_'+row))}</div>`+opts.map(o=>`<button type="button" role="menuitem" data-v="${o[0]}">${tx(o[1])}</button>`).join('');
+  m.hidden=false; menuFor={kind:'row',bi,row}; el.setAttribute('aria-expanded','true');
+  const r=el.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight, vw=document.documentElement.clientWidth, vh=window.innerHeight;
+  // beside the name when there is room, otherwise just under (or over) its row so the name stays in view
+  if(r.right+6+w<=vw-8){ m.style.left=(r.right+6)+'px'; m.style.top=clamp(r.top+r.height/2-h/2,8,Math.max(8,vh-h-8))+'px'; }
+  else { m.style.left=clamp(r.left,8,Math.max(8,vw-w-8))+'px'; m.style.top=(r.bottom+6+h<=vh-8?r.bottom+6:Math.max(8,r.top-h-6))+'px'; }
+  const f=m.querySelector('button'); if(f) try{ f.focus({preventScroll:true}); }catch(e){}
+}
+function fillRow(bi,row,mode){
+  const s=song(), bar=s.bars[bi]; if(!bar) return;
+  const n=SIGS[s.sig].beats*bar.div, a=bar.c[row], div=bar.div, before=a.join('');
+  if(row==='st'){
+    const hit=i=>INST.some(it=>{ const v=bar.c[it.id][i]; return v&&v!=='-'; }), acc=i=>INST.some(it=>bar.c[it.id][i]==='a');
+    let any=false; for(let i=0;i<n;i++) if(hit(i)) any=true;
+    for(let i=0;i<n;i++) a[i]=mode==='-'||(any&&!hit(i))?'-':mode==='acc'?(acc(i)?'R':'L'):((i%2===0)===(mode==='RL')?'R':'L');
+  } else {
+    const on=i=>mode==='all'||(mode==='8'&&i%2===0)||(mode==='4'&&i%div===0);
+    for(let i=0;i<n;i++){ const v=a[i]; a[i]=mode==='-'||!on(i)?'-':(v&&v!=='-'&&v!=='3'?v:'n'); }
+  }
+  if(a.join('')===before) return;
+  const now=a.slice(); a.splice(0,n,...before.split('')); pushUndo(); a.splice(0,n,...now);
+  Store.save(s); refreshBar(bi);
+  if(row!=='st'&&mode!=='-'&&!Player.on){ const c=Snd.ensure(); if(c) Snd.hit(row,'n',c.currentTime+.01); }
+}
 function wireMenu(){
   const tape=$('tape'); let lp=null;
   const cancel=()=>{ if(lp){ clearTimeout(lp.t); lp=null; } };
   document.addEventListener('pointerdown',e=>{ if(menuFor){ if(!e.target.closest('#noteMenu')){ closeMenu(); swallow=true; } } else swallow=false; },true);
-  $('noteMenu').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!menuFor) return; const f=menuFor; closeMenu(); setNote(f.bi,f.row,f.i,b.dataset.v); });
+  $('noteMenu').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||!menuFor) return; const f=menuFor; closeMenu(); if(f.kind==='row') fillRow(f.bi,f.row,b.dataset.v); else setNote(f.bi,f.row,f.i,b.dataset.v); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuFor) closeMenu(); });
+  tape.addEventListener('keydown',e=>{ const l=e.target.closest&&e.target.closest('.lab[data-row]'); if(l&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); openRowMenu(l.dataset.row,l); } });
   tape.addEventListener('pointerdown',e=>{
     cancel(); const c=e.target.closest('.cell'); if(!c||c.dataset.r==='st'||swallow||(e.pointerType==='mouse'&&e.button!==0)) return;
     const o={id:e.pointerId,x:e.clientX,y:e.clientY,bi:+c.closest('.barblk').dataset.bar,row:c.dataset.r,i:+c.dataset.i};
@@ -931,6 +1051,7 @@ function renderTools(){
   $('divSeg').hidden=S.compound;
   $('divSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.div===bar.div)));
   $('btnUndo').disabled=!state.undo.length;
+  $('btnRep').setAttribute('aria-pressed',String(!!(bar.rs||bar.re)));
 }
 function renderSheet(){
   if(state.view!=='sheet') return;
@@ -971,7 +1092,7 @@ const Player={
   on:false,timer:0,raf:0,next:0,bar:0,slot:0,queue:[],done:false,
   start(){
     const c=Snd.ensure(); if(!c){ toast(tx('tNoAudio')); return; }
-    this.on=true; this.done=false; this.queue=[]; this.bar=state.cur; this.slot=0; this.next=c.currentTime+.09;
+    this.on=true; this.done=false; this.queue=[]; this.taken=new Set(); this.bar=state.cur; this.slot=0; this.next=c.currentTime+.09;
     $('play').innerHTML=STOP_ICON; $('play').setAttribute('aria-label',tx('stop'));
     this.timer=setInterval(()=>this.pump(),25); this.pump();
     const loop=()=>{ if(!this.on) return; this.draw(); this.raf=requestAnimationFrame(loop); }; this.raf=requestAnimationFrame(loop);
@@ -982,16 +1103,20 @@ const Player={
     if($('ph')) $('ph').hidden=true; $('play').innerHTML=PLAY_ICON; $('play').setAttribute('aria-label',tx('play'));
   },
   pump(){
-    const s=song(), now=Snd.now();
+    const s=song(), now=Snd.now(); if(!this.taken) this.taken=new Set();
     while(!this.done&&this.next<now+.13){
       if(state.loop&&this.slot===0) this.bar=state.cur;
       const bar=s.bars[this.bar]; if(!bar){ this.done=true; this.queue.push({t:this.next,end:true}); break; }
       const n=SIGS[s.sig].beats*bar.div; if(this.slot>=n) this.slot=0;
-      for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v&&v!=='-') Snd.hit(inst.id,v,this.next); }
+      const dur=60/tempoAt(s,this.bar)/bar.div;
+      for(const inst of INST){ const v=bar.c[inst.id][this.slot]; if(v==='3'){ for(let k=0;k<3;k++) Snd.hit(inst.id,'n',this.next+k*dur*2/3); } else if(v&&v!=='-') Snd.hit(inst.id,v,this.next); }
       if(state.click&&this.slot%bar.div===0) Snd.tick(this.next,this.slot===0);
       this.queue.push({t:this.next,bar:this.bar,slot:this.slot,n});
-      this.next+=60/s.bpm/bar.div; this.slot++;
-      if(this.slot>=n){ this.slot=0; if(!state.loop){ this.bar++; if(this.bar>=s.bars.length){ this.done=true; this.queue.push({t:this.next,end:true}); } } }
+      this.next+=dur; this.slot++;
+      if(this.slot>=n){ this.slot=0; if(!state.loop){
+        if(bar.re&&!this.taken.has(this.bar)){ this.taken.add(this.bar); let j=this.bar; while(j>0&&!s.bars[j].rs&&!s.bars[j-1].re) j--; this.bar=j; }
+        else this.bar++;
+        if(this.bar>=s.bars.length){ this.done=true; this.queue.push({t:this.next,end:true}); } } }
     }
   },
   draw(){
@@ -1018,7 +1143,7 @@ function rasterize(svg,w,h,type,q){
 }
 const fileName=s=>(s.title||tx('fileDef')).replace(/[\\/:*?"<>|]+/g,' ').trim().slice(0,60)||tx('fileDef');
 async function nativeSave(o){
-  const type=/\.pdf$/i.test(o.filename)?'application/pdf':'image/png';
+  const type=/\.pdf$/i.test(o.filename)?'application/pdf':/\.json$/i.test(o.filename)?'application/json':'image/png';
   const blob=o.data instanceof Blob?o.data:new Blob([o.data],{type});
   try{
     const file=new File([blob],o.filename,{type});
@@ -1037,7 +1162,7 @@ async function exportFile(kind){
       await downloads.save({filename:fileName(s)+'.png',data:await rasterize(r.svg,Math.round(r.W*k),Math.round(r.H*k),'image/png')});
     } else {
       toast(tx('tPdf'));
-      await downloads.save({filename:fileName(s)+'.pdf',data:await makePdf(s,Math.max(2,state.bpl))});
+      await downloads.save({filename:fileName(s)+'.pdf',data:await makePdf(s,state.bpl)});
     }
   }catch(e){ if(!e||e.code!=='declined') toast(tx('tFile')); }
   exporting=false;
@@ -1045,13 +1170,20 @@ async function exportFile(kind){
 // A4 pages, each one the engraved sheet as an image
 const PDF={PW:595.28,PH:841.89,M:24};
 async function renderPages(s,bpl,type,q){
-  const L=sheetLayout(s,bpl), H=Math.round(L.W*(PDF.PH-2*PDF.M)/(PDF.PW-2*PDF.M));
-  const first=Math.max(1,Math.floor((H-L.headH-30)/L.sysH)), rest=Math.max(1,Math.floor((H-50)/L.sysH)), ranges=[];
-  for(let q0=0;q0<L.nSys;){ const n=ranges.length?rest:first; ranges.push([q0,Math.min(L.nSys,q0+n)]); q0+=n; }
+  let minW=sheetLayout(s,2).W, L=sheetLayout(s,bpl,minW), H=Math.round(L.W*(PDF.PH-2*PDF.M)/(PDF.PW-2*PDF.M));
+  // a sheet that would only just spill onto a second page is drawn a little smaller so it fits on one
+  const need=L.headH+22+L.sys.reduce((a,x)=>a+x.h,0);
+  if(need>H&&need<=H*1.3){ minW=Math.ceil(L.W*need/H)+1; L=sheetLayout(s,bpl,minW); H=Math.round(L.W*(PDF.PH-2*PDF.M)/(PDF.PW-2*PDF.M)); }
+  const ranges=[];
+  for(let q0=0;q0<L.nSys;){
+    const avail=ranges.length?H-44:H-L.headH-22; let used=0, q1=q0;
+    while(q1<L.nSys&&(q1===q0||used+L.sys[q1].h<=avail)){ used+=L.sys[q1].h; q1++; }
+    ranges.push([q0,q1]); q0=q1;
+  }
   if(!ranges.length) ranges.push([0,0]);
   const w=1600, h=Math.round(w*H/L.W), out=[];
   for(let i=0;i<ranges.length;i++){
-    const r=sheetSVG(s,{bpl,ink:'#111418',paper:'#ffffff',fixed:true,sys0:ranges[i][0],sys1:ranges[i][1],head:i===0,top:20,H,footer:(s.title||tx('untitled'))+' · '+tx('pageOf',i+1,ranges.length)});
+    const r=sheetSVG(s,{bpl,minW,ink:'#111418',paper:'#ffffff',fixed:true,sys0:ranges[i][0],sys1:ranges[i][1],head:i===0,top:20,H,footer:(s.title||tx('untitled'))+' · '+tx('pageOf',i+1,ranges.length)});
     out.push({blob:await rasterize(r.svg,w,h,type,q),w,h});
   }
   return out;
@@ -1064,21 +1196,25 @@ async function togglePages(){
   if(exporting) return; exporting=true;
   try{
     toast(tx('tPages'));
-    const pages=await renderPages(song(),Math.max(2,state.bpl),'image/png');
+    const pages=await renderPages(song(),state.bpl,'image/png');
     freePages(); pageUrls=pages.map(p=>URL.createObjectURL(p.blob));
     $('sheet').innerHTML=pageUrls.map((u,i)=>`<img class="pg" src="${u}" width="${pages[i].w}" height="${pages[i].h}" alt="${esc(tx('pageAlt',i+1))}">`).join('');
     pagesShown=true; applyLang();
   }catch(e){ toast(tx('tFile')); }
   exporting=false;
 }
+// JSON with every character outside ASCII written as \uXXXX, so it can sit in the PDF byte for byte
+const asciiJSON=o=>JSON.stringify(o).replace(/[\u007f-\uffff]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));
 async function makePdf(s,bpl){
-  const PW=PDF.PW, PHt=PDF.PH, M=PDF.M, pages=[];
-  for(const p of await renderPages(s,bpl,'image/jpeg',.93)) pages.push({jpg:new Uint8Array(await p.blob.arrayBuffer()),w:p.w,h:p.h});
+  const list=Array.isArray(s)?s:[s], PW=PDF.PW, PHt=PDF.PH, M=PDF.M, pages=[];
+  for(let k=0;k<list.length;k++) for(const p of await renderPages(list[k],Array.isArray(bpl)?bpl[k]:bpl,'image/jpeg',.93)) pages.push({jpg:new Uint8Array(await p.blob.arrayBuffer()),w:p.w,h:p.h});
+  // the notes themselves travel inside the PDF as an attached file, so the app can add them back from it
+  const data=asciiJSON({app:'drumbook',v:1,songs:list.map(x=>pack(x,true))}), E=3+pages.length*3;
   const enc=new TextEncoder(), parts=[], offs=[]; let len=0;
   const push=x=>{ const u=typeof x==='string'?enc.encode(x):x; parts.push(u); len+=u.length; };
   const obj=(n,body)=>{ offs[n]=len; push(n+' 0 obj\n'); body(); push('\nendobj\n'); };
   push('%PDF-1.4\n');
-  obj(1,()=>push('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(1,()=>push('<< /Type /Catalog /Pages 2 0 R /Names << /EmbeddedFiles << /Names [(drumbook.json) '+(E+1)+' 0 R] >> >> >>'));
   obj(2,()=>push('<< /Type /Pages /Count '+pages.length+' /Kids ['+pages.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] >>'));
   pages.forEach((p,i)=>{
     const a=3+i*3, c='q '+f(PW-2*M)+' 0 0 '+f(PHt-2*M)+' '+M+' '+M+' cm /Im0 Do Q';
@@ -1086,21 +1222,55 @@ async function makePdf(s,bpl){
     obj(a+1,()=>push('<< /Length '+c.length+' >>\nstream\n'+c+'\nendstream'));
     obj(a+2,()=>{ push('<< /Type /XObject /Subtype /Image /Width '+p.w+' /Height '+p.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+p.jpg.length+' >>\nstream\n'); push(p.jpg); push('\nendstream'); });
   });
-  const xref=len, total=3+pages.length*3; let x='xref\n0 '+total+'\n0000000000 65535 f \n';
+  obj(E,()=>push('<< /Type /EmbeddedFile /Subtype /application#2Fjson /Params << /Size '+data.length+' >> /Length '+data.length+' >>\nstream\n'+data+'\nendstream'));
+  obj(E+1,()=>push('<< /Type /Filespec /F (drumbook.json) /UF (drumbook.json) /Desc (Drumbook songs) /EF << /F '+E+' 0 R >> >>'));
+  const xref=len, total=E+2; let x='xref\n0 '+total+'\n0000000000 65535 f \n';
   for(let k=1;k<total;k++) x+=String(offs[k]).padStart(10,'0')+' 00000 n \n';
   push(x+'trailer\n<< /Size '+total+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
   return new Blob(parts,{type:'application/pdf'});
 }
+
+/* ---------- adding songs from a PDF or a .json file ---------- */
+function bytesText(u){ let t=''; for(let i=0;i<u.length;i+=8192) t+=String.fromCharCode.apply(null,u.subarray(i,i+8192)); return t; }
+const PDF_MARK='{"app":"drumbook"';
+function songsInText(t){
+  let out=[], k=0;
+  while((k=t.indexOf(PDF_MARK,k))>=0){
+    const e=t.indexOf('endstream',k), raw=(e<0?t.slice(k):t.slice(k,e)).trim();
+    try{ const d=JSON.parse(raw); if(d&&Array.isArray(d.songs)) out=out.concat(d.songs); }catch(err){}
+    k+=PDF_MARK.length;
+  }
+  return out;
+}
+async function songsFromPdf(buf){
+  const u=new Uint8Array(buf), t=bytesText(u);
+  let list=songsInText(t);
+  if(list.length||typeof DecompressionStream!=='function') return list;
+  // a PDF saved again by another app may keep the attached notes compressed
+  const re=/<<((?:(?!stream)[\s\S]){0,800}?)>>\s*stream\r?\n/g; let m, tries=0;
+  while((m=re.exec(t))&&tries<80){
+    if(!/FlateDecode/.test(m[1])||/DCTDecode|\/Image/.test(m[1])) continue; tries++;
+    const st=m.index+m[0].length, en=t.indexOf('endstream',st); if(en<0) break;
+    let stop=en; while(stop>st&&(t.charCodeAt(stop-1)===10||t.charCodeAt(stop-1)===13)) stop--;
+    try{
+      const out=new Uint8Array(await new Response(new Blob([u.subarray(st,stop)]).stream().pipeThrough(new DecompressionStream('deflate'))).arrayBuffer());
+      list=list.concat(songsInText(bytesText(out)));
+    }catch(err){}
+    re.lastIndex=en;
+  }
+  return list;
+}
+function songKey(s){ const d=pack(s,true); delete d.updated; return JSON.stringify(d); }
 
 /* ---------- language switch, bar swipe ---------- */
 function applyLang(){
   document.documentElement.lang=LANG;
   for(const q in TEXT){ const el=document.querySelector(q); if(el&&!el.dataset.arm) el.textContent=tx(TEXT[q]); }
   for(const q in ARIA){ const el=document.querySelector(q); if(el) el.setAttribute('aria-label',tx(ARIA[q])); }
-  $('hintGrid').textContent=tx(state.staff?'hintStaff':'hintGrid')+tx('hintHold');
+  $('hintGrid').textContent=tx(state.staff?'hintStaff':'hintGrid')+tx('hintHold')+tx('hintRow');
   $('play').setAttribute('aria-label',tx(Player.on?'stop':'play'));
   $('dlNote').textContent=tx(downloads?'dlOn':pagesShown?'pagesHint':'dlOff');
-  $('btnPages').textContent=tx(pagesShown?'pagesBack':'pages'); $('btnPages').hidden=!!downloads;
+  $('btnPages').textContent=tx(pagesShown?'pagesBack':'pages'); $('btnPages').hidden=!!downloads; $('btnExport').hidden=!downloads;
   $('langSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANG)));
   Store.status();
 }
@@ -1121,6 +1291,7 @@ function init(){
 
   $('tape').addEventListener('click',e=>{
     if(swallow){ swallow=false; return; }
+    const l=e.target.closest('.lab[data-row]'); if(l){ openRowMenu(l.dataset.row,l); return; }
     const c=e.target.closest('.cell');
     if(c){ tapCell(+c.closest('.barblk').dataset.bar,c.dataset.r,+c.dataset.i); return; }
     if(e.target.closest('.addblk')) addBar();
@@ -1149,7 +1320,7 @@ function init(){
     pushUndo(); s.bars[state.cur]=remapBar(bar,SIGS[s.sig].beats,bar.div,SIGS[s.sig].beats,nd); Store.save(s); renderEditor();
   });
   $('btnDup').addEventListener('click',()=>{ const s=song(); pushUndo(); s.bars.splice(state.cur+1,0,JSON.parse(JSON.stringify(curBar()))); state.cur++; Store.save(s); renderEditor(); });
-  $('btnClear').addEventListener('click',()=>{ const s=song(); pushUndo(); s.bars[state.cur]=emptyBar(s.sig,curBar().div); Store.save(s); renderEditor(); });
+  $('btnClear').addEventListener('click',()=>{ const s=song(); pushUndo(); s.bars[state.cur]=Object.assign(emptyBar(s.sig,curBar().div),barMeta(curBar())); Store.save(s); renderEditor(); });
   $('btnDel').addEventListener('click',e=>armed(e.currentTarget,tx('sureDel'),()=>{
     const s=song(); pushUndo();
     if(s.bars.length>1){ s.bars.splice(state.cur,1); state.cur=Math.min(state.cur,s.bars.length-1); } else s.bars[0]=emptyBar(s.sig,s.bars[0].div);
@@ -1185,6 +1356,38 @@ function init(){
   });
   $('btnNew').addEventListener('click',()=>{
     const n=unpack({id:newId(),title:tx('newSong'),bpm:96,sig:'4/4',bars:[]}); state.songs.unshift(n); Store.save(n); setSong(n.id); $('songsPanel').hidden=true; $('title').focus(); $('title').select();
+  });
+  $('btnRep').addEventListener('click',()=>{
+    const s=song(), bar=curBar(); pushUndo();
+    if(bar.rs||bar.re){ delete bar.rs; delete bar.re; } else { bar.rs=true; bar.re=true; }
+    Store.save(s); refreshBar(state.cur); if(state.cur>0) refreshBar(state.cur-1); renderTools();
+  });
+  $('btnImport').addEventListener('click',()=>{ $('fileImport').value=''; $('fileImport').click(); });
+  $('fileImport').addEventListener('change',async e=>{
+    const file=e.target.files&&e.target.files[0]; if(!file) return;
+    let list=[], isPdf=/\.pdf$/i.test(file.name||'')||file.type==='application/pdf';
+    try{
+      const buf=await file.arrayBuffer();
+      if(bytesText(new Uint8Array(buf,0,Math.min(5,buf.byteLength)))==='%PDF-'){ isPdf=true; list=await songsFromPdf(buf); }
+      else if(!isPdf){ const d=JSON.parse(new TextDecoder().decode(buf)); list=Array.isArray(d)?d:Array.isArray(d.songs)?d.songs:(d&&Array.isArray(d.bars)?[d]:[]); }
+    }catch(err){ list=[]; }
+    list=list.filter(x=>x&&Array.isArray(x.bars)&&x.bars.length).slice(0,200);
+    if(!list.length){ toast(tx(isPdf?'tNoPdfData':'tBadFile')); return; }
+    // a song that is already in the list exactly as it is in the file is not added a second time
+    const have=new Set(state.songs.filter(x=>!x.demo).map(songKey));
+    const added=list.map(x=>unpack(Object.assign({},x,{id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
+    if(!added.length){ toast(tx('tDupe')); $('songsPanel').hidden=true; return; }
+    for(let i=added.length-1;i>=0;i--){ state.songs.unshift(added[i]); Store.save(added[i]); }
+    state.songs=state.songs.filter(x=>!x.demo);
+    setSong(added[0].id); $('songsPanel').hidden=true; toast(tx('tImported',added.length));
+  });
+  $('btnExport').addEventListener('click',async()=>{
+    if(!downloads||exporting) return; exporting=true;
+    try{
+      const data=JSON.stringify({app:'drumbook',v:1,songs:state.songs.filter(x=>!x.demo).map(x=>pack(x,true))},null,1);
+      await downloads.save({filename:(LANG==='en'?'drum songs':'барабанные песни')+'.json',data:new Blob([data],{type:'application/json'})});
+    }catch(err){ if(!err||err.code!=='declined') toast(tx('tFile')); }
+    exporting=false;
   });
   $('btnPng').addEventListener('click',()=>exportFile('png'));
   $('btnPdf').addEventListener('click',()=>exportFile('pdf'));
