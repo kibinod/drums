@@ -150,7 +150,9 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .songrow b{display:block;font:700 21px/1.15 var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .songrow small{color:var(--muted);font-size:13px}
 .panelrow{display:flex;gap:8px;justify-content:space-between;align-items:center}
-.hdrbtns{display:flex;gap:8px}
+.hdrbtns{display:flex;gap:8px}.hdrbtns.wrap{flex-wrap:wrap}
+.recmeter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.recmeter[hidden]{display:none}.recmeter i{display:block;height:100%;width:0;background:var(--accent);transition:width .08s linear}
+#recLatRow .hint{margin:0;flex:1}
 .metro-bpm{display:flex;align-items:center;justify-content:center;gap:18px}#mBpm{font:800 64px/1 var(--display);min-width:3ch;text-align:center;font-variant-numeric:tabular-nums}
 .chip.bigsq{width:56px;height:56px;font:500 32px/1 var(--body);padding:0}#metroPanel input[type=range]{width:100%;accent-color:var(--accent)}
 .metro-dots{display:flex;gap:12px;justify-content:center;min-height:22px}.metro-dots i{width:20px;height:20px;border-radius:50%;background:var(--line)}.metro-dots i.on{background:var(--ink)}.metro-dots i.on.first{background:var(--accent)}
@@ -314,8 +316,14 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
     <div class="seg wide" id="rWhat"><button type="button" data-what="sn" aria-pressed="true" id="rWhat1">Малый или пэд</button><button type="button" data-what="kit" aria-pressed="false" id="rWhat2">Вся установка</button></div>
     <div class="seg wide" id="rDiv"><button type="button" data-div="auto" aria-pressed="true" id="rDivA">Авто</button><button type="button" data-div="4" aria-pressed="false" id="rDiv4">16-е</button><button type="button" data-div="3" aria-pressed="false" id="rDiv3">Триоли</button><button type="button" data-div="6" aria-pressed="false" id="rDiv6">Секстоли</button><button type="button" data-div="8" aria-pressed="false" id="rDiv8">32-е</button></div>
     <button class="chip" id="rClick" type="button" aria-pressed="true">Метроном во время записи</button>
+    <div class="panelrow" id="recLatRow"><span class="hint" id="recLat"></span><button class="chip" id="recCal" type="button">Калибровка</button></div>
+    <div class="recmeter" id="recMeter" hidden><i id="recLevel"></i></div>
     <p class="status" id="recStatus" role="status" aria-live="polite"></p>
     <button class="bigbtn rec" id="recBtn" type="button">● Запись</button>
+    <div id="recAfter" hidden>
+      <div class="hdrbtns wrap"><button class="chip" id="recAgain" type="button">Распознать заново</button><button class="chip" id="recListen" type="button">Послушать</button><button class="chip" id="recWav" type="button">Сохранить запись</button></div>
+      <p class="hint" id="recAfterHint"></p>
+    </div>
   </div>
 </div>
 <div class="notemenu" id="noteMenu" hidden role="menu"></div>
@@ -340,12 +348,12 @@ const I18N={
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
   untitled:'Без названия',demoTitle:'Пример: рок-бит',barN:'Такт {0}',addBar:'Добавить такт',cellAria:'{0}, клетка {1}',handAria:'Рука, клетка {0}',
-  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
+  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
   st_cloud:'Песни сохраняются в вашем аккаунте Claude и откроются на любом устройстве.',st_local:'Песни сохраняются только в этом браузере на этом устройстве.',
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Gemini сейчас перегружен или запросов слишком много. Попробуйте через минуту.'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
   copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save all to a file',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
   hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
@@ -356,18 +364,18 @@ const I18N={
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
   untitled:'Untitled',demoTitle:'Example: rock beat',barN:'Bar {0}',addBar:'Add a bar',cellAria:'{0}, cell {1}',handAria:'Hand, cell {0}',
-  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
+  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
   st_cloud:'Songs are saved to your Claude account and open on any device.',st_local:'Songs are saved only in this browser on this device.',
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Gemini is busy or there are too many requests. Try again in a minute.'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.'}
 };
 let LANG='ru';
 const tx=(k,a,b)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; if(a!==undefined) v=v.replace('{0}',a); if(b!==undefined) v=v.replace('{1}',b); return v; };
 const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
-  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
+  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
 const ARIA={'#folderBar':'foldersAria','#swing':'swingAria','#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
 
 /* ---------- model ---------- */
@@ -1414,7 +1422,12 @@ function addSongs(list){
 /* ---------- notes from a photo: Claude reads the page ---------- */
 let Sampler=null, SampleImg=null, photoCtl=null, PhotoMode='';
 // tried in turn: a model that is overloaded, missing or out of free requests hands over to the next (each has its own free quota)
-const GEM_MODELS=['gemini-flash-latest','gemini-3.6-flash','gemini-flash-lite-latest','gemini-3.5-flash-lite'], GEM_SLOT='drumbook.gemkey';
+const GEM_MODELS=['gemini-flash-latest','gemini-3.8-flash','gemini-3.6-flash','gemini-flash-lite-latest','gemini-3.5-flash-lite','gemini-3.1-flash-lite'], GEM_SLOT='drumbook.gemkey';
+// how long to keep trying while Google's servers are overloaded, in seconds of waiting between tries
+const GEM_PATIENCE=600;
+// a pause that the Stop button can cut short; tick(seconds left) once a second
+let gemSleep=(sec,signal,tick)=>new Promise((res,rej)=>{ let left=Math.ceil(sec); if(tick) tick(left);
+  const t=setInterval(()=>{ if(signal.aborted){ clearInterval(t); rej({code:'cancelled'}); return; } left--; if(left<=0){ clearInterval(t); res(); } else if(tick) tick(left); },1000); });
 const lsGet=k=>{ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } };
 const getKey=()=>lsGet(GEM_SLOT);
 // a Claude key saved by the earlier version is not used any more: forget it
@@ -1462,6 +1475,7 @@ function parseLoose(t){
 // Gemini through the person's own Google AI Studio key (free tier).
 // Streamed with thought summaries on, so data keeps arriving while it thinks: a long silence lets a phone drop the connection.
 let gemFrom=0;   // the model that answered last time is asked first next time
+let gemWaitUI=null;   // shows the countdown while Gemini is busy
 async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
   opt=opt||{};
   const parts=[];
@@ -1476,8 +1490,15 @@ async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
     try{ r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse',{method:'POST',signal,headers:{'content-type':'application/json','x-goog-api-key':getKey()},body:bodyFor(th)}); }
     catch(e){ if(signal.aborted) throw {code:'cancelled'}; return {err:{code:'network',message:String((e&&e.message)||e||'')}}; }
     if(!r.ok){
-      let m='', st=''; try{ const j=await r.json(); m=(j&&j.error&&j.error.message)||''; st=(j&&j.error&&j.error.status)||''; }catch(e){}
-      return {err:{code:'gem',status:r.status,gstatus:st,message:m,model}};
+      let m='', st='', det=[]; try{ const j=await r.json(); m=(j&&j.error&&j.error.message)||''; st=(j&&j.error&&j.error.status)||''; det=(j&&j.error&&j.error.details)||[]; }catch(e){}
+      // Google says how long to wait (RetryInfo) and which limit was hit (QuotaFailure): per minute, per day, or none at all for this model
+      let delay=0, daily=false, noFree=/limit:\s*0\b/.test(m);
+      for(const d of Array.isArray(det)?det:[]){
+        if(d&&typeof d.retryDelay==='string'){ const v=parseFloat(d.retryDelay); if(isFinite(v)) delay=v; }
+        for(const v of (d&&d.violations)||[]){ const q=String(v.quotaId||'')+' '+String(v.quotaMetric||''); if(/PerDay/i.test(q)) daily=true; if(v.quotaValue==='0'||v.quotaValue===0) noFree=true; }
+      }
+      if(!det.length&&/per.?day|daily/i.test(m)) daily=true;
+      return {err:{code:'gem',status:r.status,gstatus:st,message:m,model,delay,daily,noFree}};
     }
     const rd=r.body.getReader(), dec=new TextDecoder(); let buf='', text='', blocked=false, finish='';
     const take=d=>{
@@ -1506,23 +1527,35 @@ async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
     if(blocked&&!text.trim()) throw {code:'refused'};
     return {value:{text,finish}};
   };
-  let last=null;
-  for(let mi=gemFrom;mi<GEM_MODELS.length;mi++){
-    const model=GEM_MODELS[mi];
-    let th=true, res=await attempt(model,th);
-    // a model that takes no thought summaries: ask it again without them
-    if(res.err&&res.err.code==='gem'&&res.err.status===400&&/max.?output|output.?tokens/i.test(res.err.message)){ maxOut=32768; res=await attempt(model,th); }
-    if(res.err&&res.err.code==='gem'&&res.err.status===400&&/think|thought/i.test(res.err.message)){ th=false; res=await attempt(model,th); }
-    // a dropped connection gets one more try on the same model
-    if(res.err&&res.err.code==='network'){ await wait(1500); if(signal.aborted) throw {code:'cancelled'}; res=await attempt(model,th); }
-    if(res.value!==undefined){ gemFrom=mi; return res.value; }
-    const e=res.err;
-    if(e.code==='network') throw e;   // a lost connection is not the model's fault: no point trying the others
-    if([404,429,500,502,503,504].includes(e.status)){ if(!(last&&last.status===429&&e.status===404)) last=e; continue; }
-    throw e;
+  // Every model in turn, starting with the one that answered last time. "Overloaded" and "too many requests"
+  // pass in a minute or two, so after a round where every model was busy: wait (5 s, 10, 20, 40, then each minute) and go round again.
+  // A model that does not exist, has no free quota or has used up today's is left out from then on.
+  const dead=new Set(); let last=null, dayErr=null, waited=0;
+  for(let pass=1;;pass++){
+    let ask=0;
+    for(let k=0;k<GEM_MODELS.length;k++){
+      const mi=(gemFrom+k)%GEM_MODELS.length, model=GEM_MODELS[mi]; if(dead.has(model)) continue;
+      let th=true, res=await attempt(model,th);
+      // a model that takes fewer output tokens, or no thought summaries: ask it again within its limits
+      if(res.err&&res.err.code==='gem'&&res.err.status===400&&/max.?output|output.?tokens/i.test(res.err.message)){ maxOut=32768; res=await attempt(model,th); }
+      if(res.err&&res.err.code==='gem'&&res.err.status===400&&/think|thought/i.test(res.err.message)){ th=false; res=await attempt(model,th); }
+      // a dropped connection gets one more try on the same model
+      if(res.err&&res.err.code==='network'){ await wait(1500); if(signal.aborted) throw {code:'cancelled'}; res=await attempt(model,th); }
+      if(res.value!==undefined){ gemFrom=mi; if(opt.onWait) opt.onWait(0,pass); return res.value; }
+      const e=res.err;
+      if(e.code==='network') throw e;   // a lost connection is not the model's fault: no point trying the others
+      if(/API key|API_KEY/i.test(e.message)||e.status===401||e.status===403) throw e;
+      if(e.status===429&&(e.daily||e.noFree)){ dead.add(model); if(e.daily) dayErr=e; else if(!last) last=e; continue; }
+      if(e.status===404||e.status===400){ dead.add(model); if(!last||last.status===404) last=e; continue; }
+      if(e.status===429||e.status===408||e.status>=500){ last=e; ask=Math.max(ask,e.delay||0); continue; }
+      throw e;
+    }
+    if(dead.size>=GEM_MODELS.length){ gemFrom=0; throw dayErr||last||{code:'gem',status:404,message:'model not found'}; }
+    const w=Math.min(120,Math.max(ask,Math.min(60,5*2**(pass-1)))+Math.random()*3);
+    if(waited+w>GEM_PATIENCE){ throw Object.assign({},last,{waited:Math.round(waited)}); }
+    waited+=w;
+    await gemSleep(w,signal,left=>{ if(opt.onWait) opt.onWait(left,pass+1); });
   }
-  gemFrom=0;
-  throw last||{code:'gem',status:404,message:'model not found'};
 }
 // One page, as many answers as it takes: when an answer is cut off, the AI is shown what has been written
 // and asked for the rest, until it says the page is done. Waiting longer is fine; losing bars is not.
@@ -1544,7 +1577,7 @@ function contPrompt(acc){
     +'\nNow write ONLY the bars that come after those, to the end of the page, in the same JSON form, with each song\'s title so the parts can be joined. If nothing is left, reply {"songs":[],"note":""}.';
 }
 async function askAI(prompt,imgs,signal,onText,onThink,budget){
-  if(PhotoMode==='api') return await gemPhotos(prompt,imgs,signal,onText,onThink,{budget});
+  if(PhotoMode==='api') return await gemPhotos(prompt,imgs,signal,onText,onThink,{budget,onWait:gemWaitUI});
   try{ const r=await Sampler(prompt,{images:imgs,modelTier:'complex',cache:false,signal,onText}); return {text:r.text,finish:r.truncated?'MAX_TOKENS':'STOP'}; }
   catch(e){ if(e&&e.code==='empty_completion') return {text:'',finish:'MAX_TOKENS'}; throw e; }
 }
@@ -1648,8 +1681,10 @@ async function readPhotos(files){
         onText:({text})=>{ sawText=true; const m=text.match(/"c"\s*:/g); photoState(tx('phWrite',have+(m?m.length:0),ai)+(part>1?' · '+tx('phPart',part):'')); },
         onThink:()=>{ if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         round:n=>{ part=n; sawText=false; photoState(tx('phMore',ai,n)); },
+        wait:(left,n)=>{ if(left>0) photoState(tx('phWait',left,n)); else if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         got:n=>{ have=n; }
       };
+      gemWaitUI=ui.wait;
       const r=await readPage(imgs,ctl.signal,ui);
       if(r.partial) notes.push(tx('phPartial'));
       notes.push(...r.notes);
@@ -1671,13 +1706,13 @@ async function readPhotos(files){
         if(/location|region|country/i.test(m)){ toast(tx('phRegion'),7000); break; }
         // Google's own words go along, so a screenshot says what happened
         const why=' (Google '+st+(m?': '+m.slice(0,140):'')+')';
-        if(st===429||g==='RESOURCE_EXHAUSTED'){ toast(tx(/day|daily|per.?day|quota/i.test(m)?'phGemLimit':'phBusyApi')+why,12000); break; }
-        if(st>=500){ toast(tx('phBusyApi')+why,12000); break; }
+        if(e.daily){ toast(tx('phGemLimit')+why,12000); break; }
+        if(st===429||g==='RESOURCE_EXHAUSTED'||st>=500||st===408){ toast(tx('phBusyApi',Math.max(1,Math.round((e.waited||0)/60)))+why,14000); break; }
         toast(tx('phFail')+why,12000); break;
       }
       toast(tx(c==='rate_limited'?'phBusy':c==='refused'?'phRefused':c==='image_rejected'||(e&&e.message==='img')?'phBadImg':c==='session_expired'?'phSession':c==='invalid_json'||c==='empty_completion'?'phNone':'phFail'),6000);
       if(c==='rate_limited'||c==='session_expired') break;
-    }finally{ photoCtl=null; }
+    }finally{ photoCtl=null; gemWaitUI=null; }
   }
   photoState(''); if(lock) try{ lock.release(); }catch(e){}
   if(songs){ $('songsPanel').hidden=true; toast(tx('phDone',bars)+(notes.length?' '+notes.join(' '):''),notes.length?12000:7000); }
@@ -1762,94 +1797,222 @@ function fft(re,im){
         const t=cr*wr-ci*wi; ci=cr*wi+ci*wr; cr=t; } }
   }
 }
-// onsets in a mono recording: spectral flux peaks, with loudness and low/mid/high balance for each hit
-async function findHits(x,sr,onProgress){
+const REC_BANDS=[30,80,160,300,600,1200,2500,5000,10000,16000];
+// onsets in a mono recording: peaks of spectral flux (log spectrum), with loudness and the low/mid/high balance of each hit
+async function findHits(x,sr,onProgress,opt){
+  opt=opt||{};
+  if(opt.highpass){   // rumble and handling noise out, for a snare or a pad
+    const y=new Float32Array(x.length), a=Math.exp(-2*Math.PI*opt.highpass/sr); let px=0, py=0;
+    for(let i=0;i<x.length;i++){ const v=a*(py+x[i]-px); px=x[i]; py=v; y[i]=v; } x=y;
+  }
   const N=1024, hop=Math.max(64,Math.round(sr*.005)), frames=Math.max(0,Math.floor((x.length-N)/hop));
   const win=new Float32Array(N); for(let i=0;i<N;i++) win[i]=.5-.5*Math.cos(2*Math.PI*i/N);
   const bin=f=>Math.max(1,Math.min(N/2-1,Math.round(f*N/sr)));
-  const B={l0:bin(30),l1:bin(160),m0:bin(160),m1:bin(2000),h0:bin(5000),h1:bin(16000)};
-  const flux=new Float32Array(frames), lo=new Float32Array(frames), mi=new Float32Array(frames), hi=new Float32Array(frames);
+  // nine bands, deep to hissy: each drum has its own shape across them
+  const EDGE=REC_BANDS.map(bin), NB=EDGE.length-1, bandOf=new Int8Array(N/2).fill(-1);
+  for(let b=0;b<NB;b++) for(let k=EDGE[b];k<EDGE[b+1];k++) bandOf[k]=b;
+  const flux=new Float32Array(frames), BE=new Float32Array(frames*NB);
+  // the same jump measured in the deep and the middle range alone: a kick or a snare struck just after the hi-hat
+  // hardly moves the whole-spectrum measure, which the hi-hat's hiss fills, but stands out in its own range
+  const fluxL=new Float32Array(frames), fluxM=new Float32Array(frames), grp=b=>b<=2?0:b<=5?1:2;
   let prev=new Float32Array(N/2); const re=new Float32Array(N), im=new Float32Array(N);
   for(let f=0;f<frames;f++){
     const o=f*hop; for(let i=0;i<N;i++){ re[i]=x[o+i]*win[i]; im[i]=0; }
     fft(re,im);
-    let fl=0, l=0, m=0, h=0; const cur=new Float32Array(N/2);
-    for(let k=1;k<N/2;k++){ const p=re[k]*re[k]+im[k]*im[k], lg=Math.log1p(20*Math.sqrt(p)); cur[k]=lg; const d=lg-prev[k]; if(d>0) fl+=d;
-      if(k>=B.l0&&k<B.l1) l+=p; else if(k>=B.m0&&k<B.m1) m+=p; else if(k>=B.h0&&k<B.h1) h+=p; }
-    prev=cur; flux[f]=fl; lo[f]=l; mi[f]=m; hi[f]=h;
+    let fl=0, fL=0, fM=0; const cur=new Float32Array(N/2), be=f*NB;
+    for(let k=1;k<N/2;k++){ const p=re[k]*re[k]+im[k]*im[k], lg=Math.log1p(20*Math.sqrt(p)); cur[k]=lg; const d=lg-prev[k], b=bandOf[k];
+      if(d>0){ fl+=d; if(b>=0){ const g=grp(b); if(g===0) fL+=d; else if(g===1) fM+=d; } }
+      if(b>=0) BE[be+b]+=p; }
+    prev=cur; flux[f]=fl; fluxL[f]=fL; fluxM[f]=fM;
     if(f%1500===0){ if(onProgress) onProgress(f/frames); await new Promise(r=>setTimeout(r,0)); }
   }
-  const sorted=Array.from(flux).sort((a,b)=>a-b), p99=sorted[Math.floor(sorted.length*.99)]||0, floor=p99*.12;
-  const W=Math.round(.15*sr/hop), gap=Math.round(.045*sr/hop), hits=[];
-  let last=-1e9, acc=0; const pre=new Float64Array(frames+1); for(let f=0;f<frames;f++){ acc+=flux[f]; pre[f+1]=acc; }
-  for(let f=2;f<frames-4;f++){
-    const v=flux[f]; if(v<floor) continue;
-    let peak=true; for(let d=1;d<=4;d++) if(flux[f-d]>v||flux[f+d]>v){ peak=false; break; } if(!peak) continue;
-    const a=Math.max(0,f-W), b=Math.min(frames,f+W), mean=(pre[b]-pre[a])/(b-a); if(v<mean*1.35) continue;
-    if(f-last<gap) continue; last=f;
-    let L=0, M=0, H=0; for(let d=0;d<6&&f+d<frames;d++){ L+=lo[f+d]; M+=mi[f+d]; H+=hi[f+d]; }
-    const b4=Math.max(0,f-3); L=Math.max(L*.15,L-6*lo[b4]); M=Math.max(M*.15,M-6*mi[b4]); H=Math.max(H*.15,H-6*hi[b4]);
+  const sorted=Array.from(flux).sort((a,b)=>a-b), p99=sorted[Math.floor(sorted.length*.99)]||0, floor=p99*.05;
+  // threshold from the median around each peak, so soft ghost notes inside a dense roll still count
+  const W=Math.round(.15*sr/hop), gap=Math.round(.045*sr/hop), echo=Math.round(.07*sr/hop), hits=[];
+  let last=-1e9, lastV=0;
+  // the sound added in each band from frame fa to fb, over what was already ringing just before fa
+  const bandsOver=(fa,fb)=>{ const out=new Array(NB), base=Math.max(0,fa-3), n=fb-fa+1;
+    for(let b=0;b<NB;b++){ let e=0; for(let g=Math.max(0,fa);g<=fb&&g<frames;g++) e+=BE[g*NB+b]; out[b]=Math.max(e*.15,e-n*BE[base*NB+b]); } return out; };
+  const setBands=(h,b)=>{ h.bands=b; h.low=b[0]+b[1]; h.mid=b[2]+b[3]+b[4]+b[5]; h.high=b[7]+b[8]; };
+  // onsets: peaks of the whole-spectrum jump, and of the deep and middle ranges on their own
+  const peaksOf=(F,fl0)=>{
+    const st=Array.from(F).sort((a,b)=>a-b), fl=(st[Math.floor(st.length*.99)]||0)*fl0, out=[];
+    for(let f=2;f<frames-4;f++){
+      const v=F[f]; if(v<fl) continue;
+      let pk=true; for(let d=1;d<=4;d++) if(F[f-d]>v||F[f+d]>v){ pk=false; break; } if(!pk) continue;
+      const a=Math.max(0,f-W), b=Math.min(frames,f+W), w=Array.from(F.subarray(a,b)).sort((p,q)=>p-q), med=w[Math.floor(w.length/2)];
+      if(v>=med*1.6+fl) out.push(f);
+    }
+    return out;
+  };
+  // the ranges on their own only add a second drum to an onset just found (never a hit of their own: elsewhere they hear the room)
+  const main=peaksOf(flux,.05), near=new Uint8Array(frames);
+  for(const f of main) for(let g=f+3;g<f+gap&&g<frames;g++) near[g]=1;
+  const extra=opt.oneDrum?[]:[...peaksOf(fluxL,.15),...peaksOf(fluxM,.15)].filter(f=>near[f]);
+  const isExtra=new Uint8Array(frames); for(const f of extra) isExtra[f]=1;
+  const cand=[...new Set([...main,...extra])].sort((a,b)=>a-b);
+  for(const f of cand){
+    const v=flux[f];
+    if(isExtra[f]&&!main.includes(f)){ const pv=hits[hits.length-1]; if(!pv||f-last>=gap) continue;
+      const inc=bandsOver(f,f+5), pt=pv.bands.reduce((q,x)=>q+x,0); let other=false; for(let b=0;b<NB;b++) if(inc[b]>.7*(pv.bands[b]+.01*pt)){ other=true; break; }
+      if(other) setBands(pv,bandsOver(pv.f-3,f+8)); continue; }
+    // Close behind the last hit: an echo or rattle repeats that drum's sound, softer; another drum adds a sound of its own
+    // (a snare a little after the hi-hat). Only the first is dropped. A hi-hat's hiss makes a far bigger jump than a snare,
+    // so loudness alone cannot tell them apart.
+    const prev=hits[hits.length-1];
+    if(prev&&f-last<echo){
+      const inc=bandsOver(f,f+5), pt=prev.bands.reduce((q,x)=>q+x,0);
+      let other=false; for(let b=0;b<NB;b++) if(inc[b]>.7*(prev.bands[b]+.01*pt)){ other=true; break; }
+      if(!other){ if(f-last<gap||v<lastV*.35) continue; }
+      else if(f-last<gap){ setBands(prev,bandsOver(prev.f-3,f+8)); continue; }   // two drums struck a hair apart: one hit
+    } else if(f-last<gap) continue;
+    last=f; lastV=v;
+    // what this hit added in each band: from a little before the onset (a drum struck a hair earlier) to 40 ms after it
+    const bands=bandsOver(f-3,f+8);
     let rms=0; const s0=f*hop+N/2, n=Math.round(.04*sr); for(let i=0;i<n&&s0+i<x.length;i++) rms+=x[s0+i]*x[s0+i];
-    hits.push({t:(f*hop+N/2)/sr, level:Math.sqrt(rms/n), low:L, mid:M, high:H});
+    const hit={t:(f*hop+N/2)/sr, f, level:Math.sqrt(rms/n)}; setBands(hit,bands); hits.push(hit);
   }
   return hits;
 }
 const median=a=>{ if(!a.length) return 0; const b=a.slice().sort((p,q)=>p-q); return b[Math.floor(b.length/2)]; };
-// hits (seconds from the first sample) → a song on the grid. o: {bpm,beats,div,what,t0 (time of the first beat after the count-in, same clock),clicks:[times]}
+// the phone's delay from a click to the hit heard back: the median of the hits that follow the clicks
+function latencyFrom(hits,clicks){
+  const off=[];
+  for(const c of clicks){ let best=null; for(const h of hits){ const d=h.t-c; if(d>-.06&&d<.35&&(best===null||d<best)) best=d; } if(best!==null) off.push(best); }
+  return off.length>=Math.max(4,Math.ceil(clicks.length*.6))?median(off):null;
+}
+// The shape of a kick, a snare and a hi-hat across the nine bands (share of the energy in each), from the app's own drums
+// as a phone hears them in a room. The snare is given a little more wire hiss up to 5 kHz than ours, as real snares have;
+// above that it stays weak, so the hiss of a hi-hat struck with the snare is put down to the hi-hat.
+const KIT_SHAPE={
+  bd:[.178,.563,.224,.0446,.0089,.0009,.0001,.00001,.000001],
+  sn:[.0001,.0005,.53,.34,.06,.03,.02,.012,.001],
+  hh:[.0001,.002,.09,.08,.04,.04,.12,.25,.38]
+};
+// How much kick, snare and hi-hat is in each hit. A hit is taken as a mix of the three shapes, so a hi-hat struck together
+// with the kick is still found by its hiss. The shapes are then fitted to the drums actually heard in the recording.
+function kitSplit(hits){
+  const C=['bd','sn','hh'], NB=REC_BANDS.length-1, prior={}, T={};
+  for(const c of C){ prior[c]=KIT_SHAPE[c].slice(); T[c]=prior[c].slice(); }
+  const V=hits.map(h=>h.bands.map(x=>Math.max(0,x))), tot=V.map(v=>v.reduce((a,x)=>a+x,0)||1e-12), eps=tot.map(t=>t*1e-4);
+  const A=V.map((v,i)=>({bd:tot[i]/3,sn:tot[i]/3,hh:tot[i]/3}));
+  const pred=i=>{ const p=new Array(NB); for(let b=0;b<NB;b++){ p[b]=eps[i]; for(const c of C) p[b]+=A[i][c]*T[c][b]; } return p; };
+  // how much of each drum best explains each hit (non-negative, measured the way sound energies add up: KL divergence)
+  const acts=n=>V.forEach((v,i)=>{ const a=A[i]; for(let it=0;it<n;it++){ const p=pred(i); for(const c of C){ let q=0; for(let b=0;b<NB;b++) q+=T[c][b]*v[b]/p[b]; a[c]*=q; } } });
+  acts(80);
+  for(let it=0;it<4;it++){
+    // fit the shapes to the drums in this recording, held near the starting shapes so each one keeps its drum
+    const P=V.map((v,i)=>pred(i));
+    for(const c of C){
+      const sup=A.filter((a,i)=>a[c]>.5*tot[i]).length, asum=A.reduce((q,a)=>q+a[c],0); if(sup<4||!(asum>0)) continue;
+      const nt=T[c].map((t,b)=>{ let q=0; V.forEach((v,i)=>{ q+=A[i][c]*v[b]/P[i][b]; }); return t*q/asum; }), ns=nt.reduce((q,x)=>q+x,0)||1;
+      // a snare that is always played with the hi-hat must not learn the hi-hat's hiss
+      const m=nt.map((x,b)=>{ const v=.3*prior[c][b]+.7*x/ns; return c==='sn'&&b>=7?Math.min(v,prior[c][b]):v; }), ms=m.reduce((q,x)=>q+x,0);
+      T[c]=m.map(x=>Math.max(1e-7,x/ms));
+    }
+    acts(40);
+  }
+  // how loud a full stroke on each drum is in this recording (the upper quarter, so many ghost notes do not lower it)
+  const q75=a=>{ if(!a.length) return 0; const b=a.slice().sort((p,q)=>p-q); return b[Math.floor(b.length*.75)]; };
+  const typ={};
+  for(const c of C){ const solo=[], any=[]; A.forEach((a,i)=>{ if(a[c]>.02*tot[i]){ any.push(a[c]); if(a[c]>tot[i]*.6) solo.push(a[c]); } }); typ[c]=q75(solo.length>=3?solo:any)||0; }
+  // A drum hidden inside a louder neighbour must be clearer: a hi-hat heard through a snare's own hiss,
+  // a snare inside a kick's thud, a kick under a snare's body. Alone or over a drum of another range, a soft ghost note will do.
+  const need={hh:a=>a.sn,sn:a=>a.bd,bd:a=>a.sn};
+  return A.map((a,i)=>{ const r={}; for(const c of C){ const hid=need[c](a)>.3*tot[i]; if(a[c]>0&&a[c]>=typ[c]*(hid?(c==='bd'?.3:.2):.06)) r[c]=Math.sqrt(a[c]); } return r; });
+}
+// Accent, plain or ghost for one drum's notes, from how loud each one is next to the others: the loudness groups found in
+// this recording. One group: all plain. Two: by how far apart they are. Three: ghost, plain, accent.
+function dynMarks(vals,row){
+  const n=vals.length; if(row==='bd'||n<3) return vals.map(()=>'n');
+  const L=vals.map(v=>Math.log(Math.max(v,1e-9))), srt=L.slice().sort((a,b)=>a-b);
+  const km=k=>{
+    // start from the k-1 biggest jumps in loudness, so a small group of accents is not swallowed by many plain notes
+    const gaps=[]; for(let i=1;i<n;i++) gaps.push([srt[i]-srt[i-1],i]); gaps.sort((a,b)=>b[0]-a[0]);
+    const cuts=gaps.slice(0,k-1).map(g=>g[1]).sort((a,b)=>a-b), edges=[0,...cuts,n];
+    let c=[]; for(let i=0;i<k;i++){ const seg=srt.slice(edges[i],edges[i+1]); c.push(seg.length?seg.reduce((a,x)=>a+x,0)/seg.length:srt[0]); }
+    let lab=[];
+    for(let it=0;it<30;it++){
+      lab=L.map(x=>{ let bi=0; for(let i=1;i<k;i++) if(Math.abs(x-c[i])<Math.abs(x-c[bi])) bi=i; return bi; });
+      c=c.map((v,i)=>{ const m=L.filter((x,j)=>lab[j]===i); return m.length?m.reduce((a,x)=>a+x,0)/m.length:v; });
+    }
+    const sd=c.map((v,i)=>{ const m=L.filter((x,j)=>lab[j]===i); return m.length?Math.sqrt(m.reduce((a,x)=>a+(x-v)**2,0)/m.length):0; });
+    const cnt=c.map((v,i)=>lab.filter(l=>l===i).length);
+    const ord=c.map((v,i)=>i).sort((a,b)=>c[a]-c[b]);
+    for(let i=1;i<k;i++){ const lo=ord[i-1], hi=ord[i], gap=c[hi]-c[lo]; const few=Math.max(2,Math.round(n*.1)); if(cnt[lo]<few||cnt[hi]<few||gap<Math.log(n>=8?1.3:1.6)||gap/(sd[lo]+sd[hi]+.02)<1.8) return null; }
+    return {rank:lab.map(l=>ord.indexOf(l)),ratio:Math.exp(c[ord[k-1]]-c[ord[0]])};
+  };
+  const k3=row==='sn'?km(3):null;
+  if(k3) return k3.rank.map(r=>'gna'[r]);
+  const k2=km(2); if(!k2) return vals.map(()=>'n');
+  const pair=row!=='sn'||k2.ratio<2.5?'na':k2.ratio<3.6?'gn':'ga';
+  return k2.rank.map(r=>pair[r]);
+}
+// hits (seconds on the same clock as the clicks) → bars. o: {bpm,beats,div ('auto' or 3,4,6,8),what,t0 (first beat after the count-in),clicks,lat (measured delay or null)}
 function hitsToSong(hits,o){
   if(!hits.length) return null;
   const lvMed=median(hits.map(h=>h.level))||1e-9;
-  // a quiet hit right on a click is the click coming back through the microphone
-  hits=hits.filter(h=>!(h.level<lvMed*.35&&o.clicks.some(c=>Math.abs(c-h.t)<.03)));
-  // rattles and room noise far quieter than the playing are not hits
-  hits=hits.filter(h=>h.level>=lvMed*.1);
-  hits=hits.filter(h=>h.t>o.t0-60/o.bpm/4);
+  // a quiet beep right on a click is the click coming back through the microphone: it sounds like the click (1–2.5 kHz), not like a drum
+  const beepy=h=>{ const b=h.bands; if(!b) return true; const t=b.reduce((a,x)=>a+x,0)||1e-12; return b[5]/t>.4; };
+  hits=hits.filter(h=>!(h.level<lvMed*.5&&beepy(h)&&o.clicks.some(c=>Math.abs(c+(o.lat||0)-h.t)<.04||Math.abs(c-h.t)<.04)));
+  // rattles and room noise far quieter than the playing are not hits (a soft hi-hat is quieter than the drums, so the kit allows less)
+  hits=hits.filter(h=>h.level>=lvMed*(o.what==='kit'?.05:.1));
+  hits=hits.filter(h=>h.t>o.t0-60/o.bpm/4).sort((a,b)=>a.t-b.t);
   if(!hits.length) return null;
-  const beat=60/o.bpm;
-  // The whole take comes in a little late (the phone's speaker and microphone delay, usually a few hundredths of a second).
-  // Try every shift from -0.05 to +0.25 s and keep the one that puts the hits closest to the grid;
-  // a shift one grid step away fits just as well, so among equal fits take the one nearest a usual phone delay.
-  const fitShift=g=>{
-    let best=Infinity; const fits=[];
-    for(let sft=-.05;sft<=.25001;sft+=.001){
-      let e=0; for(const h of hits){ const p=(h.t-o.t0-sft)/g, d=p-Math.round(p); e+=d*d*Math.sqrt(h.level); }
-      fits.push([sft,e]); if(e<best) best=e;
-    }
-    let shift=0, near=Infinity;
-    for(const [sft,e] of fits) if(e<=best*1.1+1e-9&&Math.abs(sft-.05)<near){ near=Math.abs(sft-.05); shift=sft; }
-    return {shift,err:best};
-  };
-  let shift;
-  if(o.div==='auto'){ const a=fitShift(beat/4), t=fitShift(beat/3); shift=(a.err<=t.err*1.15?a:t).shift; }
-  else shift=fitShift(beat/o.div).shift;
-  // which drums each hit is, and where it falls, in beats from the first beat after the count-in
+  const beat=60/o.bpm, cal=typeof o.lat==='number';
+  // How well a moment fits the note grids, in seconds² off the nearest grid line. A finer grid costs a little extra,
+  // so the plainest grid wins unless the playing really is in triplets, thirty-seconds or sextuplets.
+  const grids=o.div==='auto'?[4,3,8,6]:[o.div], PEN={4:0,3:.006*.006,8:.022*.022,6:.022*.022}, CAP=.06*.06;
+  const cost1=rel=>{ let best=CAP; for(const d of grids){ const st=beat/d, p=rel/st, dv=(p-Math.round(p))*st, c=dv*dv+(grids.length>1?PEN[d]:0); if(c<best) best=c; } return best; };
+  // The whole take comes in late by the phone's delay, and without the click the player's tempo is their own.
+  // Search both on the first bars: the delay (close to the measured one, or anywhere up to a quarter second),
+  // and, when the click was off, the tempo too (within 7%: with the click on, the click sets it).
+  const lo=cal?o.lat-.06:-.05, hi=cal?o.lat+.06:.25, prior=cal?o.lat:.05;
+  const first=hits.filter(h=>h.t-o.t0<12), use=first.length>=6?first:hits, W=use.map(h=>Math.sqrt(h.level));
+  const dur=Math.max(2,Math.min(12,use[use.length-1].t-o.t0)), span=o.clickOn===false?.07:0, dsc=Math.min(.0025,.006/dur);
+  const cands=[]; let best=Infinity;
+  for(let sc=1-span;sc<=1+span+1e-9;sc+=dsc) for(let sft=lo;sft<=hi+1e-9;sft+=.002){
+    let e=0; for(let i=0;i<use.length;i++) e+=W[i]*cost1((use[i].t-o.t0-sft)*sc);
+    cands.push([sft,sc,e]); if(e<best) best=e;
+  }
+  // Among equally good fits: without a measured delay prefer the one that puts more of the playing on the beats
+  // (exercises start on "one"), then the one nearest the expected delay and the set tempo.
+  const ok=cands.filter(c=>c[2]<=best*1.1+1e-12);
+  if(!cal){ let top=0; for(const c of ok){ let sc=0; use.forEach((h,i)=>{ const p=(h.t-o.t0-c[0])*c[1]/beat; if(Math.abs(p-Math.round(p))<.07) sc+=W[i]; }); c[3]=sc; top=Math.max(top,sc); } for(const c of ok) c[4]=c[3]>=top*.9; }
+  let shift=prior, scale=1, near=Infinity;
+  for(const c of ok) if(cal||c[4]){ const dd=Math.abs(c[0]-prior)+2*Math.abs(c[1]-1); if(dd<near){ near=dd; shift=c[0]; scale=c[1]; } }
+  if(o.debug) Object.assign(o.debug,{shift,scale,best,n:ok.length});
+  // Then follow the playing as it slowly runs ahead or falls behind, steered by the hits that land near a beat:
+  // where it is now (d) and how fast it is moving away (v).
+  // only hits clearly on a beat steer it: closer than half the finest note in use, so fast notes are never taken for a late beat
+  let d=0, v=0, lastT=null; const gate=Math.min(.12,.45/Math.max(...grids))*beat;
+  for(const h of hits){
+    if(lastT!==null) d+=v*(h.t-lastT);
+    const rel=(h.t-o.t0-shift)*scale-d, k=Math.round(rel/beat), r=rel-k*beat;
+    h.rel=rel;
+    if(Math.abs(r)<gate){ const dt=lastT===null?beat:Math.max(beat*.5,h.t-lastT); d=clamp(d+.3*r,-beat*.45,beat*.45); v=clamp(v+.05*r/dt,-.05,.05); lastT=h.t; }
+  }
+  // which drums each hit is, and how loud each of them: one drum for a snare or a pad, a mix of three for the kit
+  if(o.what==='kit'&&hits[0].bands){ const parts=kitSplit(hits); hits.forEach((h,i)=>{ h.amp=parts[i]; }); }
+  else hits.forEach(h=>{ h.amp={sn:h.bands?Math.sqrt(h.bands.reduce((a,x)=>a+x,0)):h.level}; });
+  // and where it falls, in beats from the first beat after the count-in
   const ev=[];
   for(const h of hits){
-    const pb=(h.t-o.t0-shift)/beat; if(pb<-.2) continue;
-    const tot=h.low+h.mid+h.high||1e-12, lf=h.low/tot, hf=h.high/tot;
-    let rows=['sn'];
-    if(o.what==='kit'){
-      // a hit can be several drums at once: deep sound → bass drum, middle → snare, hiss → hi-hat
-      const mf=h.mid/tot; rows=[];
-      if(lf>.18) rows.push('bd'); if(mf>.3) rows.push('sn'); if(hf>.2) rows.push('hh');
-      if(!rows.length) rows=[lf>=mf&&lf>=hf?'bd':hf>mf?'hh':'sn'];
-    }
+    const pb=h.rel/beat; if(pb<-.2) continue;
+    const amp=h.amp||{sn:h.level}, rows=Object.keys(amp); if(!rows.length) continue;
     const k=Math.floor(Math.max(0,Math.round(pb*24)/24)/o.beats);
-    ev.push({bar:k,pos:Math.max(0,pb-k*o.beats),rows,level:h.level});
+    ev.push({bar:k,pos:Math.max(0,pb-k*o.beats),rows,amp});
   }
   if(!ev.length) return null;
   const byBar={}; for(const e of ev) (byBar[e.bar]||(byBar[e.bar]=[])).push(e);
-  // each bar on its own grid: with "Авто" the plainest one the playing fits — sixteenths, triplets, thirty-seconds, then sextuplets
+  // each bar on its own grid: with "Авто" the one with the least cost — the plainest the playing fits
   const divFor=list=>{
     if(o.div!=='auto') return o.div;
     if(!list||!list.length) return 4;
-    let pick=0, bestN=Infinity;
-    for(const d of [4,3,8,6]){
-      const step=beat/d, dev=list.map(e=>Math.abs(e.pos*d-Math.round(e.pos*d))*step);
-      if(Math.max(...dev)<=Math.max(.022,.28*step)) return d;
-      const rms=Math.sqrt(dev.reduce((a,v)=>a+v*v,0)/dev.length)/step; if(rms<bestN){ bestN=rms; pick=d; }
-    }
-    return pick||4;
+    let pick=4, bc=Infinity;
+    for(const dv of [4,3,8,6]){ const st=beat/dv; let c=0; for(const e of list){ const p=e.pos*dv, x=(p-Math.round(p))*st; c+=Math.min(CAP,x*x)+PEN[dv]; } if(c<bc-1e-12){ bc=c; pick=dv; } }
+    if(o.debug) (o.debug.bars||(o.debug.bars=[])).push(list.map(e=>+e.pos.toFixed(3)));
+    return pick;
   };
   const keys=Object.keys(byBar).map(Number), b0=Math.min(...keys), nb=Math.min(64,Math.max(...keys)-b0+1);
   const divs=[]; for(let i=0;i<nb;i++) divs.push(divFor(byBar[b0+i]));
@@ -1858,68 +2021,168 @@ function hitsToSong(hits,o){
     let bi=e.bar-b0; if(bi<0||bi>=nb) continue;
     const d=divs[bi]; let slot=Math.round(e.pos*d);
     if(slot>=o.beats*d){ bi++; slot=0; if(bi>=nb) continue; }    // a hit a hair before the next bar line starts that bar
-    for(const r of e.rows){ const cur=bars[bi].c[r][slot]; if(!cur||cur.level<e.level) bars[bi].c[r][slot]={r,level:e.level}; }
+    for(const r of e.rows){ const cur=bars[bi].c[r][slot]; if(!cur||cur.level<e.amp[r]) bars[bi].c[r][slot]={r,level:e.amp[r]}; }
   }
-  const medBy={}; for(const r of ['sn','hh','bd']){ const lv=[]; for(const br of bars) for(const c of br.c[r]) if(c) lv.push(c.level); medBy[r]=median(lv)||1e-9; }
-  for(const br of bars) for(const r of ROWS) br.c[r]=br.c[r].map(c=>{ if(!c) return '-'; const rel=c.level/medBy[r]; return r!=='bd'&&rel>1.7?'a':r==='sn'&&rel<.45?'g':'n'; });
+  for(const r of ROWS){
+    const cells=[]; for(const br of bars) br.c[r].forEach((c,i)=>{ if(c) cells.push([br,i,c.level]); });
+    const marks=dynMarks(cells.map(x=>x[2]),r);
+    for(const br of bars) br.c[r]=br.c[r].map(c=>c?'n':'-');
+    cells.forEach(([br,i],j)=>{ br.c[r][i]=marks[j]; });
+  }
   return {bars:bars.map(b=>{ const c={}; for(const r of ROWS) c[r]=b.c[r].join(''); return {div:b.div,c}; })};
 }
+// microphone capture on the audio clock itself: every block arrives stamped with its exact sample frame
+const CAP_SRC="class C extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(4096);this.n=0;this.f=-1;}process(i){const c=i[0]&&i[0][0];if(c){if(this.f<0)this.f=currentFrame;if(this.n+c.length>this.b.length){this.port.postMessage({f:this.f,d:this.b.slice(0,this.n)});this.n=0;this.f=currentFrame;}this.b.set(c,this.n);this.n+=c.length;}return true;}}registerProcessor('drumbook-cap',C);";
+const LAT_SLOT='drumbook.lat';
+function wavBlob(x,sr,meta){
+  const info=meta?new TextEncoder().encode(JSON.stringify(meta)):new Uint8Array(0), pad=info.length%2, icmt=info.length?12+8+info.length+pad:0;
+  const buf=new ArrayBuffer(44+x.length*2+icmt), v=new DataView(buf); let p=0;
+  const str=s=>{ for(let i=0;i<s.length;i++) v.setUint8(p++,s.charCodeAt(i)); };
+  str('RIFF'); v.setUint32(p,36+x.length*2+icmt,true); p+=4; str('WAVE');
+  str('fmt '); v.setUint32(p,16,true); p+=4; v.setUint16(p,1,true); p+=2; v.setUint16(p,1,true); p+=2; v.setUint32(p,sr,true); p+=4; v.setUint32(p,sr*2,true); p+=4; v.setUint16(p,2,true); p+=2; v.setUint16(p,16,true); p+=2;
+  if(icmt){ str('LIST'); v.setUint32(p,4+8+info.length+pad,true); p+=4; str('INFO'); str('ICMT'); v.setUint32(p,info.length,true); p+=4; new Uint8Array(buf,p,info.length).set(info); p+=info.length+pad; }
+  str('data'); v.setUint32(p,x.length*2,true); p+=4;
+  for(let i=0;i<x.length;i++){ const s=clamp(x[i],-1,1); v.setInt16(p,s<0?s*32768:s*32767,true); p+=2; }
+  return new Blob([buf],{type:'audio/wav'});
+}
 const Rec={
-  busy:false,on:false,stream:null,proc:null,src:null,chunks:[],len:0,tFirst:null,t0:0,clicks:[],timer:0,cfg:{bpm:100,beats:4,div:'auto',what:'sn',click:true},
+  busy:false,on:false,cal:false,capturing:false,stream:null,node:null,src:null,sink:null,parts:[],legacy:false,timer:0,last:null,level:0,player:null,
+  cfg:{bpm:100,beats:4,div:'auto',what:'sn',click:true},
+  lat(){ try{ const v=parseFloat(localStorage.getItem(LAT_SLOT)); return isFinite(v)?v:null; }catch(e){ return null; } },
   canRecord(){ return !(window.claude&&typeof window.claude.use==='function')&&!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia); },
   ui(){
-    const ok=this.canRecord();
+    const ok=this.canRecord(), act=this.on||this.busy||this.cal, L=this.lat();
     $('recHelp').textContent=tx(ok?'recHelp':'recHelpClaude');
     $('rBpm').value=this.cfg.bpm; $('rBeats').value=String(this.cfg.beats);
     $('rWhat').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.what===this.cfg.what)));
     $('rDiv').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.div===String(this.cfg.div))));
     $('rClick').setAttribute('aria-pressed',String(this.cfg.click));
-    $('recBtn').disabled=!ok||this.busy; $('recBtn').textContent=tx(this.on?'recStop':'recStart'); $('recBtn').setAttribute('aria-pressed',String(this.on));
-    ['rDown','rUp','rBpm','rBeats','rClick'].forEach(id=>{ $(id).disabled=this.on||this.busy; });
+    $('recBtn').disabled=!ok||this.busy||this.cal; $('recBtn').textContent=tx(this.on?'recStop':'recStart'); $('recBtn').setAttribute('aria-pressed',String(this.on));
+    ['rDown','rUp','rBpm','rBeats','rClick'].forEach(id=>{ $(id).disabled=act; });
+    $('recLatRow').hidden=!ok; $('recLat').textContent=L===null?tx('recLatNone'):tx('recLatIs',Math.round(L*1000)); $('recCal').disabled=act;
+    $('recAfter').hidden=!this.last||!ok; ['recAgain','recWav'].forEach(id=>{ $(id).disabled=act; }); $('recListen').textContent=tx(this.player?'recListenStop':'recListen');
+    $('recMeter').hidden=!(this.on||this.cal);
   },
-  async start(){
-    if(this.on||this.busy||!this.canRecord()) return;
-    const c=Snd.ensure(); if(!c){ toast(tx('tNoAudio')); return; }
-    if(Player.on) Player.stop(); if(Metro.on) Metro.stop();
+  async open(){
+    if(this.opening) return null;
+    this.opening=true; try{ return await this.open1(); } finally{ this.opening=false; }
+  },
+  async open1(){
+    const c=Snd.ensure(); if(!c){ toast(tx('tNoAudio')); return null; }
+    if(Player.on) Player.stop(); if(Metro.on) Metro.stop(); this.stopListen();
     try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){}
     try{ this.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }
-    catch(e){ try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(err){} $('recStatus').textContent=tx('recNoMic')+' ('+((e&&e.name)||e)+')'; return; }
+    catch(e){ try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(err){} $('recStatus').textContent=tx('recNoMic')+' ('+((e&&e.name)||e)+')'; return null; }
     try{ if(c.state!=='running') await c.resume(); }catch(e){}
-    this.chunks=[]; this.len=0; this.tFirst=null; this.clicks=[]; this.on=true; this.ui(); keepAwake(true);
-    this.src=c.createMediaStreamSource(this.stream); this.proc=c.createScriptProcessor(4096,1,1); this.sink=c.createGain(); this.sink.gain.value=0;
-    this.src.connect(this.proc); this.proc.connect(this.sink); this.sink.connect(c.destination);
-    this.proc.onaudioprocess=e=>{ if(!this.on) return; const d=e.inputBuffer.getChannelData(0); if(this.tFirst===null) this.tFirst=c.currentTime-d.length/c.sampleRate; this.chunks.push(new Float32Array(d)); this.len+=d.length; if(this.len>c.sampleRate*300) this.stop(); };
-    const beat=60/this.cfg.bpm, start=c.currentTime+.35;
+    this.parts=[]; this.capturing=false; this.level=0;
+    this.src=c.createMediaStreamSource(this.stream); this.sink=c.createGain(); this.sink.gain.value=0;
+    try{
+      if(!Rec.wk){ await c.audioWorklet.addModule(URL.createObjectURL(new Blob([CAP_SRC],{type:'application/javascript'}))); Rec.wk=true; }
+      this.node=new AudioWorkletNode(c,'drumbook-cap'); this.node.port.onmessage=e=>this.take(e.data.f,e.data.d); this.legacy=false;
+    }catch(e){
+      // older phones: the script node knows only roughly when its samples were heard
+      this.node=c.createScriptProcessor(4096,1,1); this.legacy=true;
+      this.node.onaudioprocess=e=>{ const d=e.inputBuffer.getChannelData(0); this.take(Math.round(c.currentTime*c.sampleRate)-d.length,d); };
+    }
+    this.src.connect(this.node); this.node.connect(this.sink); this.sink.connect(c.destination);
+    return c;
+  },
+  take(f,d){
+    if(!this.capturing) return;
+    this.parts.push({f,d:new Float32Array(d)});
+    let s=0; for(let i=0;i<d.length;i+=4) s=Math.max(s,Math.abs(d[i])); this.level=Math.max(s,this.level*.85);
+    const c=Snd.ensure(); if(c&&this.parts.length&&(f-this.parts[0].f)>c.sampleRate*300) this.stop();
+  },
+  close(){
+    try{ this.node.disconnect(); this.src.disconnect(); this.sink.disconnect(); }catch(e){}
+    try{ if(this.node.port) this.node.port.onmessage=null; }catch(e){}
+    try{ this.stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+    try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+  },
+  assemble(sr){
+    if(!this.parts.length) return null;
+    const f0=this.parts[0].f, lp=this.parts[this.parts.length-1], len=Math.max(0,lp.f+lp.d.length-f0), x=new Float32Array(len);
+    for(const p of this.parts){ const at=p.f-f0; if(at>=0&&at+p.d.length<=len) x.set(p.d,at); }
+    this.parts=[];
+    return {x,tStart:f0/sr};
+  },
+  meter(){ $('recLevel').style.width=Math.min(100,Math.round(Math.sqrt(this.level)*140))+'%'; },
+  async start(){
+    if(this.on||this.busy||this.cal||this.opening||!this.canRecord()) return;
+    const c=await this.open(); if(!c) return;
+    this.clicks=[]; this.on=true; this.capturing=true; this.ui(); keepAwake(true);
+    const beat=60/this.cfg.bpm, start=c.currentTime+.4;
     for(let i=0;i<this.cfg.beats;i++){ Snd.tick(start+i*beat,i===0); this.clicks.push(start+i*beat); }
     this.t0=start+this.cfg.beats*beat; let nextClick=this.t0, k=0;
     this.timer=setInterval(()=>{
       const now=c.currentTime;
       if(this.cfg.click) while(nextClick<now+.15){ Snd.tick(nextClick,k%this.cfg.beats===0); this.clicks.push(nextClick); nextClick+=beat; k++; }
       $('recStatus').textContent=now<this.t0?tx('recCount',Math.max(1,Math.ceil((this.t0-now)/beat))):tx('recOn',Math.floor((now-this.t0)/(beat*this.cfg.beats))+1);
+      this.meter();
     },40);
   },
   async stop(){
-    if(!this.on) return; this.on=false; clearInterval(this.timer); keepAwake(false);
+    if(!this.on) return; this.on=false; this.capturing=false; clearInterval(this.timer); keepAwake(false);
     const c=Snd.ensure(), sr=c?c.sampleRate:48000;
-    try{ this.proc.disconnect(); this.src.disconnect(); this.sink.disconnect(); }catch(e){}
-    try{ this.stream.getTracks().forEach(t=>t.stop()); }catch(e){}
-    let lat=0; try{ lat=(c.outputLatency||0)+(c.baseLatency||0); }catch(e){}
-    try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+    this.close();
+    const a=this.assemble(sr);
+    if(!a||a.x.length<sr){ $('recStatus').textContent=tx('recShort'); this.ui(); return; }
+    this.last={x:a.x,sr,tStart:a.tStart,t0:this.t0,clicks:this.clicks.slice(),bpm:this.cfg.bpm,beats:this.cfg.beats,click:this.cfg.click,legacy:this.legacy,songId:null};
+    await this.analyze();
+  },
+  async analyze(){
+    const L=this.last; if(!L) return;
     this.busy=true; this.ui();
     try{
-      const x=new Float32Array(this.len); let o=0; for(const ch of this.chunks){ x.set(ch,o); o+=ch.length; } this.chunks=[];
-      if(x.length<sr*1){ $('recStatus').textContent=tx('recShort'); return; }
       $('recStatus').textContent=tx('recAnalyze');
-      const raw=await findHits(x,sr,p=>{ $('recStatus').textContent=tx('recAnalyze')+' '+Math.round(p*100)+'%'; });
-      // hits back on the clock the clicks were scheduled on
-      const hits=raw.map(h=>Object.assign(h,{t:h.t+(this.tFirst||0)-lat}));
-      const r=hitsToSong(hits,{bpm:this.cfg.bpm,beats:this.cfg.beats,div:this.cfg.div,what:this.cfg.what,t0:this.t0,clicks:this.clicks});
+      const raw=await findHits(L.x,L.sr,p=>{ $('recStatus').textContent=tx('recAnalyze')+' '+Math.round(p*100)+'%'; },{highpass:this.cfg.what==='sn'?90:0});
+      const hits=raw.map(h=>Object.assign(h,{t:h.t+L.tStart}));
+      const r=hitsToSong(hits,{bpm:L.bpm,beats:L.beats,div:this.cfg.div,what:this.cfg.what,t0:L.t0,clicks:L.clicks,clickOn:L.click!==false,lat:L.legacy?null:this.lat()});
       if(!r||!r.bars.length){ $('recStatus').textContent=tx('recNone'); return; }
-      const d=new Date(), hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-      const added=addSongs([{title:tx('recTitle',hm),bpm:this.cfg.bpm,sig:this.cfg.beats+'/4',bars:r.bars}]);
-      $('recStatus').textContent='';
-      if(added.length){ $('recPanel').hidden=true; toast(tx('recDone',added[0].bars.length),7000); }
+      const old=L.songId&&state.songs.find(x=>x.id===L.songId);
+      if(old){
+        setSong(old.id); pushUndo(); old.bars=unpack({id:old.id,sig:old.sig,bars:r.bars}).bars; state.cur=0; Store.save(old); renderAll();
+        $('recStatus').textContent=tx('recUpdated',old.bars.length);
+      } else {
+        const d=new Date(), hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+        const added=addSongs([{title:tx('recTitle',hm),bpm:L.bpm,sig:L.beats+'/4',bars:r.bars}]);
+        if(added.length){ L.songId=added[0].id; $('recStatus').textContent=tx('recDone',added[0].bars.length); }
+      }
     } finally { this.busy=false; this.ui(); }
+  },
+  // one-time: play eight clicks, the drummer hits with each, the delay between the two is the phone's own
+  async calibrate(){
+    if(this.on||this.busy||this.cal||this.opening||!this.canRecord()) return;
+    const c=await this.open(); if(!c) return;
+    this.cal=true; this.capturing=true; this.ui(); keepAwake(true);
+    const beat=.6, start=c.currentTime+.4, clicks=[];
+    for(let i=0;i<12;i++){ const t=start+i*beat; Snd.tick(t,i===0||i===4); if(i>=4) clicks.push(t); }
+    const end=start+12*beat+.5;
+    await new Promise(res=>{ const tm=setInterval(()=>{ const now=c.currentTime;
+      $('recStatus').textContent=now<start+4*beat?tx('recCalCount',Math.max(1,Math.ceil((start+4*beat-now)/beat))):tx('recCalGo',clamp(Math.floor((now-start)/beat)-3,1,8));
+      this.meter(); if(now>end){ clearInterval(tm); res(); } },40); });
+    this.capturing=false; this.close(); keepAwake(false);
+    const legacy=this.legacy, a=this.assemble(c.sampleRate);
+    try{
+      if(!a) throw 0;
+      const hits=(await findHits(a.x,c.sampleRate,null,{})).map(h=>Object.assign(h,{t:h.t+a.tStart}));
+      const L=legacy?null:latencyFrom(hits,clicks);
+      if(L===null) $('recStatus').textContent=tx(legacy?'recCalOld':'recCalFail');
+      else { try{ localStorage.setItem(LAT_SLOT,String(+L.toFixed(4))); }catch(e){} $('recStatus').textContent=tx('recCalDone',Math.round(L*1000)); }
+    }catch(e){ $('recStatus').textContent=tx('recCalFail'); }
+    finally{ this.cal=false; this.ui(); }
+  },
+  listen(){
+    if(this.player){ this.stopListen(); this.ui(); return; }
+    const L=this.last, c=Snd.ensure(); if(!L||!c) return;
+    const b=c.createBuffer(1,L.x.length,L.sr); b.copyToChannel?b.copyToChannel(L.x,0):b.getChannelData(0).set(L.x);
+    const s=c.createBufferSource(); s.buffer=b; s.connect(c.destination); s.onended=()=>{ if(this.player===s){ this.player=null; this.ui(); } }; s.start(); this.player=s; this.ui();
+  },
+  stopListen(){ if(this.player){ try{ this.player.stop(); }catch(e){} this.player=null; } },
+  async saveWav(){
+    const L=this.last; if(!L) return;
+    const meta={app:'drumbook',bpm:L.bpm,beats:L.beats,click:L.click,t0:+(L.t0-L.tStart).toFixed(4),clicks:L.clicks.map(c=>+(c-L.tStart).toFixed(4)),lat:this.lat(),legacy:L.legacy,div:this.cfg.div,what:this.cfg.what};
+    try{ await downloads.save({filename:tx('recTitle',L.bpm+'bpm')+'.wav',data:wavBlob(L.x,L.sr,meta)}); }catch(e){ toast(tx('tSave')); }
   }
 };
 function wireMetroRec(){
@@ -1936,10 +2199,14 @@ function wireMetroRec(){
   $('mAccent').addEventListener('click',()=>{ metroCfg.accent=!metroCfg.accent; Metro.save(); Metro.ui(); });
   $('mTap').addEventListener('click',()=>Metro.tap());
   $('btnRec').addEventListener('click',()=>{ Rec.cfg.bpm=song().bpm; const S=SIGS[song().sig]; if(S&&!S.compound&&[2,3,4].includes(S.beats)&&!S.cut) Rec.cfg.beats=S.beats; Rec.ui(); $('recStatus').textContent=''; $('recPanel').hidden=false; });
-  const closeRec=()=>{ if(Rec.on||Rec.busy) return; $('recPanel').hidden=true; };
+  const closeRec=()=>{ if(Rec.on||Rec.busy||Rec.cal) return; Rec.stopListen(); $('recPanel').hidden=true; };
   $('recClose').addEventListener('click',closeRec);
   $('recPanel').addEventListener('click',e=>{ if(e.target===$('recPanel')) closeRec(); });
   $('recBtn').addEventListener('click',()=>{ Rec.on?Rec.stop():Rec.start(); });
+  $('recCal').addEventListener('click',()=>Rec.calibrate());
+  $('recAgain').addEventListener('click',()=>Rec.analyze());
+  $('recListen').addEventListener('click',()=>Rec.listen());
+  $('recWav').addEventListener('click',()=>Rec.saveWav());
   $('rDown').addEventListener('click',()=>{ Rec.cfg.bpm=clamp(Rec.cfg.bpm-5,40,240); Rec.ui(); });
   $('rUp').addEventListener('click',()=>{ Rec.cfg.bpm=clamp(Rec.cfg.bpm+5,40,240); Rec.ui(); });
   $('rBpm').addEventListener('change',e=>{ Rec.cfg.bpm=clamp(Math.round(+e.target.value)||Rec.cfg.bpm,40,240); Rec.ui(); });
@@ -1947,7 +2214,7 @@ function wireMetroRec(){
   $('rWhat').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||Rec.on) return; Rec.cfg.what=b.dataset.what; Rec.ui(); });
   $('rDiv').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||Rec.on) return; Rec.cfg.div=b.dataset.div==='auto'?'auto':+b.dataset.div; Rec.ui(); });
   $('rClick').addEventListener('click',()=>{ Rec.cfg.click=!Rec.cfg.click; Rec.ui(); });
-  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ if(Metro.on) Metro.stop(); if(Rec.on) Rec.stop(); } });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ if(Metro.on) Metro.stop(); if(Rec.on) Rec.stop(); Rec.stopListen(); } });
 }
 function init(){
   wireMetroRec();
