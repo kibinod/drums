@@ -3,7 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Барабанная тетрадь — тест</title>
+<title>Барабанная тетрадь</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e8ecef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1013" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Барабаны">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Sofia+Sans+Extra+Condensed:wght@500;700;800&display=swap" rel="stylesheet">
@@ -1621,6 +1629,11 @@ function init(){
   else { downloads={save:nativeSave}; $('btnPng').hidden=false; $('btnPdf').hidden=false; applyLang(); }
 }
 init();
+</script>
+<script>
+/* installed-app extras: offline copy and storage that the phone should keep */
+if('serviceWorker' in navigator) window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(function(){});
 </script>
 </body>
 </html>

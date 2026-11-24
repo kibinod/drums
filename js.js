@@ -1,5 +1,5 @@
 // Offline copy of the drum notebook. The page itself is fetched fresh when online and served from this copy when not.
-const CACHE = 'drumbook-39ead6bea6';
+const CACHE = 'drumbook-d87df220a7';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
