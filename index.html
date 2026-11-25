@@ -1818,21 +1818,32 @@ async function askAI(prompt,imgs,signal,onText,onThink,budget){
   return r;
 }
 const barCount=acc=>acc.reduce((n,x)=>n+x.bars.length,0);
+// what the app has counted on the page, told to the AI so it leaves no line out
+function omrHint(omr){
+  if(!omr||!omr.sure) return '';
+  return '\n\nTHE APP HAS COUNTED THE BARS ON THIS PAGE: '+omr.lines.length+' lines of music, with '+omr.lines.join(', ')+' bars (in all '+omr.bars.length+' bars, counting bars of rest). Write every one of them, line by line: do not leave out a line, even one that looks the same as another. (The count was made by a program and can be off by a bar: the page itself decides.)';
+}
+function omrMiss(omr,acc,res){
+  if(!omr||!omr.sure) return {n:0,warn:''};
+  const n=res.unmatched.length; if(n<2) return {n,warn:''};
+  // which lines were left out cannot be told when the bars look alike, so only the counts are given
+  return {n,warn:'An earlier reading of this page wrote '+barCount(acc)+' bars, but the page has '+omr.bars.length+' ('+omr.lines.length+' lines with '+omr.lines.join(', ')+' bars): some lines or bars were left out. Go down the page line by line and write every bar of every line, rests included, even lines that look the same as others.'};
+}
 async function readPage(imgs,signal,ui,measure){
-  const pending=readPage1(imgs,signal,ui,'');
-  // the page measured while the AI reads it
-  await new Promise(res=>setTimeout(res,50)); const omr=typeof measure==='function'?measure():measure||null;
-  let r=await pending;
+  // the page measured first (a fraction of a second), so its count of bars can go with the request
+  const omr=typeof measure==='function'?measure():measure||null, hint=omrHint(omr);
+  let r=await readPage1(imgs,signal,ui,'',hint);
   const m1=omrApply(r.songs,omr,true);   // the drums with filled heads put where the picture shows them
   if(!r.songs.length||r.partial){ r.pic=m1.fixed; omrLog(omr,r.songs,m1); return r; }
   // a mistake made all over the page (the bass drum on every hi-hat note, no snare anywhere): the page is read again
   // with a warning about it, and the reading with fewer doubts is kept
-  const p=pageCheck(r.songs);
-  if(p.warn){
+  // bars left out, or a mistake made all over the page: the page is read again with a warning about it
+  const p=pageCheck(r.songs), miss=omrMiss(omr,r.songs,m1), warn=[miss.warn,p.warn].filter(Boolean).join('\n');
+  if(warn){
     if(ui.recheck) ui.recheck();
     try{
-      const r2=await readPage1(imgs,signal,ui,p.warn); omrApply(r2.songs,omr,true);
-      if(r2.songs.length&&!r2.partial&&barCount(r2.songs)>=barCount(r.songs)*.8&&pageCheck(r2.songs).doubts<p.doubts) r=r2;
+      const r2=await readPage1(imgs,signal,ui,warn,hint), m2=omrApply(r2.songs,omr,true), miss2=omrMiss(omr,r2.songs,m2);
+      if(r2.songs.length&&!r2.partial&&barCount(r2.songs)>=barCount(r.songs)*.8&&(miss2.n<miss.n||(miss2.n===miss.n&&pageCheck(r2.songs).doubts<p.doubts))) r=r2;
       else ui.got(barCount(r.songs));
     }catch(e){ if(e&&e.code==='cancelled') throw e; }   // the first reading stands
   }
@@ -1882,9 +1893,9 @@ async function secondLook(acc,imgs,signal,ui,allowX,allowR){
     }
   }
 }
-async function readPage1(imgs,signal,ui,warn){
+async function readPage1(imgs,signal,ui,warn,hint){
   const acc=[], notes=[]; let budget=0, strict=false, partial=false, emptyNote='', allowX=false, allowR=false;
-  const extra=warn?'\n\nWARNING. '+warn:'';
+  const extra=(hint||'')+(warn?'\n\nWARNING. '+warn:'');
   for(let round=1;round<=8;round++){
     if(round>1) ui.round(round);
     const prompt=photoPrompt(imgs.length)+extra+(acc.length?contPrompt(acc):'')+(strict?'\n\nIMPORTANT: the last answer could not be read. Reply with the JSON object only, no words before or after it.':'');
@@ -2017,7 +2028,7 @@ function omrPage(im,dbg){
   if(!staves.length) return null;
   const lineRow=new Uint8Array(H); for(const ys of staves) for(const y of ys) for(let d=-1;d<=1;d++){ const r=Math.round(y)+d; if(r>=0&&r<H) lineRow[r]=1; }
   const vrun=(x,y,dir)=>{ let n=0, gap=0; for(let yy=Math.round(y);yy>=0&&yy<H;yy+=dir){ if(L[yy*W+x]){ n+=1+gap; gap=0; } else if(++gap>2) break; } return n; };
-  const bars=[]; let narrow=0;
+  const bars=[]; let narrow=0, lineNo=0;
   for(const ys of staves){
     const g=(ys[4]-ys[0])/4, y1=ys[0], y5=ys[4], ym=Math.round(ys[2]), ys0=ys;
     let xa=0, xb=-1, sa=0, prev=-10;   // the staff's extent along its middle line
@@ -2060,9 +2071,17 @@ function omrPage(im,dbg){
         // a head halfway between two places is not trusted (that bar is left as read), unless both measures agree on it
         heads.push({x:hx,step:Math.abs(pos-step)<.33?step:step===step0&&Math.abs(pos0-step0)<.4?step:99}); }
     }
+    // short ledger lines just above the staff: the crash (and only the crash, on a usual drum key) sits on one
+    const crs=[], off=Math.max(2,Math.round(.5*g));
+    for(let y=Math.round(y1-1.3*g);y<=Math.round(y1-.7*g);y++){ if(y-off<0||y+off>=H) continue; let run=0;
+      for(let x=xa;x<=xb+1;x++){ if(x<=xb&&L[y*W+x]){ run++; continue; }
+        if(run>=1.1*g&&run<=2.8*g){ const x0=x-run, x1=x-1; let up=0, dn=0; for(let q=x0;q<=x1;q++){ up+=L[(y-off)*W+q]; dn+=L[(y+off)*W+q]; }
+          if(up<.5*run&&dn<.5*run) crs.push((x0+x1)/2); if(dbg) (dbg.cr=dbg.cr||[]).push([y,x0,x1,up,dn]); }
+        run=0; } }
+    crs.sort((p,q)=>p-q); const cr=[]; for(const x of crs){ if(cr.length&&x-cr[cr.length-1]<.6*g) continue; cr.push(x); }
     const edges=[xa,...blg.map(q=>(q.a+q.b)/2)]; if(xb-edges[edges.length-1]>6*g) edges.push(xb);
     if(dbg) (dbg.edges=dbg.edges||[]).push({g:+g.toFixed(1),xa,xb,edges:edges.map(Math.round)});
-    let started=false;
+    let started=false; lineNo++;
     for(let j=0;j+1<edges.length;j++){
       const a=edges[j], b=edges[j+1];
       if(b-a<5*g) continue;   // a line that opens the system, a clef with its time signature
@@ -2073,17 +2092,22 @@ function omrPage(im,dbg){
       let s0=-1, s1=-1; for(let x=Math.ceil(from);x<=b-g;x++) if(stem[x]){ if(s0<0) s0=x; s1=x; }
       if(!started&&!cols.length&&s0<0&&b-a<12*g) continue;   // the clef (and a repeat sign) at the start of a line: no bar of its own
       started=true;
-      bars.push({cols:cols.map(c=>({x:c.x,steps:[...new Set(c.steps)].sort((p,q)=>p-q)})),s0,s1,g});
+      bars.push({cols:cols.map(c=>({x:c.x,steps:[...new Set(c.steps)].sort((p,q)=>p-q)})),s0,s1,g,line:lineNo,cr:cr.filter(x=>x>a+.3*g&&x<b-.3*g)});
     }
   }
   // a page set in two columns is read down each column, the measuring goes across the lines: left alone
   if(narrow>=staves.length*.5) return null;
-  return bars.length?{bars,staves:staves.length}:null;
+  if(!bars.length) return null;
+  // the count of bars is told to the AI only for a page measured whole: lines at an even spacing, none missing between them
+  const lineN=[]; for(const b of bars) lineN[b.line-1]=(lineN[b.line-1]||0)+1;
+  const tops=staves.map(ys=>ys[0]), gaps=tops.slice(1).map((y,i)=>y-tops[i]).sort((p,q)=>p-q);
+  const sure=lineN.length>=2&&lineN.every(k=>k>0)&&gaps.length>0&&gaps[gaps.length-1]<=2.2*gaps[0];
+  return {bars,staves:staves.length,lines:lineN,sure};
 }
 const setCh=(v,i,ch)=>v.slice(0,i)+ch+v.slice(i+1);
 const ovalSlots=(c,n)=>{ const out=[]; for(let i=0;i<n;i++) if(OVAL_ROWS.some(k=>c&&c[k]&&c[k][i]&&c[k][i]!=='-'&&c[k][i]!=='x')) out.push(i); return out; };
 // a bar as read, set against the same bar as measured: the drums with filled heads go where the picture puts them
-function omrBar(b,S,o,last){
+function omrBar(b,S,o,last,opt){
   Object.defineProperty(b,'_omrBar',{value:o,enumerable:false,configurable:true,writable:true});
   delete b._omr;
   if(o.cols.some(c=>c.steps.some(s=>!OMR_ROW[s]))) return 'skip';   // a head where no drum of the app sits
@@ -2101,31 +2125,59 @@ function omrBar(b,S,o,last){
   if(!at){ Object.defineProperty(b,'_omr',{value:{n:cols.length,names:cols.map(c=>rowsOf(c).map(r=>OMR_NAME[r]).join('+')).join(', ')||'none',had:slots.length},enumerable:false,configurable:true,writable:true}); return 'hint'; }
   let changed=false; const c=b.c;
   if(at!==slots) for(const i of slots) if(!at.includes(i)) for(const k of OVAL_ROWS) if(c[k]&&c[k][i]!=='-'&&c[k][i]!=='x'){ c[k]=setCh(c[k],i,'-'); changed=true; }
+  const graceGone=new Set();
   at.forEach((i,j)=>{
     const want=rowsOf(cols[j]), old={};
     for(const k of OVAL_ROWS){ const ch=c[k]?c[k][i]:'-'; if(ch!=='-'&&ch!=='x') old[k]=ch; }
     const mk=Object.values(old).find(ch=>ch!=='n')||'n';
     for(const k of OVAL_ROWS){ const has=k in old, should=want.includes(k);
-      if(has&&!should){ c[k]=setCh(c[k],i,'-'); changed=true; }
+      if(has&&!should){ if('fFdD'.includes(old[k])&&!want.some(r=>STICK_DRUMS.includes(r))) graceGone.add(i); c[k]=setCh(c[k],i,'-'); changed=true; }
       if(should&&!has){ c[k]=setCh(c[k]||'-'.repeat(n),i,validCell(k,mk)?mk:isAcc(mk)?'a':'n'); changed=true; } }
   });
+  // a flam read on a snare the picture does not have, on a hi-hat note: the AI took a crash (an x with a line through it)
+  // for a hi-hat with a grace note
+  for(const i of graceGone) if(c.hh&&c.hh[i]!=='-'&&!(c.cr&&c.cr[i]!=='-')){ c.cr=setCh(c.cr||'-'.repeat(n),i,'n'); c.hh=setCh(c.hh,i,'-'); changed=true; }
+  // the crash: a ledger line above the staff at a note's place. The reading's hi-hat there (or a stroke on nothing) becomes the crash.
+  if(!(opt&&opt.noCrash)&&o.cr&&o.cr.length){
+    const T=[]; for(let i=0;i<n;i++) if(ROWS.some(k=>k!=='st'&&c[k]&&c[k][i]&&c[k][i]!=='-')) T.push(i);
+    const A=cols.map((cc,j)=>[cc.x,at[j]]).sort((p,q)=>p[0]-q[0]);
+    for(const x of o.cr){
+      let slot=-1, best=Infinity; for(const [ax,as] of A){ const d=Math.abs(ax-x); if(d<best){ best=d; slot=as; } }
+      if(best>.9*o.g){ slot=-1;
+        let Lp=null, Rp=null; for(const p of A){ if(p[0]<=x) Lp=p; else if(!Rp) Rp=p; }
+        let t=null;   // between two measured heads, its place in time in proportion
+        if(Lp&&Rp&&Rp[0]>Lp[0]) t=Lp[1]+(x-Lp[0])/(Rp[0]-Lp[0])*(Rp[1]-Lp[1]);
+        else if(o.s0>=0&&o.s1>o.s0&&T.length>=2) t=T[0]+(x-o.s0)/(o.s1-o.s0)*(T[T.length-1]-T[0]);
+        if(t!==null&&T.length){ let bi=0; T.forEach((q,i)=>{ if(Math.abs(q-t)<Math.abs(T[bi]-t)) bi=i; });
+          const gap=Math.min(bi>0?T[bi]-T[bi-1]:9,bi<T.length-1?T[bi+1]-T[bi]:9); if(Math.abs(T[bi]-t)<=.45*gap) slot=T[bi]; }
+      }
+      if(slot<0||slot>=n||(c.cr&&c.cr[slot]!=='-')) continue;
+      if(c.hh&&c.hh[slot]!=='-'){ c.cr=setCh(c.cr||'-'.repeat(n),slot,c.hh[slot]==='a'?'a':'n'); c.hh=setCh(c.hh,slot,'-'); changed=true; }
+      else if(!(c.rd&&c.rd[slot]!=='-')&&T.includes(slot)){ c.cr=setCh(c.cr||'-'.repeat(n),slot,'n'); changed=true; }
+    }
+  }
   for(const k of Object.keys(c)) if(!/[^-]/.test(c[k])) delete c[k];
   if(changed) Object.defineProperty(b,'_pic',{value:true,enumerable:false,configurable:true,writable:true});
   return changed?'fixed':'ok';
 }
 // the bars as read and as measured, matched in order; a bar left out or added on one side is passed over
 function omrApply(acc,omr,last){
-  const res={pairs:0,fixed:0};
+  const res={pairs:0,fixed:0,unmatched:[]};
   if(!omr) return res;
   const gb=[]; acc.forEach(x=>x.bars.forEach((b,bi)=>gb.push({x,b})));
   const n=gb.length, m=omr.bars.length;
-  if(n<2||m<2||Math.abs(n-m)>Math.max(3,.2*Math.max(n,m))) return res;
+  if(n<2||m<2||Math.abs(n-m)>Math.max(3,.2*Math.max(n,m))){ res.unmatched=omr.bars.map((b,j)=>j); return res; }
   const cnt=gb.map(({x,b})=>ovalSlots(b.c,barS(x,b).beats*b.div).length);
   const sim=(i,j)=>{ const a=cnt[i], c=omr.bars[j].cols.length; return a===c?(a?3:2):-1; }, G=-2, M=m+1, D=new Float64Array((n+1)*M);
   for(let i=0;i<=n;i++) D[i*M]=i*G; for(let j=0;j<=m;j++) D[j]=j*G;
   for(let i=1;i<=n;i++) for(let j=1;j<=m;j++) D[i*M+j]=Math.max(D[(i-1)*M+j-1]+sim(i-1,j-1),D[(i-1)*M+j]+G,D[i*M+j-1]+G);
   const pairs=[]; for(let i=n,j=m;i>0&&j>0;){ if(D[i*M+j]===D[(i-1)*M+j-1]+sim(i-1,j-1)){ pairs.push([i-1,j-1]); i--; j--; } else if(D[i*M+j]===D[(i-1)*M+j]+G) i--; else j--; }
-  for(const [i,j] of pairs){ const {x,b}=gb[i]; res.pairs++; if(omrBar(b,barS(x,b),omr.bars[j],last)==='fixed') res.fixed++; }
+  const used=new Set(pairs.map(q=>q[1])); for(let j=0;j<m;j++) if(!used.has(j)) res.unmatched.push(j);
+  // crashes are taken from the ledger lines only when every bar has found its own (bars that look alike could
+  // otherwise be matched one off), and not on a page that writes the hi-hat itself on a ledger line
+  let led=0, hhN=0; for(const [i,j] of pairs){ led+=omr.bars[j].cr.length; const h=gb[i].b.c.hh; if(h) hhN+=(h.match(/[^-]/g)||[]).length; }
+  const opt={noCrash:led>.4*hhN+2||res.unmatched.length>0||pairs.length<n};
+  for(const [i,j] of pairs){ const {x,b}=gb[i]; res.pairs++; if(omrBar(b,barS(x,b),omr.bars[j],last,opt)==='fixed') res.fixed++; }
   return res;
 }
 function photoPrompt(n){
@@ -2158,7 +2210,7 @@ Rules:
 - Each voice adds up to exactly one bar: 4 quarter notes in 4/4 and 2/2 (eight 8s, or four 4s, or 4 + 8 + 8 + 2…), 3 in 3/4, 2 in 2/4, 5 in 5/4, 3 in 6/8 (six 8s), 6 in 12/8. A voice that comes out short or long has a note or a rest missing or a wrong length: look again.
 - What is struck: every notehead on that stem, each named by its place on the staff (rows below), joined with "+". A drum is struck ONLY on the notes that carry its own notehead. One voice never adds a drum to the other: eight hi-hat eighths above four quarter notes below are eight hi-hat strokes plus four strokes below — never a bass drum on every eighth.
 - Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one. Music for one drum only (a snare or pad exercise, on one line or on the middle of the staff) is all "sn". Use only these names:
-  cr crash: x on a ledger line above the staff (often with a line through it)
+  cr crash: an x on (or above) a short ledger line above the staff, so it looks like an x with a line through it (✱), higher than the hi-hat's x. It is one crash stroke: write "cr", never "hh", and it is not a flam
   hh hi-hat: x in the space just above line 5
   rd ride: x on line 5
   t1 high tom: in the space between lines 4 and 5
@@ -2174,7 +2226,7 @@ Rules:
   :o open hi-hat: a small circle over a hi-hat note (a "+" there means closed: no mark). hh only.
   :x cross-stick (rim click): only on a page where crossStick is true, and only on a snare-space note drawn as an X or a circled X. sn only. Hi-hat, ride and crash heads are always drawn as x's: they get no mark. When a hi-hat and a snare share one stem, the x at the top is the hi-hat and the head in the snare space is an ordinary snare stroke.
   :r rimshot: only on a page where rimShot is true, on a snare note marked as one (usually a slash through the notehead). sn only.
-  :f flam: one small grace note (a tiny note, usually with a slash through its flag) printed just before the note; :F the same with an accent. sn, t1, t2, ft only.
+  :f flam: one small grace note (a tiny note of its own, usually with a slash through its flag) printed just before a snare or tom note that has its own head; :F the same with an accent. sn, t1, t2, ft only. The line through a crash's x is not a flam.
   :d drag: two small grace notes just before the note; :D the same with an accent. sn, t1, t2, ft only.
   :z buzz: a z drawn across the note's stem. sn, t1, t2, ft only.
   Grace notes are not notes of their own: they get no entry, no length and no sticking letter.
