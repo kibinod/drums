@@ -1811,6 +1811,13 @@ async function readPage(imgs,signal,ui){
 }
 // one more look, only at the bars whose reading breaks the rules (a wrong number of slots, stickings that do not match the notes)
 async function secondLook(acc,imgs,signal,ui,allowX,allowR){
+  // A page of grooves read with hi-hat and bass drum but hardly any snare: the snare ovals on the hi-hat's stems were missed.
+  const groove=[]; acc.forEach(x=>x.bars.forEach(b=>{ const c=b.c||{}, has=k=>c[k]&&/[^-]/.test(c[k]); if(has('hh')&&has('bd')&&!has('st')) groove.push(b); }));
+  const noSn=groove.filter(b=>!(b.c.sn&&/[^-]/.test(b.c.sn)));
+  if(groove.length>=3&&noSn.length>=groove.length*.6) for(const b of noSn){
+    const w=(b._why||[]).concat('it has hi-hat and bass drum but no snare at all: look for the oval noteheads in the snare space (between lines 3 and 4), usually on the same up-stems as the hi-hat on 2 and 4');
+    Object.defineProperty(b,'_why',{value:w,enumerable:false,configurable:true,writable:true});
+  }
   const bad=[]; acc.forEach((x,si)=>x.bars.forEach((b,bi)=>{ if(b._why&&b._why.length) bad.push({si,bi,why:b._why}); }));
   if(!bad.length) return;
   if(ui.check) ui.check(bad.length);
@@ -1829,7 +1836,14 @@ async function secondLook(acc,imgs,signal,ui,allowX,allowR){
     const given={}; for(const [k0,v0] of Object.entries(f.c&&typeof f.c==='object'?f.c:{})){ const k=ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(k) given[k]=v0; }
     if(!Object.keys(given).length) continue;
     const sameGrid=(+f.div||old.div)===old.div&&(f.sg||old.sg||'')===(old.sg||'');
-    const rows=sameGrid?Object.assign(keep,given):given;   // on a new grid the old rows no longer fit: take the new bar whole
+    // on a new grid the old rows are moved onto it, note by note at the same place in the beat
+    let rows;
+    if(sameGrid) rows=Object.assign(keep,given);
+    else { const nd=+f.div||old.div; rows={};
+      for(const [k,v] of Object.entries(keep)){ const a=[...v], beats=a.length/old.div, out=Array(Math.round(beats*nd)).fill('-');
+        a.forEach((ch,i)=>{ if(ch==='-') return; const j=i*nd/old.div; if(Math.abs(j-Math.round(j))<1e-6&&Math.round(j)<out.length) out[Math.round(j)]=ch; });
+        rows[k]=out.join(''); }
+      Object.assign(rows,given); }
     const t=tidyReading([{sig:x.sig,bars:[Object.assign({},f,{sg:f.sg||old.sg,div:+f.div||old.div,c:rows})]}],allowX,allowR)[0].bars[0]; if(!t) continue;
     // a new reading that still breaks the rules is kept only when it breaks fewer of them
     if(t._why&&t._why.length>=(old._why||[]).length) continue;
@@ -1895,7 +1909,8 @@ ${n>1?`Image 1 is the whole page. Images 2 to ${n} are overlapping horizontal st
 Read in the order a musician would. If the exercises are set in two columns, follow their labels (for example A to H down the left column, then I to P down the right).
 
 Reply with only JSON of this form:
-{"key":"snare: filled ovals in the 3rd space; hi-hat: x heads above the top line; bass drum: ovals in the 1st space; sticking under the staff","crossStick":false,"rimShot":false,"songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[{"div":4,"lb":"A","rs":true,"re":true,"c":{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----","st":"R-L-R-L-R-L-R-L-"}}]}],"note":""}
+{"key":"snare: filled ovals in the 3rd space; hi-hat: x heads above the top line; bass drum: ovals in the 1st space; sticking under the staff","crossStick":false,"rimShot":false,"songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[{"div":4,"lb":"A","rs":true,"re":true,"count":"1 hh+bd | & hh | 2 hh+sn | & hh | 3 hh+bd | & hh+bd | 4 hh+sn | & hh","c":{"hh":"n-n-n-n-n-n-n-n-","sn":"----n-------n---","bd":"n-------n-n-----"}}]}],"note":""}
+(That example bar is a plain rock beat: hi-hat eighths, snare on 2 and 4, bass drum on 1, 3 and the "and" of 3.)
 
 First, "key": one short sentence saying how this page writes each drum it uses: the page's own drum key if one is printed, otherwise where each kind of notehead sits and what it looks like. Decide this before writing any bar, and keep to it for the whole page.
 Then "crossStick": true only when this page really uses cross-stick (rim click): its drum key shows one, or the words "cross stick", "X-stick", "rim click" or "side stick" are printed on it. Otherwise false. Almost every page is false. "rimShot": true only when the page marks rimshots (the words "rim shot" or "RS", or its drum key shows one); otherwise false. On a page where crossStick is false every note in the snare space is an ordinary snare stroke, even if its head looks like an x: write it as "n" (or "a", "g", "f"… as it is marked) — never "x", and never leave it out.
@@ -1905,10 +1920,13 @@ Rules:
 - swing: 100 when the page asks for a shuffle or swung eighths (a mark like ♫ = ♩♪ in triplets, or the word "Swing" or "Shuffle"); leave it out otherwise.
 - bpm: the printed tempo (♩ = 110), else 100. A tempo change printed over a bar: "tm" with that tempo on that bar.
 - sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". A 2/2 bar has the same 16 sixteenth slots as 4/4. When a new time signature is printed in the middle of a piece, put "sg" with it on that bar and on every bar after it that is in it (for example "sg":"3/4").
-- div: 4 when the bar is counted in sixteenths, 3 when it is in eighth-note triplets, 6 when it has sixteenth-note triplets (sextuplets: six notes to a beat under a 6, or two 3s), 8 when it has thirty-second notes (three beams); always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3, 24 with div 6, 32 with div 8; 8 in 2/4 with div 4; 6 in 6/8. A single sixteenth-note triplet inside a sixteenth bar can instead be written with "3", as below.
+- div is how finely the bar is cut into slots, NOT the note value. 4 = sixteenth-note slots: use it for any bar of quarters, eighths and sixteenths (an eighth note takes every other slot, "n-n-n-n-n-n-n-n-"; a quarter every fourth, "n---n---n---n---"). 3 = eighth-note triplets. 6 = sixteenth-note triplets (sextuplets: six notes to a beat under a 6, or two 3s). 8 = only when the bar has thirty-second notes (three beams). Always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3, 24 with div 6, 32 with div 8; 8 in 2/4 with div 4; 6 in 6/8. Every row of a bar has that many characters.
+- Note values come from the beams and flags, not from how many notes are in a group: one beam (or one flag) = eighth notes, two per beat; two beams = sixteenths, four per beat; three = thirty-seconds. Four eighth notes under one beam are two beats, not one. A bar of 4/4 holds eight eighths or sixteen sixteenths. A single sixteenth-note triplet inside a sixteenth bar can instead be written with "3", as below.
+- count: before the rows of each bar, say in order what is struck on each part of the beat that has a note, counting 1 e & a for sixteenths (1 trip let for triplets): "1 hh+bd | & hh | 2 hh+sn | …". Then write the rows from it, so every drum in the count appears on its own row at that slot.
 - c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar. Use only the row names below.
 - Rests are silence, never notes: a rest gets NO character, only "-" on the slots it covers. Tell them apart: a note has a notehead (a filled oval, or an x) with a stem that joins the beam or has a flag; a rest has no notehead and no stem to the beam. An eighth rest looks like a small 7 with one dot-flag, a sixteenth rest like a 7 with two, a quarter rest like a vertical squiggle; rests sit in the middle of the staff, often under a beam. For example, sixteenths R, L, R and then a sixteenth rest in one beat are "nnn-", not "nnnn".
 - Work beat by beat: in each beat, name every symbol in order as a note or a rest and its length, add up the lengths (a beat is 4 sixteenths, or 3 triplet eighths), and only then place the notes on their slots. If a sticking row is printed, the number of letters in a bar equals the number of notes in it, so use the letters to check that no rest was taken for a note.
+- Drum-set music is usually written in two voices: the hands (cymbals, snare, toms) with stems up, the feet (bass drum, hi-hat pedal) with stems down. One up-stem often carries two noteheads struck together, an x above the staff (hi-hat or ride) and an oval in the snare space: write both, each on its own row. The feet's notes sit low, on their own down-stems. Typical rock and pop: hi-hat on every eighth, snare on 2 and 4, bass drum on 1 and 3 and around them — a bar with hi-hat and bass drum but no snare at all is rare, so look again for the snare ovals.
 - Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one. Music for one drum only (a snare or pad exercise, on one line or on the middle of the staff) is all "sn".
   cr crash: x on a ledger line above the staff
   hh hi-hat: x in the space just above line 5
@@ -1953,11 +1971,30 @@ function tidyReading(list,allowX,allowR){
     const base=SIGS[x.sig]?x.sig:'4/4';
     x.bars=x.bars.filter(b=>b&&typeof b==='object');
     for(const b of x.bars){
-      const sig=typeof b.sg==='string'&&SIGS[b.sg]?b.sg:base, S=SIGS[sig], div=S.compound?3:([3,4,6,8].includes(+b.div)?+b.div:4), n=S.beats*div, c={}, why=[];
-      b.div=div; if(sig===base) delete b.sg;
+      const sig=typeof b.sg==='string'&&SIGS[b.sg]?b.sg:base, S=SIGS[sig], c={}, why=[];
+      let div=S.compound?3:([3,4,6,8].includes(+b.div)?+b.div:4);
+      if(sig===base) delete b.sg;
+      // the rows as plain strings, under the app's own names
+      const raw={};
       for(const [k0,v0] of Object.entries(b.c&&typeof b.c==='object'?b.c:{})){
-        const k=ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(!k||typeof v0!=='string') continue;
-        let v=v0.replace(/[\s|,;:]/g,'');
+        const k=ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(!k) continue;
+        const v=(Array.isArray(v0)?v0.join(''):typeof v0==='string'?v0:'').replace(/[\s|,;:]/g,''); if(!v) continue;
+        raw[k]=raw[k]?raw[k]+'\u0000'+v:v;
+      }
+      // When every row has the same length, that length is the grid the AI meant, whatever "div" says: 16 characters in 4/4
+      // are sixteenth slots. Rows written one character per eighth (8 in 4/4) or per quarter (4) are spread onto sixteenths.
+      const lens=new Set(Object.values(raw).flatMap(v=>v.split('\u0000').map(x=>x.length)));
+      let spread=1;
+      if(lens.size===1){ const L=[...lens][0], d=L/S.beats;
+        if(L!==S.beats*div&&Number.isInteger(d)){
+          if(S.compound){ if(d===3) div=3; }
+          else if([3,4,6,8].includes(d)) div=d;
+          else if(d===2||d===1){ div=4; spread=4/d; }
+        }
+      }
+      b.div=div; const n=S.beats*div;
+      for(const [k,vv] of Object.entries(raw)) for(let v of vv.split('\u0000')){
+        if(spread>1) v=[...v].map(ch=>ch+'-'.repeat(spread-1)).join('');
         // in a sticking the small letters are grace notes (lR); a sticking written all in small letters is the hands themselves
         if(k==='st'&&!/[RL]/.test(v)) v=v.toUpperCase();
         v=k==='st'?[...v].map(ch=>ch==='R'||ch==='L'?ch:'-').join(''):[...v].map(ch=>fixMark(k,ch)).join('');
@@ -1974,6 +2011,9 @@ function tidyReading(list,allowX,allowR){
         const hands=['cr','hh','rd','t1','t2','sn','ft'], notes=[...Array(n).keys()].filter(i=>hands.some(r=>c[r]&&c[r][i]!=='-')).length, letters=(c.st.match(/[RL]/g)||[]).length;
         if(notes!==letters) why.push(`${letters} sticking letters but ${notes} notes played by the hands`);
       }
+      // a bar cut finer than its notes need (thirty-second slots for eighths) goes onto the plainer grid
+      for(const [from,to] of [[8,4],[6,3]]) if(b.div===from&&Object.values(c).every(v=>[...v].every((ch,i)=>ch==='-'||i%2===0))){
+        for(const k of Object.keys(c)) c[k]=[...c[k]].filter((ch,i)=>i%2===0).join(''); b.div=to; }
       b.c=c;
       if(why.length) Object.defineProperty(b,'_why',{value:why,enumerable:false,configurable:true,writable:true}); else delete b._why;
     }
