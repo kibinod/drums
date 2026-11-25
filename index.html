@@ -167,6 +167,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .photorow{display:flex;gap:8px}.photorow #btnPhoto{flex:1}
 .sheetbox>*{flex-shrink:0}
 .keybox h3{margin:0;font:700 17px/1.2 var(--body)}
+.airaw{font-size:14px}.airaw[hidden]{display:none}.airaw summary{cursor:pointer;color:var(--muted,#9aa)}.airaw textarea{width:100%;box-sizing:border-box;margin:6px 0;font:12px/1.35 ui-monospace,Menlo,monospace;background:transparent;color:inherit;border:1px solid var(--line-strong);border-radius:8px;padding:6px}
 .keybox{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px}.keybox[hidden]{display:none}
 .keybox input{height:42px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:16px/1 var(--body);background:var(--surface);color:inherit;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .lab[data-row]{cursor:pointer}
@@ -297,6 +298,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
     </div>
     <div class="photobox" id="photoBox" hidden role="status" aria-live="polite"><span id="photoStatus"></span><button class="chip" id="photoStop" type="button">Стоп</button></div>
     <p class="hint" id="photoHint" hidden></p>
+    <details class="airaw" id="aiRaw" hidden><summary id="aiRawSum">Ответ ИИ на последнее фото</summary><p class="hint" id="aiRawHint"></p><textarea id="aiRawText" readonly rows="8" spellcheck="false"></textarea><button class="chip" id="aiRawCopy" type="button">Копировать</button></details>
     <div class="keybox" id="backupBox">
       <h3 id="backupH">Резервная копия</h3>
       <p class="hint" id="backupHint"></p>
@@ -364,7 +366,7 @@ const I18N={
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phCheck:'{0} ещё раз смотрит на сомнительные такты ({1})…',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами: ИИ Gemini прочитает её и добавит песню. Нужен бесплатный ключ Gemini (кнопка «Ключ ИИ»), хватает примерно на 20 страниц в день. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phCheck:'{0} ещё раз смотрит на сомнительные такты ({1})…',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.',phRecheck:'{0} перечитывает страницу: в первом чтении похоже на ошибку во многих тактах…',aiRawSum:'Ответ ИИ на последнее фото',aiRawHint:'Если ноты прочитались неправильно, скопируйте этот текст и пришлите его вместе с фото страницы — так проще найти, где ошибка.',copyBtn:'Копировать',tCopied:'Скопировано.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
   copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save a backup',restoreBtn:'Restore from a backup',backupH:'Backup',backupHint:'All songs, rudiments and folders in one file. Keep it in Files or send it to yourself: if the phone clears the app’s storage, the songs can come back. {0}',backupLast:'Last backup: {0}.',backupNever:'No backup saved yet.',tBackupSaved:'Backup saved: {0} songs.',tRestored:'Songs restored: {0}. The rest were already in the list.',tRestoredAll:'Songs restored: {0}.',backupFile:'drum songs',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
   hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. Hold a cell for flam, drag, buzz, cross-stick and triplet. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',rimshot:'Rimshot ⊘',x2n:'Cross-sticks → strokes (whole song)',x2nDone:'Cross-sticks turned into strokes: {0}.',flam:'Flam',flamAcc:'Flam >',drag:'Drag',dragAcc:'Drag >',buzz:'Buzz z',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
@@ -380,13 +382,13 @@ const I18N={
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phCheck:'{0} is taking a second look at doubtful bars ({1})…',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo of a page of drum music: Gemini AI reads it and adds a song. It needs a free Gemini key (the “AI key” button), enough for about 20 pages a day. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phCheck:'{0} is taking a second look at doubtful bars ({1})…',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.',phRecheck:'{0} is reading the page again: the first reading looks wrong in many bars…',aiRawSum:'AI answer for the last photo',aiRawHint:'If the notes were misread, copy this text and send it along with the photo of the page: it shows where the mistake is.',copyBtn:'Copy',tCopied:'Copied.'}
 };
 let LANG='ru';
 const tx=(k,...args)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; args.forEach((a,i)=>{ if(a!==undefined) v=v.replace('{'+i+'}',a); }); return v; };
 const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnPick':'pickBtn','#pickGo':'pickGo','#pickCancel':'pickCancel','#pickHint':'pickHint','#btnRestore':'restoreBtn','#backupH':'backupH','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
-  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel'};
+  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel','#aiRawSum':'aiRawSum','#aiRawHint':'aiRawHint','#aiRawCopy':'copyBtn'};
 const ARIA={'#folderBar':'foldersAria','#swing':'swingAria','#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
 
 /* ---------- model ---------- */
@@ -1796,66 +1798,82 @@ function mergeSongs(acc,list){
   }
 }
 function contPrompt(acc){
-  return '\n\nPART OF THIS PAGE IS ALREADY WRITTEN. Do not write these bars again:\n'+acc.map(x=>'- song "'+(x.title||'')+'": '+x.bars.length+' bars written; the last one is '+JSON.stringify(x.bars[x.bars.length-1])).join('\n')
-    +'\nNow write ONLY the bars that come after those, to the end of the page, in the same JSON form, with each song\'s title so the parts can be joined. If nothing is left, reply {"songs":[],"note":""}.';
+  return '\n\nPART OF THIS PAGE IS ALREADY WRITTEN. Do not write these bars again:\n'+acc.map(x=>{ const b=x.bars[x.bars.length-1]; return '- song "'+(x.title||'')+'": '+x.bars.length+' bars written; the last one'+(b.lb?' (labelled '+b.lb+')':'')+' counts '+countText(b,barS(x,b)); }).join('\n')
+    +'\nNow write ONLY the bars that come after those, to the end of the page, in the same JSON form (each bar with its voices in "v"), with each song\'s title so the parts can be joined. If nothing is left, reply {"songs":[],"note":""}.';
 }
+// every answer of the last page, as it came: the person can look at it and send it on when a page is misread
+let aiLog=[];
 async function askAI(prompt,imgs,signal,onText,onThink,budget){
-  if(PhotoMode==='api') return await gemPhotos(prompt,imgs,signal,onText,onThink,{budget,onWait:gemWaitUI});
-  try{ const r=await Sampler(prompt,{images:imgs,modelTier:'complex',cache:false,signal,onText}); return {text:r.text,finish:r.truncated?'MAX_TOKENS':'STOP'}; }
-  catch(e){ if(e&&e.code==='empty_completion') return {text:'',finish:'MAX_TOKENS'}; throw e; }
-}
-async function readPage(imgs,signal,ui){
-  const r=await readPage1(imgs,signal,ui);
-  if(r.songs.length&&!r.partial) await secondLook(r.songs,imgs,signal,ui,r.allowX,r.allowR);
+  let r;
+  if(PhotoMode==='api') r=await gemPhotos(prompt,imgs,signal,onText,onThink,{budget,onWait:gemWaitUI});
+  else {
+    try{ const x=await Sampler(prompt,{images:imgs,modelTier:'complex',cache:false,signal,onText}); r={text:x.text,finish:x.truncated?'MAX_TOKENS':'STOP'}; }
+    catch(e){ if(e&&e.code==='empty_completion') r={text:'',finish:'MAX_TOKENS'}; else throw e; }
+  }
+  aiLog.push(String(r.text||''));
   return r;
 }
-// one more look, only at the bars whose reading breaks the rules (a wrong number of slots, stickings that do not match the notes)
-async function secondLook(acc,imgs,signal,ui,allowX,allowR){
-  // A page of grooves read with hi-hat and bass drum but hardly any snare: the snare ovals on the hi-hat's stems were missed.
-  const groove=[]; acc.forEach(x=>x.bars.forEach(b=>{ const c=b.c||{}, has=k=>c[k]&&/[^-]/.test(c[k]); if(has('hh')&&has('bd')&&!has('st')) groove.push(b); }));
-  const noSn=groove.filter(b=>!(b.c.sn&&/[^-]/.test(b.c.sn)));
-  if(groove.length>=3&&noSn.length>=groove.length*.6) for(const b of noSn){
-    const w=(b._why||[]).concat('it has hi-hat and bass drum but no snare at all: look for the oval noteheads in the snare space (between lines 3 and 4), usually on the same up-stems as the hi-hat on 2 and 4');
-    Object.defineProperty(b,'_why',{value:w,enumerable:false,configurable:true,writable:true});
+const barCount=acc=>acc.reduce((n,x)=>n+x.bars.length,0);
+async function readPage(imgs,signal,ui){
+  let r=await readPage1(imgs,signal,ui,'');
+  if(!r.songs.length||r.partial) return r;
+  // a mistake made all over the page (the bass drum on every hi-hat note, no snare anywhere): the page is read again
+  // with a warning about it, and the reading with fewer doubts is kept
+  const p=pageCheck(r.songs);
+  if(p.warn){
+    if(ui.recheck) ui.recheck();
+    try{
+      const r2=await readPage1(imgs,signal,ui,p.warn);
+      if(r2.songs.length&&!r2.partial&&barCount(r2.songs)>=barCount(r.songs)*.8&&pageCheck(r2.songs).doubts<p.doubts) r=r2;
+      else ui.got(barCount(r.songs));
+    }catch(e){ if(e&&e.code==='cancelled') throw e; }   // the first reading stands
   }
-  const bad=[]; acc.forEach((x,si)=>x.bars.forEach((b,bi)=>{ if(b._why&&b._why.length) bad.push({si,bi,why:b._why}); }));
+  await secondLook(r.songs,imgs,signal,ui,r.allowX,r.allowR);
+  return r;
+}
+// one more look, only at the bars whose reading breaks the rules or looks wrong, a dozen at a time
+async function secondLook(acc,imgs,signal,ui,allowX,allowR){
+  const flags=pageCheck(acc).flags, bad=[];
+  acc.forEach((x,si)=>x.bars.forEach((b,bi)=>{ const why=barDoubts(b,barS(x,b),flags); if(why.length) bad.push({si,bi,why}); }));
   if(!bad.length) return;
   if(ui.check) ui.check(bad.length);
-  const shown=bad.slice(0,16), plain=acc.map(x=>Object.assign({},x,{bars:x.bars.map(b=>Object.assign({},b))}));
-  const prompt=photoPrompt(imgs.length)+'\n\nYOU ALREADY READ THIS PAGE. Your reading, with songs and bars numbered from 1 in this order:\n'+JSON.stringify({songs:plain})
-    +'\n\nThese bars break the rules:\n'+shown.map(q=>'- song '+(q.si+1)+' "'+(acc[q.si].title||'')+'", bar '+(q.bi+1)+': '+q.why.join('; ')).join('\n')
-    +'\n\nLook at those bars on the page again, beat by beat, and write each of them again in full: EVERY row of the bar, also the rows that were right (hi-hat, snare, bass drum, sticking…). Reply with only JSON of this form: {"fix":[{"song":1,"bar":3,"div":4,"c":{"hh":"...","sn":"...","bd":"...","st":"..."}}]}. Leave out a bar that was right after all.';
-  let v;
-  try{ const {text}=await askAI(prompt,imgs,signal,ui.onText,ui.onThink,0); v=parseLoose(text); if(v===undefined) v=salvage(text); }
-  catch(e){ if(e&&e.code==='cancelled') throw e; return; }   // the first reading stands
-  const fix=v&&Array.isArray(v.fix)?v.fix:[];
-  for(const f of fix){
-    const si=(+f.song||0)-1, bi=(+f.bar||0)-1, x=acc[si], old=x&&x.bars[bi]; if(!old||!f.c) continue;
-    // the bar as first read, with the rows written again put in its place: a row left out of the answer is kept, never lost
-    const keep={}; for(const k of Object.keys(old.c||{})) keep[k]=old.c[k];
-    const given={}; for(const [k0,v0] of Object.entries(f.c&&typeof f.c==='object'?f.c:{})){ const k=ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(k) given[k]=v0; }
-    if(!Object.keys(given).length) continue;
-    const sameGrid=(+f.div||old.div)===old.div&&(f.sg||old.sg||'')===(old.sg||'');
-    // on a new grid the old rows are moved onto it, note by note at the same place in the beat
-    let rows;
-    if(sameGrid) rows=Object.assign(keep,given);
-    else { const nd=+f.div||old.div; rows={};
-      for(const [k,v] of Object.entries(keep)){ const a=[...v], beats=a.length/old.div, out=Array(Math.round(beats*nd)).fill('-');
-        a.forEach((ch,i)=>{ if(ch==='-') return; const j=i*nd/old.div; if(Math.abs(j-Math.round(j))<1e-6&&Math.round(j)<out.length) out[Math.round(j)]=ch; });
-        rows[k]=out.join(''); }
-      Object.assign(rows,given); }
-    const t=tidyReading([{sig:x.sig,bars:[Object.assign({},f,{sg:f.sg||old.sg,div:+f.div||old.div,c:rows})]}],allowX,allowR)[0].bars[0]; if(!t) continue;
-    // a new reading that still breaks the rules is kept only when it breaks fewer of them
-    if(t._why&&t._why.length>=(old._why||[]).length) continue;
-    for(const k of ['lb','rs','re','tm']) if(t[k]===undefined&&old[k]!==undefined) t[k]=old[k];
-    x.bars[bi]=t;
+  for(let at=0;at<bad.length&&at<36;at+=12){
+    const shown=bad.slice(at,at+12);
+    const prompt=photoPrompt(imgs.length)+'\n\nYOU ALREADY READ THIS PAGE. This is what was read, with songs and bars numbered from 1 in this order, told as the drums struck on each count:\n'+readingText(acc)
+      +'\n\nThese bars look wrong:\n'+shown.map(q=>'- song '+(q.si+1)+' "'+(acc[q.si].title||'')+'", bar '+(q.bi+1)+': '+q.why.join('; ')).join('\n')
+      +'\n\nFind each of those bars on the page and look at it again, voice by voice and note by note. Write each of them again in full, in the same bar form as in the example above: every voice of the bar in "v", and its sticking in "st" if one is printed. Reply with only JSON of this form: {"fix":[{"song":1,"bar":3,"v":["8 hh, 8 hh, …","4 bd, 4 sn, …"]}]}. Leave out a bar that was right after all.';
+    let v;
+    try{ const {text}=await askAI(prompt,imgs,signal,ui.onText,ui.onThink,0); v=parseLoose(text); if(v===undefined) v=salvage(text); }
+    catch(e){ if(e&&e.code==='cancelled') throw e; return; }   // the first reading stands
+    const fix=v&&Array.isArray(v.fix)?v.fix:[];
+    for(const f of fix){
+      if(!f||typeof f!=='object') continue;
+      const si=(+f.song||1)-1, bi=(+f.bar||0)-1, x=acc[si], old=x&&x.bars[bi]; if(!old) continue;
+      const nb=Object.assign({},f,{sg:f.sg||old.sg}); delete nb.song; delete nb.bar;
+      if(!voiceList(nb.v!==undefined?nb.v:nb.voices)&&!(nb.c&&typeof nb.c==='object')) continue;
+      if(nb.c&&!nb.div) nb.div=old.div;
+      const t=tidyReading([{sig:x.sig,bars:[nb]}],allowX,allowR)[0].bars[0]; if(!t) continue;
+      // a drum the answer left out is kept from the first reading, unless the answer wrote the bar's voices in full
+      const vs=voiceList(f.v!==undefined?f.v:f.voices), full=vs&&vs.length>=2, why=(t._why||[]).slice();
+      if(!full) for(const [k,r0] of Object.entries(old.c||{})) if(!t.c[k]&&/[^-]/.test(r0)){
+        const g=regrid(r0,old.div,t.div); t.c[k]=g.v; if(g.lost) why.push(`${g.lost} notes of the ${k} row did not fit the bar's new grid`);
+      }
+      if(t.c.st&&!hasNotes(t.c,'st')) delete t.c.st;
+      Object.defineProperty(t,'_why',{value:why,enumerable:false,configurable:true,writable:true});
+      const S=barS(x,t);
+      // a new reading that still looks wrong is kept only when it looks wrong in fewer ways
+      if(barDoubts(t,S,flags).length>=barDoubts(old,barS(x,old),flags).length) continue;
+      for(const k of ['lb','rs','re','tm']) if(t[k]===undefined&&old[k]!==undefined) t[k]=old[k];
+      x.bars[bi]=t;
+    }
   }
 }
-async function readPage1(imgs,signal,ui){
+async function readPage1(imgs,signal,ui,warn){
   const acc=[], notes=[]; let budget=0, strict=false, partial=false, emptyNote='', allowX=false, allowR=false;
+  const extra=warn?'\n\nWARNING. '+warn:'';
   for(let round=1;round<=8;round++){
     if(round>1) ui.round(round);
-    const prompt=photoPrompt(imgs.length)+(acc.length?contPrompt(acc):'')+(strict?'\n\nIMPORTANT: the last answer could not be read. Reply with the JSON object only, no words before or after it.':'');
+    const prompt=photoPrompt(imgs.length)+extra+(acc.length?contPrompt(acc):'')+(strict?'\n\nIMPORTANT: the last answer could not be read. Reply with the JSON object only, no words before or after it.':'');
     const {text,finish}=await askAI(prompt,imgs,signal,ui.onText,ui.onThink,budget);
     let v=parseLoose(text); const whole=v!==undefined;
     if(!whole) v=salvage(text);
@@ -1863,8 +1881,8 @@ async function readPage1(imgs,signal,ui){
     const list=tidyReading(songsOf(v),allowX,allowR).filter(x=>x.bars.length);
     if(v&&typeof v.note==='string'&&v.note.trim()) notes.push(v.note.trim().slice(0,300));
     if(list.length){
-      const before=acc.reduce((n,x)=>n+x.bars.length,0);
-      mergeSongs(acc,list); const now=acc.reduce((n,x)=>n+x.bars.length,0); ui.got(now);
+      const before=barCount(acc);
+      mergeSongs(acc,list); const now=barCount(acc); ui.got(now);
       if(whole) return {songs:acc,allowX,allowR,notes};
       if(now===before) return {songs:acc,allowX,allowR,notes,partial:true};   // the same part came back again: stop asking
       partial=true; strict=false; continue;          // cut off: ask for the rest
@@ -1876,6 +1894,10 @@ async function readPage1(imgs,signal,ui){
     throw {code:'invalid_json',text,finish};
   }
   return {songs:acc,allowX,allowR,notes,partial};
+}
+function showAiLog(){
+  const t=aiLog.map((x,i)=>(aiLog.length>1?'— '+(i+1)+' —\n':'')+x).join('\n\n').slice(0,60000); if(!t.trim()) return;
+  $('aiRawText').value=t; $('aiRaw').hidden=false; try{ localStorage.setItem('drumbook.lastai',t); }catch(e){}
 }
 function photoState(msg){ $('photoBox').hidden=!msg; $('photoStatus').textContent=msg||''; $('btnPhoto').disabled=!!msg; }
 const toBlob=(c,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/jpeg',q));
@@ -1909,26 +1931,30 @@ ${n>1?`Image 1 is the whole page. Images 2 to ${n} are overlapping horizontal st
 Read in the order a musician would. If the exercises are set in two columns, follow their labels (for example A to H down the left column, then I to P down the right).
 
 Reply with only JSON of this form:
-{"key":"snare: filled ovals in the 3rd space; hi-hat: x heads above the top line; bass drum: ovals in the 1st space; sticking under the staff","crossStick":false,"rimShot":false,"songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[{"div":4,"lb":"A","rs":true,"re":true,"count":"1 hh+bd | & hh | 2 hh+sn | & hh | 3 hh+bd | & hh+bd | 4 hh+sn | & hh","c":{"hh":"n-n-n-n-n-n-n-n-","sn":"----n-------n---","bd":"n-------n-n-----"}}]}],"note":""}
-(That example bar is a plain rock beat: hi-hat eighths, snare on 2 and 4, bass drum on 1, 3 and the "and" of 3.)
+{"key":"hi-hat: x above the top line, stems up; snare: oval in the 3rd space; bass drum: oval in the 1st space","crossStick":false,"rimShot":false,"songs":[{"title":"Ex.1","bpm":100,"sig":"4/4","bars":[
+{"lb":"A","rs":true,"v":["8 hh, 8 hh, 8 hh, 8 hh, 8 hh, 8 hh, 8 hh, 8 hh","4 bd, 4 sn, 4 bd, 4 sn"]},
+{"re":true,"v":["8 hh, 8 hh, 8 hh+sn, 8 hh, 8 hh, 8 hh, 8 hh+sn:a, 8 hh:o","4 bd, 4 r, 8 bd, 8 bd, 4 r"]},
+{"v":["1 r"]},
+{"v":["16 sn:a, 16 sn, 16 sn, 16 sn, 8 r, 8 sn, 4 sn:f, 4 r"],"st":"RLRLLR"}]}],"note":""}
+The four example bars show the forms. Bar 1: a rock beat printed with the hi-hat alone in the upper voice and the bass drum and snare together in the lower voice as quarter notes, so the bass drum is struck only twice in it. Bar 2: the snare on the hi-hat's stems and the bass drum alone in the lower voice. Bar 3: a whole-bar rest. Bar 4: a snare exercise in one voice, with its sticking.
 
-First, "key": one short sentence saying how this page writes each drum it uses: the page's own drum key if one is printed, otherwise where each kind of notehead sits and what it looks like. Decide this before writing any bar, and keep to it for the whole page.
-Then "crossStick": true only when this page really uses cross-stick (rim click): its drum key shows one, or the words "cross stick", "X-stick", "rim click" or "side stick" are printed on it. Otherwise false. Almost every page is false. "rimShot": true only when the page marks rimshots (the words "rim shot" or "RS", or its drum key shows one); otherwise false. On a page where crossStick is false every note in the snare space is an ordinary snare stroke, even if its head looks like an x: write it as "n" (or "a", "g", "f"… as it is marked) — never "x", and never leave it out.
+First, "key": one short sentence saying how this page writes each drum it uses: the page's own drum key if one is printed, otherwise where each kind of notehead sits, what it looks like and which way its stems go. Decide this before writing any bar, and keep to it for the whole page.
+Then "crossStick": true only when this page really uses cross-stick (rim click): its drum key shows one, or the words "cross stick", "X-stick", "rim click" or "side stick" are printed on it. Otherwise false. Almost every page is false. "rimShot": true only when the page marks rimshots (the words "rim shot" or "RS", or its drum key shows one); otherwise false. On a page where crossStick is false every note in the snare space is an ordinary snare stroke, even if its head looks like an x.
 
 Rules:
 - One song per exercise heading on the page (such as "Ex.3"). With no heading, one song for the page, titled with any title printed on it, else "".
 - swing: 100 when the page asks for a shuffle or swung eighths (a mark like ♫ = ♩♪ in triplets, or the word "Swing" or "Shuffle"); leave it out otherwise.
 - bpm: the printed tempo (♩ = 110), else 100. A tempo change printed over a bar: "tm" with that tempo on that bar.
-- sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". A 2/2 bar has the same 16 sixteenth slots as 4/4. When a new time signature is printed in the middle of a piece, put "sg" with it on that bar and on every bar after it that is in it (for example "sg":"3/4").
-- div is how finely the bar is cut into slots, NOT the note value. 4 = sixteenth-note slots: use it for any bar of quarters, eighths and sixteenths (an eighth note takes every other slot, "n-n-n-n-n-n-n-n-"; a quarter every fourth, "n---n---n---n---"). 3 = eighth-note triplets. 6 = sixteenth-note triplets (sextuplets: six notes to a beat under a 6, or two 3s). 8 = only when the bar has thirty-second notes (three beams). Always 3 in 6/8 and 12/8. A bar has beats × div slots: 16 in 4/4 with div 4, 12 with div 3, 24 with div 6, 32 with div 8; 8 in 2/4 with div 4; 6 in 6/8. Every row of a bar has that many characters.
-- Note values come from the beams and flags, not from how many notes are in a group: one beam (or one flag) = eighth notes, two per beat; two beams = sixteenths, four per beat; three = thirty-seconds. Four eighth notes under one beam are two beats, not one. A bar of 4/4 holds eight eighths or sixteen sixteenths. A single sixteenth-note triplet inside a sixteenth bar can instead be written with "3", as below.
-- count: before the rows of each bar, say in order what is struck on each part of the beat that has a note, counting 1 e & a for sixteenths (1 trip let for triplets): "1 hh+bd | & hh | 2 hh+sn | …". Then write the rows from it, so every drum in the count appears on its own row at that slot.
-- c: one string per instrument row with exactly one character per slot. A character goes only on the slot where a note STARTS; slots covered by a longer note or a rest are "-". Leave out rows with no notes in the bar. Use only the row names below.
-- Rests are silence, never notes: a rest gets NO character, only "-" on the slots it covers. Tell them apart: a note has a notehead (a filled oval, or an x) with a stem that joins the beam or has a flag; a rest has no notehead and no stem to the beam. An eighth rest looks like a small 7 with one dot-flag, a sixteenth rest like a 7 with two, a quarter rest like a vertical squiggle; rests sit in the middle of the staff, often under a beam. For example, sixteenths R, L, R and then a sixteenth rest in one beat are "nnn-", not "nnnn".
-- Work beat by beat: in each beat, name every symbol in order as a note or a rest and its length, add up the lengths (a beat is 4 sixteenths, or 3 triplet eighths), and only then place the notes on their slots. If a sticking row is printed, the number of letters in a bar equals the number of notes in it, so use the letters to check that no rest was taken for a note.
-- Drum-set music is usually written in two voices: the hands (cymbals, snare, toms) with stems up, the feet (bass drum, hi-hat pedal) with stems down. One up-stem often carries two noteheads struck together, an x above the staff (hi-hat or ride) and an oval in the snare space: write both, each on its own row. The feet's notes sit low, on their own down-stems. Typical rock and pop: hi-hat on every eighth, snare on 2 and 4, bass drum on 1 and 3 and around them — a bar with hi-hat and bass drum but no snare at all is rare, so look again for the snare ovals.
-- Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one. Music for one drum only (a snare or pad exercise, on one line or on the middle of the staff) is all "sn".
-  cr crash: x on a ledger line above the staff
+- sig: one of "4/4", "2/2", "3/4", "2/4", "5/4", "6/8", "12/8". A C with a vertical line through it (¢, cut time) is "2/2"; a plain C is "4/4". When a new time signature is printed in the middle of a piece, put "sg" with it on that bar and on every bar after it that is in it (for example "sg":"3/4").
+- Write every bar of the page, rests too: a bar of rest is "v":["1 r"]; a rest with a number over it (a rest of several bars) is that many such bars.
+- v: the bar's voices, one string each, upper voice first. Drum music is printed in one voice or in two: an upper voice with stems up and a lower voice with stems down. Pages differ in what goes where: often cymbals, snare and toms are up and the bass drum and hi-hat pedal down, but many pages put the hi-hat or ride alone up and the snare and bass drum together down. Write each voice as it is printed: its notes and rests from left to right, separated by commas.
+- Each entry is a length, a space, and what is struck. "8 hh+sn" is one eighth note whose stem carries a hi-hat x and a snare head, struck together; "4 bd" is a quarter note on the bass drum; "8 r" is an eighth rest.
+  Lengths: 1 whole, 2 half, 4 quarter, 8 eighth, 16 sixteenth, 32 thirty-second. Add a dot for a dotted note ("8." dotted eighth, "4." dotted quarter). Add t for a note in a triplet: "8t" is one of three eighths in one beat (under a 3), "16t" one of six sixteenths in one beat (under a 6, or two 3s), "4t" one of three quarters in two beats.
+  The length comes from the note's own stem: a black head with a plain stem is 4; one beam or one flag is 8; two beams are 16; three are 32; a hollow head with a stem is 2; a hollow head with no stem is 1. Four eighth notes under one beam are two beats, not one. Rests: a quarter rest is a vertical squiggle (4 r); an eighth rest a small 7 with one dot-flag (8 r); a sixteenth rest a 7 with two (16 r); a filled block hanging from line 4 is a whole-bar rest (1 r).
+- Each voice adds up to exactly one bar: 4 quarter notes in 4/4 and 2/2 (eight 8s, or four 4s, or 4 + 8 + 8 + 2…), 3 in 3/4, 2 in 2/4, 5 in 5/4, 3 in 6/8 (six 8s), 6 in 12/8. A voice that comes out short or long has a note or a rest missing or a wrong length: look again.
+- What is struck: every notehead on that stem, each named by its place on the staff (rows below), joined with "+". A drum is struck ONLY on the notes that carry its own notehead. One voice never adds a drum to the other: eight hi-hat eighths above four quarter notes below are eight hi-hat strokes plus four strokes below — never a bass drum on every eighth.
+- Rows, by where the notehead sits on the five-line staff (lines counted 1 to 5 from the bottom). Follow the page's own drum key instead if it prints one. Music for one drum only (a snare or pad exercise, on one line or on the middle of the staff) is all "sn". Use only these names:
+  cr crash: x on a ledger line above the staff (often with a line through it)
   hh hi-hat: x in the space just above line 5
   rd ride: x on line 5
   t1 high tom: in the space between lines 4 and 5
@@ -1937,28 +1963,28 @@ Rules:
   ft floor tom: in the space between lines 2 and 3
   bd bass drum: in the space between lines 1 and 2
   hp hi-hat pedal (foot): x below the staff
-- Every notehead on the staff is a stroke on one of these rows: never leave a note out because you are unsure what it is or how it is marked; write it as "n" on the row its position gives.
-- Marks. Every note is "n" unless one of these is clearly printed on that very note:
-  "a" accent: > or ^ over or under the note.
-  "g" ghost note: its notehead in parentheses ( ).
-  "o" open hi-hat: a small circle over a hi-hat note (a "+" there means closed: "n"). hh only.
-  "x" cross-stick (rim click): only on a page where crossStick is true, and only on a snare-space note drawn as an X or a circled X. sn only. An ordinary snare note has a filled oval head and is "n", never "x". Hi-hat, ride and crash notes are always drawn with x heads: on their own rows they are "n", not "x". When a hi-hat and a snare are struck together they share one stem: the x at the top is the hi-hat, the oval lower down in the snare space is an ordinary snare stroke, "n".
-  "r" rimshot: only on a page where rimShot is true, on a snare note marked as one (usually a slash through the notehead). sn only. Otherwise an ordinary or accented snare stroke.
-  "f" flam: one small grace note (a tiny note, usually with a slash through its flag) printed just before the note; "F" the same with an accent. sn, t1, t2, ft only.
-  "d" drag: two small grace notes just before the note; "D" the same with an accent. sn, t1, t2, ft only.
-  "z" buzz: a z drawn across the note's stem. sn, t1, t2, ft only.
-  "3": a sixteenth-note triplet that starts on this slot and fills it and the next one (only with div 4 and on an even slot; the next slot is "-").
-  Grace notes are not notes of their own: they take no slot and no sticking letter. In a sticking like "lR" or "llR" the small letters are the grace notes: write only the capital one.
-- st (sticking): the letters R and L printed in a row under the staff (sometimes over it), one letter per note, read left to right. Whenever a bar has them, copy them: each letter goes on the slot of the note it stands under — the first letter on the bar's first note, the second on its second note, and so on. Never leave them out. If two alternative sticking rows are printed for the same bar, write the bar twice: first with the upper sticking, then with the lower (same notes, same label).
-- lb: the label of an exercise (A, B, 1, 2…) printed at its start, often circled or boxed, at most 6 characters, only on the bar where it is printed. Small bar numbers printed over barlines are not labels.
+- Every notehead on the staff is a stroke: never leave one out because you are unsure what it is or how it is marked; name it by its place.
+- Marks: after a drum's name, a colon and one letter, only when that mark is clearly printed on that very note (otherwise no mark):
+  :a accent: > or ^ over or under the note.
+  :g ghost note: its notehead in parentheses ( ).
+  :o open hi-hat: a small circle over a hi-hat note (a "+" there means closed: no mark). hh only.
+  :x cross-stick (rim click): only on a page where crossStick is true, and only on a snare-space note drawn as an X or a circled X. sn only. Hi-hat, ride and crash heads are always drawn as x's: they get no mark. When a hi-hat and a snare share one stem, the x at the top is the hi-hat and the head in the snare space is an ordinary snare stroke.
+  :r rimshot: only on a page where rimShot is true, on a snare note marked as one (usually a slash through the notehead). sn only.
+  :f flam: one small grace note (a tiny note, usually with a slash through its flag) printed just before the note; :F the same with an accent. sn, t1, t2, ft only.
+  :d drag: two small grace notes just before the note; :D the same with an accent. sn, t1, t2, ft only.
+  :z buzz: a z drawn across the note's stem. sn, t1, t2, ft only.
+  Grace notes are not notes of their own: they get no entry, no length and no sticking letter.
+- st (sticking): the letters R and L printed in a row under the staff (sometimes over it), copied in order, one per note played by the hands, for example "RLRRLRLL". Small letters for grace notes (as in "lR") are left out. Leave "st" out when the bar has none. If two alternative sticking rows are printed for the same bar, write the bar twice: first with the upper sticking, then with the lower (same notes, same label).
+- lb: the label of an exercise (A, B, 1, 2…) or a section name (Intro, Verse, Chorus…) printed at its start, at most 6 characters, only on the bar where it is printed. Small bar numbers printed over barlines are not labels.
 - rs / re: true on a bar that starts with a start-repeat sign |: / ends with an end-repeat sign :|. Leave out when false.
-- Before you answer, check every bar: each row string has exactly beats × div characters; when there is a sticking row, its letters equal the notes played by the hands (every row but bd and hp); each mark is one listed above, on a row that allows it.
+- Before you answer, check every bar: each voice adds up to exactly one bar; every notehead on the staff is in one entry; no drum is written on a note that has no notehead of its own; when there is a sticking, it has one letter per note played by the hands.
 - Give your best reading of anything hard to make out, and say what you guessed in "note": one or two short sentences in ${LANG==='en'?'English':'Russian'}, or "" if everything was clear.`;
 }
 // What the AI wrote, put into the app's own form. Row names and marks it may write its own way are mapped; a mark a row
 // cannot have becomes the nearest one that it can (an x on a cymbal is how a cymbal is drawn: a plain stroke).
 // Anything else written on a slot means a note is there. Bars that still break the rules are marked for a second look.
-const ROW_ALIAS={sn:'sn',snare:'sn',sd:'sn',snaredrum:'sn',hh:'hh',hihat:'hh',hat:'hh',hats:'hh',bd:'bd',kick:'bd',bass:'bd',bassdrum:'bd',kickdrum:'bd',rd:'rd',ride:'rd',cr:'cr',crash:'cr',cymbal:'cr',t1:'t1',tom:'t1',tom1:'t1',hightom:'t1',ht:'t1',t2:'t2',tom2:'t2',midtom:'t2',mt:'t2',ft:'ft',floortom:'ft',floor:'ft',tom3:'ft',lt:'ft',lowtom:'ft',hp:'hp',hhpedal:'hp',hihatpedal:'hp',hhfoot:'hp',pedal:'hp',foot:'hp',st:'st',sticking:'st',hands:'st',hand:'st'};
+const ROW_ALIAS={sn:'sn',snare:'sn',sd:'sn',snaredrum:'sn',s:'sn',hh:'hh',hihat:'hh',hat:'hh',hats:'hh',hhclosed:'hh',closedhh:'hh',bd:'bd',kick:'bd',bass:'bd',bassdrum:'bd',kickdrum:'bd',bdr:'bd',k:'bd',b:'bd',rd:'rd',ride:'rd',ridecymbal:'rd',cr:'cr',crash:'cr',crashcymbal:'cr',cymbal:'cr',cym:'cr',t1:'t1',tom:'t1',tom1:'t1',hightom:'t1',ht:'t1',t2:'t2',tom2:'t2',midtom:'t2',mt:'t2',ft:'ft',floortom:'ft',floor:'ft',tom3:'ft',lt:'ft',lowtom:'ft',hp:'hp',hhpedal:'hp',hihatpedal:'hp',hhfoot:'hp',pedal:'hp',foot:'hp',hfoot:'hp',st:'st',sticking:'st',hands:'st',hand:'st'};
+const rowName=k0=>ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')];
 function fixMark(k,ch){
   if('-._0 '.includes(ch)) return '-';
   let v=ch==='N'?'n':ch==='A'||ch==='>'||ch==='^'?'a':ch==='G'||ch==='('||ch===')'?'g':ch==='Z'?'z':ch==='O'?'o':ch==='+'?'n':ch;
@@ -1966,59 +1992,207 @@ function fixMark(k,ch){
   if(validCell(k,v)) return v;
   return isAcc(v)?'a':'n';
 }
+// ---- the bar as the AI writes it: each voice as printed, note by note with its length ----
+// "8 hh+sn:a" is an eighth note with the hi-hat and an accented snare struck together, "4 r" a quarter rest.
+// The app adds the lengths up itself, so where a note falls never depends on the AI counting out characters or slots.
+const DUR={1:4,2:2,4:1,8:.5,16:.25,32:.125,64:.0625};
+const MARK_WORD={a:'a',acc:'a',accent:'a',g:'g',ghost:'g',o:'o',open:'o',f:'f',flam:'f',d:'d',drag:'d',z:'z',buzz:'z',x:'x',xs:'x',crossstick:'x',rimclick:'x',r:'r',rimshot:'r',rim:'r',n:'n'};
+const barQ=S=>S.top*4/S.bot;   // a bar's length in quarter notes
+const HAND_ROWS=['cr','hh','rd','t1','t2','sn','ft'];
+function voiceList(v){
+  if(v==null) return null;
+  if(typeof v==='string') return v.split(/\n|\|\|/).map(x=>x.trim()).filter(Boolean);
+  if(Array.isArray(v)) return v.map(x=>Array.isArray(x)?x.join(','):typeof x==='string'?x:x&&typeof x==='object'?String(x.notes||x.v||x.events||Object.values(x).filter(y=>typeof y==='string').sort((p,q)=>q.length-p.length)[0]||''):'').filter(x=>x.trim());
+  if(typeof v==='object') return voiceList(Object.values(v));
+  return null;
+}
+function parseHit(p){
+  p=p.trim(); if(!p) return null;
+  let m='';
+  if(/^\(.*\)$/.test(p)){ m='g'; p=p.slice(1,-1); }
+  if(/[>^]/.test(p)){ m='a'; p=p.replace(/[>^]/g,''); }
+  let [name,mk]=p.split(':'); const k=rowName(name||''); if(!k||k==='st') return null;
+  if(mk){ mk=mk.trim(); m=mk.length===1&&'fFdD'.includes(mk)?mk:(MARK_WORD[mk.toLowerCase()]||m); }
+  return {k,m:m==='n'?'':m};
+}
+// the voices, put onto the finest grid the app has that every note falls on
+function fromVoices(list,S){
+  const Q=barQ(S), why=[], hits=[], unknown=new Set(); let read=0;
+  list.forEach((str,vi)=>{
+    let t=0, bad=0, ok=0;
+    for(let tok of String(str).split(/[,;|]+/)){
+      tok=tok.trim().replace(/^(\d+)(?:st|nd|rd|th)\b/i,'$1'); if(!tok) continue;
+      if(/^(r|rest|-|пауза)$/i.test(tok)){ ok++; t=Math.max(t,Q); continue; }   // a rest with no length: the rest of the bar
+      const m=tok.match(/^(?:1\/)?(64|32|16|8|4|2|1)(\.{0,2})(t)?(?![0-9])\s*[:=]?\s*(.*)$/i); if(!m){ bad++; continue; }
+      const len=DUR[m[1]]*(m[2]==='..'?1.75:m[2]==='.'?1.5:1)*(m[3]?2/3:1);
+      const what=m[4].replace(/\s*:\s*/g,':').replace(/\(\s*/g,'(').replace(/\s*\)/g,')').trim();
+      if(!/^(r|rest|-|пауза)?$/i.test(what)) for(const q of what.split(/[+&\s]+/)){
+        const h=parseHit(q); if(!h){ if(q.trim()) unknown.add(q.trim()); continue; }
+        if(t<Q-1e-6) hits.push({at:t,k:h.k,m:h.m,v:vi});
+      }
+      ok++; t+=len;
+    }
+    if(!ok){ if(bad) why.push(`voice ${vi+1} could not be read`); return; }
+    read++;
+    if(ok===1&&!bad&&!hits.some(h=>h.v===vi)) return;   // a whole-bar rest, whatever the time
+    if(bad) why.push(`${bad} entries of voice ${vi+1} could not be read`);
+    const q=+t.toFixed(3);
+    if(t>Q+1e-6) why.push(`voice ${vi+1} adds up to ${q} quarter notes, but a bar of ${S.top}/${S.bot} holds ${Q}`);
+    else if(t<Q-1e-6) why.push(`voice ${vi+1} adds up to only ${q} of the bar's ${Q} quarter notes`);
+  });
+  if(!read) return null;
+  if(unknown.size) why.push('unknown drum names: '+[...unknown].slice(0,4).join(', '));
+  const fits=d=>{ const u=Q/(S.beats*d); return hits.every(h=>Math.abs(h.at/u-Math.round(h.at/u))<1e-6); };
+  let div=S.compound?(fits(3)?3:0):[4,3,6,8].find(fits)||0, tri=false;
+  // a sixteenth-note triplet inside a bar of sixteenths: the app's "3" on the slot where it starts
+  if(!div&&!S.compound){
+    const u=Q/(S.beats*4), at=new Set(hits.map(h=>h.k+'@'+(+(h.at/u).toFixed(4))));
+    if(hits.every(h=>{ const p=h.at/u; if(Math.abs(p-Math.round(p))<1e-6) return true; const s0=2*Math.floor(p/2), f=p-s0; return (Math.abs(f-2/3)<1e-6||Math.abs(f-4/3)<1e-6)&&at.has(h.k+'@'+s0); })){ div=4; tri=true; }
+  }
+  if(!div){ div=S.compound?3:4; why.push('some notes fall between the slots of the bar: check their lengths'); }
+  const n=S.beats*div, u=Q/n, c={}, rank=ch=>ch==='-'?0:ch==='n'?1:2;
+  for(const h of hits){
+    let p=h.at/u, ch=h.m?fixMark(h.k,h.m):'n';
+    if(tri&&Math.abs(p-Math.round(p))>1e-6) continue;   // the 2nd and 3rd notes of a triplet are in the "3"
+    let i=Math.round(p); if(i>=n) continue;
+    if(!c[h.k]) c[h.k]=Array(n).fill('-');
+    if(tri&&i%2===0&&hits.some(o=>o.k===h.k&&o.at>h.at+1e-6&&o.at<h.at+2*u-1e-6&&Math.abs(o.at/u-Math.round(o.at/u))>1e-6)) ch='3';
+    if(rank(ch)>=rank(c[h.k][i])) c[h.k][i]=ch;
+  }
+  for(const k of Object.keys(c)) c[k]=c[k].join('');
+  return {div,c,why};
+}
+// the sticking: either one character per slot, or just the letters in order, one per note played by the hands
+function placeSticking(raw,c,n){
+  let s=String(raw||'').replace(/[^RLrl\-.]/g,'');
+  if(!/[RLrl]/.test(s)) return null;
+  const slots=[...Array(n).keys()].filter(i=>HAND_ROWS.some(r=>c[r]&&c[r][i]!=='-'));
+  if(s.length===n||/[-.]/.test(s)){
+    if(!/[RL]/.test(s)) s=s.toUpperCase();
+    s=([...s].map(ch=>ch==='R'||ch==='L'?ch:'-').join('')+'-'.repeat(n)).slice(0,n);
+    const letters=(s.match(/[RL]/g)||[]).length;
+    return {st:s,why:letters!==slots.length?`${letters} sticking letters but ${slots.length} notes played by the hands`:''};
+  }
+  // in a sticking the small letters among capitals are grace notes (lR); a sticking all in small letters is the hands themselves
+  const L=/[RL]/.test(s)?s.replace(/[rl]/g,''):s.toUpperCase(), out=Array(n).fill('-');
+  slots.forEach((i,j)=>{ if(j<L.length) out[i]=L[j]; });
+  return {st:out.join(''),why:L.length!==slots.length?`${L.length} sticking letters but ${slots.length} notes played by the hands`:''};
+}
+// the bar written as rows, one character per slot (the app's own form, and the AI's before voices)
+function fromRows(b,S,why){
+  let div=S.compound?3:([3,4,6,8].includes(+b.div)?+b.div:4);
+  const raw={};
+  for(const [k0,v0] of Object.entries(b.c&&typeof b.c==='object'?b.c:{})){
+    const k=rowName(k0); if(!k) continue;
+    const v=(Array.isArray(v0)?v0.join(''):typeof v0==='string'?v0:'').replace(/[\s|,;:]/g,''); if(!v) continue;
+    raw[k]=raw[k]?raw[k]+'\u0000'+v:v;
+  }
+  // When every row has the same length, that length is the grid the AI meant, whatever "div" says: 16 characters in 4/4
+  // are sixteenth slots. Rows written one character per eighth (8 in 4/4) or per quarter (4) are spread onto sixteenths.
+  const lens=new Set(Object.entries(raw).filter(([k])=>k!=='st').flatMap(([k,v])=>v.split('\u0000').map(x=>x.length)));
+  let spread=1, L0=0;
+  if(lens.size===1){ const L=L0=[...lens][0], d=L/S.beats;
+    if(L!==S.beats*div&&Number.isInteger(d)){
+      if(S.compound){ if(d===3) div=3; }
+      else if([3,4,6,8].includes(d)) div=d;
+      else if(d===2||d===1){ div=4; spread=4/d; }
+    }
+  }
+  const n=S.beats*div, c={};
+  for(const [k,vv] of Object.entries(raw)) if(k!=='st') for(let v of vv.split('\u0000')){
+    if(spread>1) v=[...v].map(ch=>ch+'-'.repeat(spread-1)).join('');
+    v=[...v].map(ch=>fixMark(k,ch)).join('');
+    if(v.length!==n) why.push(`the ${k} row has ${v.length} characters, it needs ${n}`);
+    v=(v+'-'.repeat(n)).slice(0,n);
+    c[k]=c[k]?[...c[k]].map((q,i)=>q!=='-'?q:v[i]).join(''):v;   // the same drum written twice keeps every note
+  }
+  let st=raw.st?raw.st.split('\u0000')[0]:'';
+  if(st&&spread>1&&st.length===L0) st=[...st].map(ch=>ch+'-'.repeat(spread-1)).join('');
+  return {div,c,st};
+}
 function tidyReading(list,allowX,allowR){
   for(const x of list){
-    const base=SIGS[x.sig]?x.sig:'4/4';
+    const base=SIGS[x.sig]?x.sig:'4/4'; x.sig=base;
     x.bars=x.bars.filter(b=>b&&typeof b==='object');
     for(const b of x.bars){
-      const sig=typeof b.sg==='string'&&SIGS[b.sg]?b.sg:base, S=SIGS[sig], c={}, why=[];
-      let div=S.compound?3:([3,4,6,8].includes(+b.div)?+b.div:4);
+      const sig=typeof b.sg==='string'&&SIGS[b.sg]?b.sg:base, S=SIGS[sig], why=[];
       if(sig===base) delete b.sg;
-      // the rows as plain strings, under the app's own names
-      const raw={};
-      for(const [k0,v0] of Object.entries(b.c&&typeof b.c==='object'?b.c:{})){
-        const k=ROW_ALIAS[String(k0).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(!k) continue;
-        const v=(Array.isArray(v0)?v0.join(''):typeof v0==='string'?v0:'').replace(/[\s|,;:]/g,''); if(!v) continue;
-        raw[k]=raw[k]?raw[k]+'\u0000'+v:v;
-      }
-      // When every row has the same length, that length is the grid the AI meant, whatever "div" says: 16 characters in 4/4
-      // are sixteenth slots. Rows written one character per eighth (8 in 4/4) or per quarter (4) are spread onto sixteenths.
-      const lens=new Set(Object.values(raw).flatMap(v=>v.split('\u0000').map(x=>x.length)));
-      let spread=1;
-      if(lens.size===1){ const L=[...lens][0], d=L/S.beats;
-        if(L!==S.beats*div&&Number.isInteger(d)){
-          if(S.compound){ if(d===3) div=3; }
-          else if([3,4,6,8].includes(d)) div=d;
-          else if(d===2||d===1){ div=4; spread=4/d; }
-        }
-      }
-      b.div=div; const n=S.beats*div;
-      for(const [k,vv] of Object.entries(raw)) for(let v of vv.split('\u0000')){
-        if(spread>1) v=[...v].map(ch=>ch+'-'.repeat(spread-1)).join('');
-        // in a sticking the small letters are grace notes (lR); a sticking written all in small letters is the hands themselves
-        if(k==='st'&&!/[RL]/.test(v)) v=v.toUpperCase();
-        v=k==='st'?[...v].map(ch=>ch==='R'||ch==='L'?ch:'-').join(''):[...v].map(ch=>fixMark(k,ch)).join('');
-        if(v.length!==n) why.push(`the ${k} row has ${v.length} characters, it needs ${n} (${sig} with div ${div})`);
-        v=(v+'-'.repeat(n)).slice(0,n);
-        // the same drum written twice keeps every note
-        c[k]=c[k]?[...c[k]].map((q,i)=>q!=='-'?q:v[i]).join(''):v;
-      }
+      const vs=voiceList(b.v!==undefined?b.v:b.voices);
+      let r=vs&&vs.length?fromVoices(vs,S):null, st;
+      if(r){ why.push(...r.why); st=b.st!==undefined?b.st:b.c&&typeof b.c==='object'?(b.c.st||b.c.sticking):undefined; }
+      else { r=fromRows(b,S,why); st=r.st||b.st; }
+      const c=r.c; b.div=r.div; const n=S.beats*b.div;
+      if(Array.isArray(st)) st=st.join('');
+      if(st){ const p=placeSticking(st,c,n); if(p){ c.st=p.st; if(p.why) why.push(p.why); } }
       // a cross-stick only where the page itself says it uses them, and never in an exercise for the hands (one with a sticking):
       // otherwise it is a snare stroke misread next to the hi-hat's x
       if(c.sn&&(!allowX||(c.st&&/[RL]/.test(c.st)))) c.sn=c.sn.replace(/x/g,'n');
       if(c.sn&&!allowR) c.sn=c.sn.replace(/r/g,'a');   // a rimshot only where the page marks them: otherwise a loud stroke
-      if(c.st&&/[RL]/.test(c.st)){
-        const hands=['cr','hh','rd','t1','t2','sn','ft'], notes=[...Array(n).keys()].filter(i=>hands.some(r=>c[r]&&c[r][i]!=='-')).length, letters=(c.st.match(/[RL]/g)||[]).length;
-        if(notes!==letters) why.push(`${letters} sticking letters but ${notes} notes played by the hands`);
-      }
       // a bar cut finer than its notes need (thirty-second slots for eighths) goes onto the plainer grid
       for(const [from,to] of [[8,4],[6,3]]) if(b.div===from&&Object.values(c).every(v=>[...v].every((ch,i)=>ch==='-'||i%2===0))){
         for(const k of Object.keys(c)) c[k]=[...c[k]].filter((ch,i)=>i%2===0).join(''); b.div=to; }
-      b.c=c;
+      for(const k of Object.keys(c)) if(!/[^-]/.test(c[k])) delete c[k];
+      b.c=c; delete b.v; delete b.voices; delete b.st; delete b.count;
       if(why.length) Object.defineProperty(b,'_why',{value:why,enumerable:false,configurable:true,writable:true}); else delete b._why;
     }
   }
   return list;
+}
+// ---- doubts: a bar that keeps every rule of the form can still be misread in ways that show ----
+const rowOn=(c,k,n)=>{ const v=c&&c[k]; return v?[...v].map(ch=>ch!=='-'):Array(n).fill(false); };
+const hasNotes=(c,k)=>!!(c&&c[k]&&/[^-]/.test(c[k]));
+const isGroove=c=>(hasNotes(c,'hh')||hasNotes(c,'rd'))&&hasNotes(c,'bd')&&!hasNotes(c,'st');
+const barS=(x,b)=>SIGS[b&&b.sg&&SIGS[b.sg]?b.sg:x.sig]||SIGS['4/4'];
+// the bass drum written on every hi-hat (or ride) note: the cymbal's voice copied onto the feet
+function bdMirrors(b,S){
+  const n=S.beats*b.div, bd=rowOn(b.c,'bd',n);
+  return ['hh','rd'].some(k=>{ const cy=rowOn(b.c,k,n), m=cy.filter(Boolean).length; return m>=S.beats*1.5&&cy.every((v,i)=>!v||bd[i]); });
+}
+const DOUBT_BD='the bass drum was written on every hi-hat note: write it only on the notes that carry a notehead in the bass drum space (between lines 1 and 2) — usually far fewer; the hi-hat\'s notes do not repeat it';
+const DOUBT_SN='it has hi-hat and bass drum but no snare at all: look for noteheads in the snare space (between lines 3 and 4), in either voice — often on beats 2 and 4';
+function barDoubts(b,S,flags){
+  const out=(b._why||[]).slice();
+  if(bdMirrors(b,S)) out.push(DOUBT_BD);
+  if(flags&&flags.noSn&&isGroove(b.c)&&!hasNotes(b.c,'sn')) out.push(DOUBT_SN);
+  return out;
+}
+// the page as a whole: a mistake made on most of its bars is read again from the start, with a warning about it
+function pageCheck(acc){
+  let groove=0, noSn=0, mirror=0, doubts=0;
+  acc.forEach(x=>x.bars.forEach(b=>{ if(isGroove(b.c)){ groove++; if(!hasNotes(b.c,'sn')) noSn++; } if(bdMirrors(b,barS(x,b))) mirror++; }));
+  const flags={noSn:groove>=3&&noSn>=groove*.6};
+  acc.forEach(x=>x.bars.forEach(b=>{ doubts+=barDoubts(b,barS(x,b),flags).length; }));
+  const warn=[];
+  if(mirror>=3&&mirror>=Math.max(1,groove)*.5) warn.push('An earlier reading of this page wrote the bass drum on every hi-hat note, in most bars. That is a misreading: write the bass drum only on the notes that carry a notehead in the bass drum space (between lines 1 and 2). On many pages the hi-hat is alone in the upper voice and the snare and bass drum share the lower voice with stems down, as quarter notes; then the bass drum is struck only where its own heads are, for example twice in the bar.');
+  if(flags.noSn) warn.push('An earlier reading of this page found no snare in most bars. Look again for the noteheads in the snare space (between lines 3 and 4): on some pages they are in the lower voice together with the bass drum (stems down), on others on the hi-hat\'s up-stems; in rock and pop usually on beats 2 and 4.');
+  return {flags,doubts,warn:warn.join('\n')};
+}
+// a bar told back to the AI the way a drummer counts it: "1 hh+bd | & hh | 2 hh+sn …"
+function slotName(i,div,S){
+  if(S.compound) return String(i+1);
+  const beat=Math.floor(i/div)+1, j=i%div;
+  if(!j) return String(beat);
+  if(div===4) return ['','e','&','a'][j];
+  if(div===3) return ['','trip','let'][j];
+  return beat+'+'+j+'/'+div;
+}
+function countText(b,S){
+  const n=S.beats*b.div, out=[], c=b.c||{};
+  for(let i=0;i<n;i++){
+    const hit=ROWS.filter(k=>k!=='st'&&c[k]&&c[k][i]&&c[k][i]!=='-').map(k=>k+(c[k][i]==='n'?'':c[k][i]==='3'?' (16th triplet)':':'+c[k][i]));
+    if(hit.length) out.push(slotName(i,b.div,S)+' '+hit.join('+'));
+  }
+  const st=c.st&&(c.st.match(/[RL]/g)||[]).join('');
+  return (out.join(' | ')||'rest')+(st?'  (sticking '+st+')':'');
+}
+function readingText(acc){
+  return acc.map((x,si)=>'song '+(si+1)+' "'+(x.title||'')+'" ('+x.sig+'):\n'+x.bars.map((b,bi)=>'  bar '+(bi+1)+(b.lb?' ['+b.lb+']':'')+(b.sg?' '+b.sg:'')+(b.rs?' |:':'')+(b.re?' :|':'')+': '+countText(b,barS(x,b))).join('\n')).join('\n');
+}
+// a row moved onto another grid of the same bar, each note at the same place in the beat
+function regrid(v,from,to){
+  const a=[...v], beats=a.length/from, out=Array(Math.round(beats*to)).fill('-'); let lost=0;
+  a.forEach((ch,i)=>{ if(ch==='-') return; const j=i*to/from; if(Math.abs(j-Math.round(j))<1e-6&&Math.round(j)<out.length) out[Math.round(j)]=ch; else lost++; });
+  return {v:out.join(''),lost};
 }
 async function readPhotos(files){
   if(!PhotoMode||photoCtl) return;
@@ -2037,11 +2211,12 @@ async function readPhotos(files){
         onThink:()=>{ if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         round:n=>{ part=n; sawText=false; photoState(tx('phMore',ai,n)); },
         check:n=>{ sawText=true; photoState(tx('phCheck',ai,n)); },
+        recheck:()=>{ part=1; sawText=true; photoState(tx('phRecheck',ai)); },
         wait:(left,n)=>{ if(left>0) photoState(tx('phWait',left,n)); else if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         got:n=>{ have=n; }
       };
-      gemWaitUI=ui.wait;
-      const r=await readPage(imgs,ctl.signal,ui);
+      gemWaitUI=ui.wait; aiLog=[];
+      try{ var r=await readPage(imgs,ctl.signal,ui); }finally{ showAiLog(); }
       if(r.partial) notes.push(tx('phPartial'));
       notes.push(...r.notes);
       const list=r.songs.filter(x=>x.bars.length).map(x=>Object.assign({},x,{title:typeof x.title==='string'&&x.title.trim()?x.title.trim().slice(0,80):tx('photoTitle')}));
@@ -2720,6 +2895,8 @@ function init(){
   $('keyDel').addEventListener('click',e=>armed(e.currentTarget,tx('sure'),()=>{ try{ localStorage.removeItem(GEM_SLOT); }catch(err){} $('apiKey').value=''; toggleKeyBox(false); toast(tx('keyDeleted')); }));
   $('filePhoto').addEventListener('change',e=>{ const fs=e.target.files; if(fs&&fs.length) readPhotos(fs); });
   $('photoStop').addEventListener('click',()=>{ if(photoCtl) photoCtl.abort(); });
+  { const t=lsGet('drumbook.lastai'); if(t){ $('aiRawText').value=t; $('aiRaw').hidden=false; } }
+  $('aiRawCopy').addEventListener('click',async()=>{ const el=$('aiRawText'); try{ await navigator.clipboard.writeText(el.value); }catch(e){ el.focus(); el.select(); try{ document.execCommand('copy'); }catch(e2){} } toast(tx('tCopied'),2500); });
   $('btnExport').addEventListener('click',saveBackup);
   $('btnPick').addEventListener('click',()=>setPick(true));
   $('pickCancel').addEventListener('click',()=>setPick(false));
