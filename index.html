@@ -496,6 +496,8 @@ function analyzeBar(S,bar){
       // sextuplets: six sixteenths under a 6; when only every other one is played they are plain eighth-note triplets
       if(on.length===1&&on[0]===0) items.push({t:'note',slot:0,notes:slots[0],beams:0,dot:false});
       else if(on.every(j=>j%2===0)){ tuplet=3; for(let j=0;j<6;j+=2) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:1,dot:false}:{t:'rest',slot:j,kind:'8'}); }
+      // only on the beat and halfway: plain eighths (a beat of straight eighths in a bar that also has triplets)
+      else if(on.every(j=>j%3===0)){ for(const j of [0,3]) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:1,dot:false}:{t:'rest',slot:j,kind:'8'}); }
       else { tuplet=6; for(let j=0;j<6;j++) items.push(slots[j].length?{t:'note',slot:j,notes:slots[j],beams:2,dot:false}:{t:'rest',slot:j,kind:'16'}); }
     }
     else if(div===8){
@@ -1825,7 +1827,7 @@ function omrHint(omr){
 }
 function omrMiss(omr,acc,res){
   if(!omr||!omr.sure) return {n:0,warn:''};
-  const n=res.unmatched.length; if(n<2) return {n,warn:''};
+  const n=Math.max(0,omr.bars.length-barCount(acc)); if(n<2) return {n,warn:''};
   // which lines were left out cannot be told when the bars look alike, so only the counts are given
   return {n,warn:'An earlier reading of this page wrote '+barCount(acc)+' bars, but the page has '+omr.bars.length+' ('+omr.lines.length+' lines with '+omr.lines.join(', ')+' bars): some lines or bars were left out. Go down the page line by line and write every bar of every line, rests included, even lines that look the same as others.'};
 }
@@ -2003,6 +2005,9 @@ function omrPage(im,dbg){
       const a0=bestA; for(let a=a0-.25;a<=a0+.251;a+=.05){ const sc=score(a); if(sc>bestS){ bestS=sc; bestA=a; } }
       if(Math.abs(bestA)>=.1){ ({gray,th}=read(bestA)); if(dbg) dbg.deg=bestA; } } }
   const N=W*H;
+  // the paper's grey and the ink's darkest grey, so a head's darkness can be judged on any photo
+  let paper=255, inkD=0; { const hg=new Float64Array(256); for(let i=0;i<gray.length;i+=3) hg[gray[i]]++; let tot=0; for(const v of hg) tot+=v; let acc=0;
+    for(let t=0;t<256;t++){ acc+=hg[t]; if(acc>=tot*.004){ inkD=t; break; } } acc=0; for(let t=0;t<256;t++){ acc+=hg[t]; if(acc>=tot*.5){ paper=t; break; } } }
   // B: ink, for the noteheads; L: any ink at all, for the thin lines (a line one pixel wide, drawn small, comes out grey)
   const thL=th+(255-th)*.5, B=new Uint8Array(N), L=new Uint8Array(N); for(let i=0;i<N;i++){ B[i]=gray[i]<th?1:0; L[i]=gray[i]<thL?1:0; }
   // staff lines: thin rows dark across much of the page, five at an even spacing
@@ -2020,7 +2025,7 @@ function omrPage(im,dbg){
       for(let k=2;k<5&&ok;k++){ const want=lines[i].y+k*d; let bi=-1, be=Infinity;
         for(let q=idx[idx.length-1]+1;q<lines.length&&lines[q].y<want+d;q++){ const e=Math.abs(lines[q].y-want); if(e<be){ be=e; bi=q; } }
         if(bi<0||be>.22*d) ok=false; else { idx.push(bi); d=(lines[bi].y-lines[i].y)/k; } }
-      if(ok&&idx.every(q=>lines[q].t<.35*d)) found=idx;
+      if(ok&&idx.every(q=>lines[q].t<=Math.max(3,.45*d))) found=idx;
     }
     if(found){ staves.push(found.map(q=>lines[q].y)); i=found[4]; }
   }
@@ -2038,7 +2043,8 @@ function omrPage(im,dbg){
     const frac=(x,a,b)=>{ a=Math.max(0,Math.round(a)); b=Math.min(H-1,Math.round(b)); let s=0; for(let y=a;y<=b;y++) s+=L[y*W+x]; return s/Math.max(1,b-a+1); };
     // barlines: dark from the top line to the bottom one, and not beyond (a stem goes on past the staff)
     const blg=[];
-    for(let x=xa;x<=xb;x++) if(frac(x,y1,y5)>.92&&frac(x,y1-.7*g,y1-.25*g)<.3&&frac(x,y5+.25*g,y5+.7*g)<.3){ const q=blg[blg.length-1]; if(q&&x-q.b<=Math.max(2,.8*g)) q.b=x; else blg.push({a:x,b:x}); }
+    // (a tie or a slur crossing just above or below is no stem: a stem goes on, dark all the way)
+    for(let x=xa;x<=xb;x++) if(frac(x,y1,y5)>.92&&frac(x,y1-1.6*g,y1-.3*g)<.55&&frac(x,y5+.3*g,y5+1.6*g)<.55){ const q=blg[blg.length-1]; if(q&&x-q.b<=Math.max(2,.8*g)) q.b=x; else blg.push({a:x,b:x}); }
     // stems: thin vertical runs at least two and a half spaces long
     const stem=new Uint8Array(W), ya0=Math.max(0,Math.round(y1-5*g)), yb0=Math.min(H-1,Math.round(y5+5*g));
     for(let x=Math.max(3,xa);x<=Math.min(W-4,xb);x++){ let run=0, gap=0, top=0;
@@ -2067,37 +2073,62 @@ function omrPage(im,dbg){
         let top=y1, sp=g;
         if(fit.length>=3){ const n=fit.length, mk=fit.reduce((p,q)=>p+q[0],0)/n, my=fit.reduce((p,q)=>p+q[1],0)/n; let a=0, b=0; for(const [k,y] of fit){ a+=(k-mk)*(y-my); b+=(k-mk)*(k-mk); } sp=a/b; top=my-sp*mk; if(!(sp>.8*g&&sp<1.2*g)){ top=y1; sp=g; } }
         const pos=(top+4*sp-hy)/(sp/2), pos0=(y5-hy)/(g/2), step=Math.round(pos), step0=Math.round(pos0);
-        if(dbg) dbg.blobs.push(['head',Math.round(hx),Math.round(hy),st,+pos.toFixed(2),+pos0.toFixed(2)]);
+        // how much of the head is ink: a filled oval is nearly solid, an x or a rest's squiggle is not
+        // how dark the head is inside: a filled oval is solid ink, an x (or a rest) has paper showing between its strokes
+        let dsum=0, tot=0; { const rx=.42*w, ry=Math.min(.42*h,.45*g); for(let yy=Math.round(hy-ry);yy<=Math.round(hy+ry);yy++) for(let xx=Math.round(hx-rx);xx<=Math.round(hx+rx);xx++){ const dx=(xx-hx)/rx, dy=(yy-hy)/ry; if(dx*dx+dy*dy>1||yy<0||yy>=H||xx<0||xx>=W) continue; tot++; dsum+=gray[yy*W+xx]; } }
+        const shade=(paper-dsum/Math.max(1,tot))/Math.max(1,paper-inkD);   // 1: as dark as the darkest ink on the page
+        if(dbg) dbg.blobs.push(['head',Math.round(hx),Math.round(hy),st,+pos.toFixed(2),+pos0.toFixed(2),+shade.toFixed(2),w,h]);
         // a head halfway between two places is not trusted (that bar is left as read), unless both measures agree on it
-        heads.push({x:hx,step:Math.abs(pos-step)<.33?step:step===step0&&Math.abs(pos0-step0)<.4?step:99}); }
+        heads.push({x:hx,y:hy,w,shade,step:Math.abs(pos-step)<.33?step:step===step0&&Math.abs(pos0-step0)<.4?step:99}); }
     }
     // short ledger lines just above the staff: the crash (and only the crash, on a usual drum key) sits on one
     const crs=[], off=Math.max(2,Math.round(.5*g));
     for(let y=Math.round(y1-1.3*g);y<=Math.round(y1-.7*g);y++){ if(y-off<0||y+off>=H) continue; let run=0;
       for(let x=xa;x<=xb+1;x++){ if(x<=xb&&L[y*W+x]){ run++; continue; }
         if(run>=1.1*g&&run<=2.8*g){ const x0=x-run, x1=x-1; let up=0, dn=0; for(let q=x0;q<=x1;q++){ up+=L[(y-off)*W+q]; dn+=L[(y+off)*W+q]; }
-          if(up<.5*run&&dn<.5*run) crs.push((x0+x1)/2); if(dbg) (dbg.cr=dbg.cr||[]).push([y,x0,x1,up,dn]); }
+          // a ledger line is a thin line; a beam is thick
+          // (measured at its two ends, past the strokes of an x sitting on it)
+          let th0=99; for(const xq of [x0+1,x0+2,x1-2,x1-1]){ let t=0; for(let yy=y-off;yy<=y+off;yy++) t+=L[yy*W+xq]; th0=Math.min(th0,t); }
+          if(up<.5*run&&dn<.5*run&&th0<=Math.max(3,.3*g)) crs.push((x0+x1)/2); if(dbg) (dbg.cr=dbg.cr||[]).push([y,x0,x1,up,dn,th0]); }
         run=0; } }
     crs.sort((p,q)=>p-q); const cr=[]; for(const x of crs){ if(cr.length&&x-cr[cr.length-1]<.6*g) continue; cr.push(x); }
-    const edges=[xa,...blg.map(q=>(q.a+q.b)/2)]; if(xb-edges[edges.length-1]>6*g) edges.push(xb);
+    // a stem that happens to run from the bottom line to the top one has a notehead at its end: not a barline
+    const bls=blg.filter(q=>!heads.some(h=>Math.abs(h.x-(q.a+q.b)/2)<=h.w/2+.4*g&&(Math.abs(h.y-y5)<.9*g||Math.abs(h.y-y1)<.9*g)));
+    const edges=[xa,...bls.map(q=>(q.a+q.b)/2)]; if(xb-edges[edges.length-1]>6*g) edges.push(xb);
     if(dbg) (dbg.edges=dbg.edges||[]).push({g:+g.toFixed(1),xa,xb,edges:edges.map(Math.round)});
     let started=false; lineNo++;
     for(let j=0;j+1<edges.length;j++){
       const a=edges[j], b=edges[j+1];
       if(b-a<5*g) continue;   // a line that opens the system, a clef with its time signature
-      const cols=[];
-      for(const h of heads.filter(h=>h.x>a+.3*g&&h.x<b-.3*g).sort((p,q)=>p.x-q.x)){ const c=cols[cols.length-1]; if(c&&h.x-c.x<.7*g){ c.steps.push(h.step); c.x=(c.x+h.x)/2; } else cols.push({x:h.x,steps:[h.step]}); }
+      const hs=heads.filter(h=>h.x>a+.3*g&&h.x<b-.3*g).sort((p,q)=>p.x-q.x);
       // the first and last stems of the bar's notes (not a clef or a mark at the start of the line)
-      const from=Math.max(a+g,cols.length?cols[0].x-1.5*g:a+g);
+      const from=Math.max(a+g,hs.length?hs[0].x-1.5*g:a+g);
       let s0=-1, s1=-1; for(let x=Math.ceil(from);x<=b-g;x++) if(stem[x]){ if(s0<0) s0=x; s1=x; }
-      if(!started&&!cols.length&&s0<0&&b-a<12*g) continue;   // the clef (and a repeat sign) at the start of a line: no bar of its own
+      if(!started&&!hs.length&&s0<0&&b-a<12*g) continue;   // the clef (and a repeat sign) at the start of a line: no bar of its own
       started=true;
-      bars.push({cols:cols.map(c=>({x:c.x,steps:[...new Set(c.steps)].sort((p,q)=>p-q)})),s0,s1,g,line:lineNo,cr:cr.filter(x=>x>a+.3*g&&x<b-.3*g)});
+      bars.push({hs,s0,s1,g,y5,line:lineNo,cr:cr.filter(x=>x>a+.3*g&&x<b-.3*g)});
     }
   }
   // a page set in two columns is read down each column, the measuring goes across the lines: left alone
   if(narrow>=staves.length*.5) return null;
   if(!bars.length) return null;
+  // an x drawn in the snare space at a note's place (a cross-stick): some ink there, but not solid, and not the tall shape
+  // of a rest reaching into the spaces above and below
+  function xAt(b,x){
+    const g=b.g, y5=b.y5;
+    const box=(cy)=>{ let ink=0, tot=0; for(let yy=Math.round(cy-.4*g);yy<=Math.round(cy+.4*g);yy++) for(let xx=Math.round(x-.55*g);xx<=Math.round(x+.55*g);xx++){ if(yy<0||yy>=H||xx<0||xx>=W||lineRow[yy]) continue; tot++; ink+=L[yy*W+xx]; } return tot?ink/tot:0; };
+    const mid=box(y5-2.5*g), up=box(y5-3.5*g), dn=box(y5-1.5*g);
+    if(dbg) (dbg.xs=dbg.xs||[]).push([b.line,Math.round(x),+mid.toFixed(2),+up.toFixed(2),+dn.toFixed(2)]);
+    return mid>=.3&&up<.35&&dn<.35;   // (a solid head there would have been measured as a filled note already)
+  }
+  // filled heads against x heads and rests: on a sharp page all are clear, on a small blurred one an x comes out as a blob
+  // too, but lighter. The page's own filled heads set the mark.
+  const fill=bars.flatMap(b=>b.hs).filter(h=>OMR_ROW[h.step]).map(h=>h.shade).sort((p,q)=>p-q);
+  const thr=fill.length?Math.min(.88,Math.max(.75,fill[fill.length>>1]-.1)):.8;
+  if(dbg) dbg.thr=thr;
+  for(const b of bars){ const cols=[];
+    for(const h of b.hs){ if(h.shade<thr) continue; const c=cols[cols.length-1]; if(c&&h.x-c.x<.7*b.g){ c.steps.push(h.step); c.x=(c.x+h.x)/2; } else cols.push({x:h.x,steps:[h.step]}); }
+    b.cols=cols.map(c=>({x:c.x,steps:[...new Set(c.steps)].sort((p,q)=>p-q),xs:!c.steps.includes(5)&&xAt(b,c.x)})); delete b.y5; b.odd=b.hs.filter(h=>h.shade>=thr&&!OMR_ROW[h.step]).length; b.nh=b.hs.filter(h=>h.shade>=thr).length; delete b.hs; }
   // the count of bars is told to the AI only for a page measured whole: lines at an even spacing, none missing between them
   const lineN=[]; for(const b of bars) lineN[b.line-1]=(lineN[b.line-1]||0)+1;
   const tops=staves.map(ys=>ys[0]), gaps=tops.slice(1).map((y,i)=>y-tops[i]).sort((p,q)=>p-q);
@@ -2131,7 +2162,8 @@ function omrBar(b,S,o,last,opt){
     for(const k of OVAL_ROWS){ const ch=c[k]?c[k][i]:'-'; if(ch!=='-'&&ch!=='x') old[k]=ch; }
     const mk=Object.values(old).find(ch=>ch!=='n')||'n';
     for(const k of OVAL_ROWS){ const has=k in old, should=want.includes(k);
-      if(has&&!should){ if('fFdD'.includes(old[k])&&!want.some(r=>STICK_DRUMS.includes(r))) graceGone.add(i); c[k]=setCh(c[k],i,'-'); changed=true; }
+      if(has&&!should){ if('fFdD'.includes(old[k])&&!want.some(r=>STICK_DRUMS.includes(r))) graceGone.add(i);
+        c[k]=setCh(c[k],i,k==='sn'&&cols[j].xs&&!want.includes('sn')?'x':'-'); changed=true; }
       if(should&&!has){ c[k]=setCh(c[k]||'-'.repeat(n),i,validCell(k,mk)?mk:isAcc(mk)?'a':'n'); changed=true; } }
   });
   // a flam read on a snare the picture does not have, on a hi-hat note: the AI took a crash (an x with a line through it)
@@ -2171,7 +2203,9 @@ function omrApply(acc,omr,last){
   const sim=(i,j)=>{ const a=cnt[i], c=omr.bars[j].cols.length; return a===c?(a?3:2):-1; }, G=-2, M=m+1, D=new Float64Array((n+1)*M);
   for(let i=0;i<=n;i++) D[i*M]=i*G; for(let j=0;j<=m;j++) D[j]=j*G;
   for(let i=1;i<=n;i++) for(let j=1;j<=m;j++) D[i*M+j]=Math.max(D[(i-1)*M+j-1]+sim(i-1,j-1),D[(i-1)*M+j]+G,D[i*M+j-1]+G);
-  const pairs=[]; for(let i=n,j=m;i>0&&j>0;){ if(D[i*M+j]===D[(i-1)*M+j-1]+sim(i-1,j-1)){ pairs.push([i-1,j-1]); i--; j--; } else if(D[i*M+j]===D[(i-1)*M+j]+G) i--; else j--; }
+  const pairs=[];
+  if(n===m) for(let i=0;i<n;i++) pairs.push([i,i]);   // as many bars read as measured: each is its own
+  else for(let i=n,j=m;i>0&&j>0;){ if(D[i*M+j]===D[(i-1)*M+j-1]+sim(i-1,j-1)){ pairs.push([i-1,j-1]); i--; j--; } else if(D[i*M+j]===D[(i-1)*M+j]+G) i--; else j--; }
   const used=new Set(pairs.map(q=>q[1])); for(let j=0;j<m;j++) if(!used.has(j)) res.unmatched.push(j);
   // crashes are taken from the ledger lines only when every bar has found its own (bars that look alike could
   // otherwise be matched one off), and not on a page that writes the hi-hat itself on a ledger line
