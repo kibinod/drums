@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="nf">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Sofia+Sans+Extra+Condensed:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   /* layout: one phone-width column. Bar strip on top, the staff sits directly over a tap grid
@@ -31,9 +31,10 @@
   --cym:#8f5f00;   /* cymbals: brass */
   --drum:#c2331f;  /* shells: red wrap */
   --foot:#1c54a3;  /* pedals */
-  --display:'Sofia Sans Extra Condensed','Avenir Next Condensed','Roboto Condensed','Arial Narrow',sans-serif;
-  --body:'Golos Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  --label:56px;
+  /* type: the phone's own app font (SF Pro on an iPhone), Inter elsewhere; labels in sentence case, as apps set them now */
+  --display:-apple-system,BlinkMacSystemFont,'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+  --label:60px;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
@@ -78,6 +79,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .strip button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .strip button.add{border-style:dashed;color:var(--muted);font-weight:500;font-size:24px}
 .tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tools.extra{margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
 .tools select{height:36px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:0 8px;font:700 18px/1 var(--display)}
 .pad{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;isolation:isolate}
 .tape{position:relative;display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-padding-left:var(--label);overscroll-behavior-x:contain}
@@ -173,17 +175,22 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
 .lab[data-row]{cursor:pointer}
 .lab[data-row]:active,.lab[data-row][aria-expanded="true"]{background:var(--line)}
 .folders .chip.lib{border-style:dashed}
+.folders.styles{margin:2px 0 12px}
 .notemenu .mh{flex:0 0 100%;font:600 13px/1.3 var(--body);color:var(--muted);padding:2px 4px 4px}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 14px;border-radius:10px;font-size:14px;z-index:20;max-width:calc(100% - 32px);text-align:center}
-.nf .lab{font:700 12.5px/32px var(--body);text-transform:none;letter-spacing:0;padding-left:6px}
-.nf .chip,.nf .seg button,.nf .tools select{font:600 14px/1 var(--body);text-transform:none;letter-spacing:0}
-.nf .tog{font:600 12px/1.1 var(--body);text-transform:none;letter-spacing:0}
-.nf .title{font:700 19px/1 var(--body)}
-.nf .cnt{font:600 11px/20px var(--body)} .nf .cnt.b0{font-size:12.5px}
-.nf .strip button,.nf .bpm input,.nf .cell.st{font-family:var(--body);font-size:17px}
+.nf .lab{font:600 13px/32px var(--body);text-transform:none;letter-spacing:0;padding-left:7px}
+.nf .chip,.nf .seg button,.nf .tools select{font:600 15px/1 var(--body);text-transform:none;letter-spacing:-.005em}
+.nf .tog{font:600 13px/1.1 var(--body);text-transform:none;letter-spacing:0}
+.nf .title{font:700 21px/1.1 var(--body);letter-spacing:-.015em}
+.nf .cnt{font:500 11px/20px var(--body)} .nf .cnt.b0{font:700 12.5px/20px var(--body)}
+.nf .strip button,.nf .cell.st{font-family:var(--body);font-weight:700;font-size:17px}
+.nf .bpm input{font:700 22px/1 var(--body);letter-spacing:-.01em}
+.nf .bpm button,.nf .addblk{font-family:var(--body);font-weight:400}
 .nf .langrow .seg button{font-size:13px}
 .nf .sheetbar span{font:600 13px/1 var(--body);text-transform:none;letter-spacing:0}
-.nf .sheetbox h2{font:700 22px/1.1 var(--body)} .nf .songrow b{font:700 16px/1.2 var(--body)}
+.nf .sheetbox h2{font:700 24px/1.15 var(--body);letter-spacing:-.02em} .nf .songrow b{font:600 17px/1.25 var(--body);letter-spacing:-.01em}
+.nf .bigbtn{font:700 19px/1 var(--body);letter-spacing:0}
+.nf #mBpm{font-family:var(--body);font-weight:700;letter-spacing:-.03em}
 @media (min-width:560px){ .cell{height:36px} .lab{line-height:36px} :root{--label:68px} .nf .lab{line-height:36px} }
 </style>
 </head>
@@ -219,8 +226,6 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
       <button class="chip" id="btnRep" type="button" aria-pressed="false">Повтор</button>
       <button class="chip" id="btnUndo" type="button" disabled>Отменить</button>
       <button class="chip" id="btnStaff" type="button" aria-pressed="false">Писать на стане</button>
-      <button class="chip" id="btnMetro" type="button">Просто метроном</button>
-      <button class="chip" id="btnRec" type="button">Записать игру</button>
     </div>
     <div class="pad" id="pad">
       <div class="tape" id="tape" role="group" aria-label="Лента тактов"></div>
@@ -231,6 +236,11 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
         <button type="button" data-tool="a" aria-pressed="false">Акцент &gt;</button>
         <button type="button" data-tool="g" aria-pressed="false">Гост ( )</button>
       </div>
+    </div>
+    <!-- the metronome alone and recording one's playing: set apart below the notes, away from the buttons for writing -->
+    <div class="tools extra">
+      <button class="chip" id="btnMetro" type="button">Просто метроном</button>
+      <button class="chip" id="btnRec" type="button">Записать игру</button>
     </div>
     <p class="hint" id="hintGrid"></p>
     <p class="status" id="status"></p>
@@ -362,7 +372,7 @@ const I18N={
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
   untitled:'Без названия',demoTitle:'Пример: рок-бит',barN:'Такт {0}',addBar:'Добавить такт',cellAria:'{0}, клетка {1}',handAria:'Рука, клетка {0}',
-  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Если добавлен ключ Gemini, он послушает запись «всей установки» и подскажет томы, тарелки, открытый хэт и кросс-стик, а ритм программа расставит сама. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',rAi:'Gemini помогает различать барабаны',recAiAsk:'Gemini слушает запись и называет барабаны…',recAiWait:'Gemini занят, ждём {0} с…',recAiDone:'Gemini послушал запись: уточнено ударов — {0}.',recAiOff:'Ответ Gemini не совпал с записью, поэтому оставлены ноты, распознанные самой программой.',recAiFail:'Gemini не ответил — ноты распознаны самой программой.',recAiSlow:'Gemini слишком долго не отвечал — ноты распознаны самой программой.',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',pickBtn:'Собрать из песен и рудиментов',pickHint:'Нажимайте песни и рудименты в том порядке, в каком они должны идти, — можно переходить между папками. Одну и ту же можно нажать несколько раз. Потом «Соединить»: получится новая песня, которую можно играть, менять и сохранить в PDF.',pickInfo:'Выбрано: {0} · тактов: {1}',pickGo:'Соединить',pickCancel:'Отмена',compTitle:'Сборник',compDone:'Соединено частей: {0}, тактов: {1}. PDF — во вкладке «Ноты».',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
+  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Если добавлен ключ Gemini, он послушает запись «всей установки» и подскажет томы, тарелки, открытый хэт и кросс-стик, а ритм программа расставит сама. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',rAi:'Gemini помогает различать барабаны',recAiAsk:'Gemini слушает запись и называет барабаны…',recAiWait:'Gemini занят, ждём {0} с…',recAiDone:'Gemini послушал запись: уточнено ударов — {0}.',recAiOff:'Ответ Gemini не совпал с записью, поэтому оставлены ноты, распознанные самой программой.',recAiFail:'Gemini не ответил — ноты распознаны самой программой.',recAiSlow:'Gemini слишком долго не отвечал — ноты распознаны самой программой.',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',pickBtn:'Собрать из песен и рудиментов',pickHint:'Нажимайте песни и рудименты в том порядке, в каком они должны идти, — можно переходить между папками. Одну и ту же можно нажать несколько раз. Потом «Соединить»: получится новая песня, которую можно играть, менять и сохранить в PDF.',pickInfo:'Выбрано: {0} · тактов: {1}',pickGo:'Соединить',pickCancel:'Отмена',compTitle:'Сборник',compDone:'Соединено частей: {0}, тактов: {1}. PDF — во вкладке «Ноты».',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',grvFolder:'Ритмы',grvHint:'Ритмы разных стилей: выберите папку стиля. Откройте любой ритм и нажмите ▶ — он сыграет с повтором; «Цикл такта» крутит один такт по кругу. Ритмы можно менять, удалённые можно вернуть.',grvRestored:'Возвращено ритмов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
   st_cloud:'Песни сохраняются в вашем аккаунте Claude и откроются на любом устройстве.',st_local:'Песни сохраняются только в этом браузере на этом устройстве.',
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
@@ -378,7 +388,7 @@ const I18N={
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
   untitled:'Untitled',demoTitle:'Example: rock beat',barN:'Bar {0}',addBar:'Add a bar',cellAria:'{0}, cell {1}',handAria:'Hand, cell {0}',
-  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. With a Gemini key added, Gemini listens to a full-kit take and names the toms, cymbals, open hi-hat and cross-stick, while the app places the rhythm itself. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',rAi:'Gemini helps tell the drums apart',recAiAsk:'Gemini is listening to the take and naming the drums…',recAiWait:'Gemini is busy, waiting {0} s…',recAiDone:'Gemini listened to the take: strokes corrected — {0}.',recAiOff:'Gemini\'s answer did not fit the take, so the notes the app found itself are kept.',recAiFail:'Gemini did not answer — the notes were found by the app itself.',recAiSlow:'Gemini took too long — the notes were found by the app itself.',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',pickBtn:'Combine songs and rudiments',pickHint:'Tap songs and rudiments in the order they should go; you can switch folders. The same one can be tapped more than once. Then “Join”: you get a new song to play, change and save as a PDF.',pickInfo:'Picked: {0} · bars: {1}',pickGo:'Join',pickCancel:'Cancel',compTitle:'Collection',compDone:'Joined {0} parts, {1} bars. The PDF is under “Sheet”.',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
+  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. With a Gemini key added, Gemini listens to a full-kit take and names the toms, cymbals, open hi-hat and cross-stick, while the app places the rhythm itself. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',rAi:'Gemini helps tell the drums apart',recAiAsk:'Gemini is listening to the take and naming the drums…',recAiWait:'Gemini is busy, waiting {0} s…',recAiDone:'Gemini listened to the take: strokes corrected — {0}.',recAiOff:'Gemini\'s answer did not fit the take, so the notes the app found itself are kept.',recAiFail:'Gemini did not answer — the notes were found by the app itself.',recAiSlow:'Gemini took too long — the notes were found by the app itself.',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',pickBtn:'Combine songs and rudiments',pickHint:'Tap songs and rudiments in the order they should go; you can switch folders. The same one can be tapped more than once. Then “Join”: you get a new song to play, change and save as a PDF.',pickInfo:'Picked: {0} · bars: {1}',pickGo:'Join',pickCancel:'Cancel',compTitle:'Collection',compDone:'Joined {0} parts, {1} bars. The PDF is under “Sheet”.',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',grvFolder:'Grooves',grvHint:'Grooves in many styles: pick a style folder. Open a groove and press ▶ — it plays with its repeat; “Loop bar” plays one bar round. You can change them, and bring back any you delete.',grvRestored:'Grooves brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
   st_cloud:'Songs are saved to your Claude account and open on any device.',st_local:'Songs are saved only in this browser on this device.',
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
@@ -740,7 +750,7 @@ function sheetSVG(s,opt){
   const H=opt.H||Math.round(top+hSum+10);
   const o=[`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}"${opt.fixed?` width="${W}" height="${H}"`:''} role="img" aria-label="${esc(tx('sheetAria',s.title))}">`];
   if(opt.paper) o.push(`<rect width="${W}" height="${H}" fill="${opt.paper}"/>`);
-  const sans=`font-family="Helvetica Neue,Helvetica,Arial,sans-serif"`;
+  const sans=`font-family="-apple-system,BlinkMacSystemFont,Inter,Helvetica Neue,Helvetica,Arial,sans-serif"`;
   if(head){
     o.push(`<text x="${mx}" y="32" ${sans} font-weight="700" font-size="22" fill="${ink}">${esc(s.title||tx('untitled'))}</text>`);
     o.push(`<text x="${mx}" y="52" ${sans} font-size="12.5" fill="${ink}" opacity=".7">${esc(tx('tempoLine',s.bpm,songSigs(s).join(', '))+(s.swing&&!SIGS[s.sig].compound?' · '+tx(s.swing>=100?'swShuffle':'swOn'):''))}</text>`);
@@ -1006,12 +1016,12 @@ const Store={
       if(l&&(l.updated||0)>(+x.updated||0)){ merged.push(l); this.push(l); }
       else { const s=unpack(Object.assign({},x,{id})); s.synced=true; merged.push(s); }
     });
-    for(const l of locals) if(!remote.has(l.id)&&!l.synced){ merged.push(l); if(!(l.folder===LIB&&!l.updated)) this.push(l); }
+    for(const l of locals) if(!remote.has(l.id)&&!l.synced){ merged.push(l); if(!(isLibF(l.folder)&&!l.updated)) this.push(l); }
     if(merged.length){
       merged.sort((a,b)=>(b.updated||0)-(a.updated||0));
       const keep=merged.some(s=>s.id===state.curSong);
       state.songs=merged; if(!keep){ state.curSong=merged[0].id; state.cur=0; state.undo=[]; }
-      this.saveLocal(); renderAll();
+      retitleLib(); this.saveLocal(); renderAll();
     }
     this.status('cloud');
   },
@@ -1281,7 +1291,7 @@ function renderAll(){
 }
 /* ---------- the 40 standard rudiments (the PAS list), in a folder of their own ---------- */
 const LIB='#lib', LIB_SLOT='drumbook.lib', LIB_VER='1';
-const folderLabel=f=>f===LIB?tx('libFolder'):f;
+const folderLabel=f=>f===LIB?tx('libFolder'):isGrv(f)?(grvStyle(f)?tx('grvFolder')+': '+styleName(grvStyle(f)):tx('grvFolder')):f;
 // [number, name, Russian name, tempo, time, bars: [grid, snare, sticking]]. Snare: n note, a accent, f/F flam, d/D drag, z buzz.
 // Grace notes belong to the other hand and are not written in the sticking (lR = flam on R).
 const RUDIMENTS=[
@@ -1342,13 +1352,143 @@ function ensureLibrary(force){
   if(add.length) Store.saveLocal();
   return add.length;
 }
+
+/* ---------- grooves by style: one folder holding a folder for each style ---------- */
+const GRV='#grv', GRV_SLOT='drumbook.grv', GRV_VER='1';
+// [style, Russian name, English name, grooves: [Russian name, English name, tempo, time, swing, bars: [div, rows]]].
+// Common patterns of each style, written as a drummer would learn them, not any one record's part.
+const GROOVES=[
+ ["rock","Рок","Rock",[
+  ["Рок-бит восьмыми","Basic rock beat",100,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-------"}]]],
+  ["Рок: бочка на «3 и»","Rock, kick on 3&",105,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----"}]]],
+  ["Рок с открытым хай-хэтом","Rock with open hi-hat",100,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-o-","sn":"----a-------a---","bd":"n-----n-n-------"}]]],
+  ["Рок: хай-хэт шестнадцатыми","Rock with 16th hi-hat",88,"4/4",0,[[4,{"hh":"nnnnnnnnnnnnnnnn","sn":"----a-------a---","bd":"n-------n-n-----"}]]],
+  ["Рок: хай-хэт четвертями","Rock with quarter hi-hat",84,"4/4",0,[[4,{"hh":"n---n---n---n---","sn":"----a-------a---","bd":"n-----n-n-------"}]]],
+  ["Рок на райде с крэшем","Ride rock with crash",120,"4/4",0,[[4,{"cr":"n---------------","rd":"--n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----","hp":"----n-------n---"}]]],
+  ["Хаф-тайм","Half-time rock",140,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"--------a-------","bd":"n-----n-------n-"}]]],
+  ["Грув на большом томе","Floor-tom groove",110,"4/4",0,[[4,{"ft":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----","hp":"----n-------n---"}]]],
+  ["Панк-рок","Punk rock",180,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-n-----n-n-----"}]]],
+  ["Рок с переходом (2 такта)","Rock with a fill (2 bars)",100,"4/4",0,[[4,{"cr":"n---------------","hh":"--n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-n-----"}],[4,{"hh":"n-n-n-n---------","sn":"----a---nnnn----","t1":"------------nn--","ft":"--------------nn","bd":"n-----n---------","st":"--------RLRLRLRL"}]]]]],
+ ["pop","Поп","Pop",[
+  ["Поп: шестнадцатые с акцентами","Pop 16ths with accents",96,"4/4",0,[[4,{"hh":"anananananananan","sn":"----a-------a---","bd":"n--n----n-n-----"}]]],
+  ["Дэнс-поп: «четыре на пол»","Dance-pop, four on the floor",122,"4/4",0,[[4,{"hh":"--n---n---n---n-","sn":"----a-------a---","bd":"n---n---n---n---"}]]],
+  ["Поп-баллада с кросс-стиком","Pop ballad with cross-stick",70,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----x-------x---","bd":"n-----n-n-------"}]]],
+  ["Поп с ghost-нотами","Pop with ghost notes",92,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a--g-g--a---","bd":"n-------n-n-----"}]]],
+  ["Поп-шаффл","Pop shuffle",104,"4/4",100,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-----n-n-------"}]]],
+  ["Поп-рок: синкопа бочки","Pop-rock, syncopated kick",110,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n------n--n-----"}]]]]],
+ ["funk","Фанк","Funk",[
+  ["Фанк с ghost-нотами","Funk with ghost notes",94,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a--g-g--a--g","bd":"n-n-------n-----"}]]],
+  ["Фанк шестнадцатыми","16th-note funk",92,"4/4",0,[[4,{"hh":"nnnnnnnnnnnnnnnn","sn":"----a-------a---","bd":"n--n--n---n--n--"}]]],
+  ["Фанк с открытым хай-хэтом","Funk with open hi-hat",96,"4/4",0,[[4,{"hh":"n-n-n-o-n-n-n-o-","hp":"n-------n-------","sn":"----a-------a---","bd":"n-n-----n-n-----"}]]],
+  ["Линейный фанк","Linear funk",90,"4/4",0,[[4,{"hh":"-nn--n-nn-n--n-n","sn":"---ga------ga---","bd":"n-----n--n----n-"}]]],
+  ["Фанк: хай-хэт двумя руками","Two-handed 16th funk",88,"4/4",0,[[4,{"hh":"nnnn-nnnnnnn-nnn","sn":"----a-------a---","bd":"n-----n---n--n--","st":"RLRLRLRLRLRLRLRL"}]]],
+  ["Фанк хаф-тайм","Half-time funk",84,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"-g----g-a--g--g-","bd":"n--n------n-----"}]]]]],
+ ["jazz","Джаз","Jazz",[
+  ["Свинг: райд и хай-хэт","Swing ride pattern",140,"4/4",60,[[4,{"rd":"n---n-n-n---n-n-","hp":"----n-------n---","bd":"g---g---g---g---"}]]],
+  ["Свинг с компингом малого","Swing with snare comping",150,"4/4",60,[[4,{"rd":"n---n-n-n---n-n-","hp":"----n-------n---","sn":"------g-------n-","bd":"g---g---g---g---"}]]],
+  ["Свинг: компинг (2 такта)","Swing comping (2 bars)",160,"4/4",60,[[4,{"rd":"n---n-n-n---n-n-","hp":"----n-------n---","sn":"------n---------","bd":"g---g---g---g---"}],[4,{"rd":"n---n-n-n---n-n-","hp":"----n-------n---","sn":"--n-------n-----","bd":"g---g---g---g---"}]]],
+  ["Быстрый свинг: райд четвертями","Up-tempo swing, quarter-note ride",220,"4/4",60,[[4,{"rd":"n---n---n---n---","hp":"----n-------n---"}]]],
+  ["Джаз «в два» (two-feel)","Two-feel",120,"4/4",60,[[4,{"rd":"n---n-n-n---n-n-","hp":"----n-------n---","bd":"n-------n-------"}]]],
+  ["Бибоп: «бомба» бочкой","Bebop, a bass-drum bomb",200,"4/4",60,[[4,{"rd":"n---n-n-n---n-n-","hp":"----n-------n---","sn":"----------n-----","bd":"--------------a-"}]]],
+  ["Джаз-вальс","Jazz waltz",150,"3/4",60,[[4,{"rd":"n---n-n-n---","hp":"----n-------","sn":"----------n-","bd":"g-----------"}]]]]],
+ ["blues","Блюз и шаффл","Blues & shuffle",[
+  ["Шаффл на хай-хэте","Hi-hat shuffle",100,"4/4",100,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n-------n-------"}]]],
+  ["Шаффл: бочка на каждую долю","Shuffle, kick on every beat",110,"4/4",100,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n---n---n---n---"}]]],
+  ["Шаффл на райде","Ride shuffle",120,"4/4",100,[[4,{"rd":"n-n-n-n-n-n-n-n-","hp":"----n-------n---","sn":"----a-------a---","bd":"n-------n-n-----"}]]],
+  ["Буги","Boogie",120,"4/4",100,[[4,{"rd":"n---n---n---n---","hp":"----n-------n---","sn":"----a-------a---","bd":"n-n-n-n-n-n-n-n-"}]]],
+  ["Шаффл триолями","Triplet shuffle",90,"4/4",0,[[3,{"hh":"n-nn-nn-nn-n","sn":"---a-----a--","bd":"n-----n----n"}]]],
+  ["Шаффл с ghost-нотами (хаф-тайм)","Half-time shuffle with ghost notes",80,"4/4",0,[[3,{"hh":"n-nn-nn-nn-n","sn":"-g--g-a---g-","bd":"n----n-----n"}]]],
+  ["Медленный блюз 12/8","Slow blues in 12/8",60,"12/8",0,[[3,{"hh":"nnnnnnnnnnnn","sn":"---a-----a--","bd":"n-----n-n---"}]]]]],
+ ["brazil","Босса-нова и самба","Bossa nova & samba",[
+  ["Босса-нова (2 такта)","Bossa nova (2 bars)",140,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"x-----x-----x---","bd":"n-----n-n-----n-"}],[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----x-----x-----","bd":"n-----n-n-----n-"}]]],
+  ["Босса-нова на райде (2 такта)","Bossa nova on the ride (2 bars)",130,"4/4",0,[[4,{"rd":"n-n-n-n-n-n-n-n-","hp":"----n-------n---","sn":"x-----x-----x---","bd":"n-----n-n-----n-"}],[4,{"rd":"n-n-n-n-n-n-n-n-","hp":"----n-------n---","sn":"----x-----x-----","bd":"n-----n-n-----n-"}]]],
+  ["Самба (2 такта)","Samba (2 bars)",100,"2/4",0,[[4,{"rd":"nnnnnnnn","sn":"x--x--x-","bd":"n--nn--n","hp":"--n---n-"}],[4,{"rd":"nnnnnnnn","sn":"--x--x--","bd":"n--nn--n","hp":"--n---n-"}]]],
+  ["Самба на малом барабане","Samba on the snare",96,"2/4",0,[[4,{"sn":"gggaggga","bd":"n--nn--n","hp":"--n---n-","st":"RLRLRLRL"}]]]]],
+ ["latin","Латина","Latin",[
+  ["Ча-ча-ча","Cha-cha-cha",116,"4/4",0,[[4,{"rd":"n---n---n---n---","sn":"------------x-x-","bd":"n-------n-------"}]]],
+  ["Сон-клаве 3-2 с тумбао (2 такта)","Son clave 3-2 with tumbao (2 bars)",100,"4/4",0,[[4,{"rd":"n-n-n-n-n-n-n-n-","hp":"----n-------n---","sn":"x-----x-----x---","bd":"------n-----n---"}],[4,{"rd":"n-n-n-n-n-n-n-n-","hp":"----n-------n---","sn":"----x---x-------","bd":"------n-----n---"}]]],
+  ["Румба-клаве 3-2 (2 такта)","Rumba clave 3-2 (2 bars)",100,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"x-----x-------x-","bd":"------n-----n---"}],[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----x---x-------","bd":"------n-----n---"}]]],
+  ["Сальса: клаве 2-3 (2 такта)","Salsa, clave 2-3 (2 bars)",180,"4/4",0,[[4,{"rd":"a-n-a-n-a-n-a-n-","sn":"----x---x-------","bd":"------n-----n---"}],[4,{"rd":"a-n-a-n-a-n-a-n-","sn":"x-----x-----x---","bd":"------n-----n---"}]]],
+  ["Афро-кубинский 6/8","Afro-Cuban 6/8",110,"12/8",0,[[3,{"rd":"n-n-nn-n-n-n","hp":"---n-----n--","sn":"---------x--","bd":"n-----n-----"}]]],
+  ["Реггетон (дембоу)","Reggaeton (dembow)",95,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"---n--n----n--n-","bd":"n---n---n---n---"}]]]]],
+ ["reggae","Регги и ска","Reggae & ska",[
+  ["Регги: one drop","Reggae one drop",76,"4/4",60,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"--------x-------","bd":"--------n-------"}]]],
+  ["One drop с хай-хэтом триолями","One drop with triplet hi-hat",74,"4/4",0,[[3,{"hh":"n-nn-nn-nn-n","sn":"------x-----","bd":"------n-----"}]]],
+  ["Регги: стэпперс","Reggae steppers",80,"4/4",60,[[4,{"hh":"--n---n---n---n-","sn":"--------x-------","bd":"n---n---n---n---"}]]],
+  ["Ска","Ska",160,"4/4",0,[[4,{"hh":"--n---n---n---n-","sn":"----a-------a---","bd":"n-------n-------"}]]]]],
+ ["hiphop","Хип-хоп и R&B","Hip-hop & R&B",[
+  ["Бум-бэп","Boom bap",90,"4/4",30,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n--n------n-----"}]]],
+  ["Лоу-фай","Lo-fi",78,"4/4",60,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n------n--n-----"}]]],
+  ["Трэп: хаф-тайм с дробью на хай-хэте","Trap, half-time with hi-hat rolls",140,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-3-3-","sn":"--------a-------","bd":"n------n--n-----"}]]],
+  ["R&B / нео-соул","R&B / neo-soul",72,"4/4",60,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a--g----a---","bd":"n-----n--n------"}]]],
+  ["Мотаун: малый на каждую долю","Motown, snare on every beat",120,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"a---a---a---a---","bd":"n-----n-n-----n-"}]]]]],
+ ["metal","Метал","Metal",[
+  ["Двойная бочка шестнадцатыми","Double kick 16ths",150,"4/4",0,[[4,{"rd":"n---n---n---n---","sn":"----a-------a---","bd":"nnnnnnnnnnnnnnnn"}]]],
+  ["Галоп","Gallop",150,"4/4",0,[[4,{"rd":"n---n---n---n---","sn":"----a-------a---","bd":"n-nnn-nnn-nnn-nn"}]]],
+  ["Скэнк-бит (трэш)","Skank beat (thrash)",190,"4/4",0,[[4,{"cr":"n---n---n---n---","sn":"--a---a---a---a-","bd":"n---n---n---n---"}]]],
+  ["Бласт-бит","Blast beat",110,"4/4",0,[[4,{"rd":"n-n-n-n-n-n-n-n-","sn":"-n-n-n-n-n-n-n-n","bd":"n-n-n-n-n-n-n-n-"}]]],
+  ["Брейкдаун (хаф-тайм)","Breakdown (half-time)",120,"4/4",0,[[4,{"cr":"n-------n-------","sn":"--------a-------","bd":"n--n--n---n--n--"}]]]]],
+ ["country","Кантри","Country",[
+  ["Трейн-бит","Train beat",130,"4/4",0,[[4,{"sn":"ggggagggggggaggg","bd":"n-------n-------","hp":"----n-------n---","st":"RLRLRLRLRLRLRLRL"}]]],
+  ["Тустеп","Two-step",120,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----x-------x---","bd":"n-------n-------"}]]],
+  ["Кантри-шаффл с кросс-стиком","Country shuffle with cross-stick",120,"4/4",100,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----x-------x---","bd":"n-----n-n-------"}]]],
+  ["Кантри-вальс","Country waltz",140,"3/4",0,[[4,{"hh":"n---n---n---","sn":"----x---x---","bd":"n-----------"}]]]]],
+ ["disco","Диско и электроника","Disco & electronic",[
+  ["Диско","Disco",118,"4/4",0,[[4,{"hh":"n-o-n-o-n-o-n-o-","sn":"----a-------a---","bd":"n---n---n---n---"}]]],
+  ["Диско шестнадцатыми","Disco 16ths",120,"4/4",0,[[4,{"hh":"nnonnnonnnonnnon","sn":"----a-------a---","bd":"n---n---n---n---"}]]],
+  ["Хаус","House",124,"4/4",0,[[4,{"hh":"--o---o---o---o-","sn":"----a-------a---","bd":"n---n---n---n---"}]]],
+  ["Драм-н-бейс","Drum and bass",172,"4/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-","sn":"----a-------a---","bd":"n---------n-----"}]]]]],
+ ["odd","Вальс, 6/8 и 5/4","Waltz, 6/8 & 5/4",[
+  ["Вальс","Waltz",140,"3/4",0,[[4,{"rd":"n---n---n---","hp":"----n---n---","bd":"n-----------"}]]],
+  ["Баллада 6/8","6/8 ballad",60,"6/8",0,[[3,{"hh":"nnnnnn","sn":"---a--","bd":"n-----"}]]],
+  ["Рок 6/8","6/8 rock",100,"6/8",0,[[3,{"hh":"nnnnnn","sn":"---a--","bd":"n-n---"}]]],
+  ["Баллада 12/8","12/8 ballad",66,"12/8",0,[[3,{"hh":"nnnnnnnnnnnn","sn":"---a-----a--","bd":"n----nn-----"}]]],
+  ["Грув в 5/4 (3+2)","5/4 groove (3+2)",120,"5/4",0,[[4,{"hh":"n-n-n-n-n-n-n-n-n-n-","sn":"--------a-------a---","bd":"n-----------n-------"}]]]]]
+];
+const isGrv=f=>typeof f==='string'&&(f===GRV||f.startsWith(GRV+'/'));
+const isLibF=f=>f===LIB||isGrv(f);                  // the folders that come with the app
+const grvStyle=f=>isGrv(f)?f.slice(GRV.length+1):'';
+const styleName=k=>{ const x=GROOVES.find(y=>y[0]===k); return x?(LANG==='en'?x[2]:x[1]):k; };
+const grvId=(k,i)=>'grv-'+k+'-'+String(i+1).padStart(2,'0');
+function grvSongs(){
+  const out=[];
+  for(const [k,,,gs] of GROOVES) gs.forEach(([ru,en,bpm,sig,swing,bars],i)=>out.push(unpack({id:grvId(k,i),title:(i+1)+'. '+(LANG==='en'?en:ru),bpm,sig,swing,folder:GRV+'/'+k,updated:0,
+    bars:bars.map(([div,c],j)=>Object.assign({div,c},j===0?{rs:true}:{},j===bars.length-1?{re:true}:{}))})));
+  return out;
+}
+// the name a rudiment or a groove comes with, in a language ('ru' or 'en'); null for any other song
+function libTitle(id,lang){
+  let m=/^lib(\d\d)$/.exec(id);
+  if(m){ const r=RUDIMENTS.find(x=>x[0]===+m[1]); return r?r[0]+'. '+(lang==='en'?r[1]:r[2]+' · '+r[1]):null; }
+  m=/^grv-([a-z0-9]+)-(\d\d)$/.exec(id);
+  if(m){ const st=GROOVES.find(x=>x[0]===m[1]), g=st&&st[3][+m[2]-1]; return g?(+m[2])+'. '+(lang==='en'?g[1]:g[0]):null; }
+  return null;
+}
+// after the language changes: rudiments and grooves still under the name they came with take it in the new language
+// (one the person renamed keeps its name)
+function retitleLib(){
+  let n=0;
+  for(const s of state.songs){ const ru=libTitle(s.id,'ru'); if(!ru) continue; const en=libTitle(s.id,'en'), want=LANG==='en'?en:ru;
+    if(s.title!==want&&(s.title===ru||s.title===en)){ s.title=want; n++; } }
+  return n;
+}
+// put in the grooves that are not there: once when the app first meets them, and again when asked
+function ensureGrooves(force){
+  let v=''; try{ v=localStorage.getItem(GRV_SLOT)||''; }catch(e){}
+  if(v===GRV_VER&&!force) return 0;
+  const have=new Set(state.songs.map(x=>x.id)), add=grvSongs().filter(x=>!have.has(x.id));
+  for(const x of add) state.songs.push(x);
+  try{ localStorage.setItem(GRV_SLOT,GRV_VER); }catch(e){}
+  if(add.length) Store.saveLocal();
+  return add.length;
+}
 /* ---------- folders: a song may sit in one folder; the list shows one folder at a time ---------- */
 const FOLD_SLOT='drumbook.folders', FOLD_CUR='drumbook.folder', NO_FOLDER='#none';
 let folderNames=(()=>{ try{ const a=JSON.parse(localStorage.getItem(FOLD_SLOT)||'[]'); return Array.isArray(a)?a.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim().slice(0,40)):[]; }catch(e){ return []; } })();
 try{ state.folder=localStorage.getItem(FOLD_CUR)||''; }catch(e){}
 function saveFolders(){ try{ localStorage.setItem(FOLD_SLOT,JSON.stringify(folderNames)); localStorage.setItem(FOLD_CUR,state.folder); }catch(e){} }
 function allFolders(){ const set=new Set(folderNames); for(const s of state.songs) if(s.folder) set.add(s.folder); return [...set].sort((a,b)=>a.localeCompare(b,LANG)); }
-const curFolder=()=>state.folder&&state.folder!==NO_FOLDER&&state.folder!==LIB?state.folder:'';
+const curFolder=()=>state.folder&&state.folder[0]!=='#'?state.folder:'';   // not "no folder" nor a folder that came with the app
 let folderMove=null;   // a song waiting for a new folder's name
 // Putting a new song together: songs picked in order (the same one may come more than once), joined bar after bar.
 // Each part keeps its own time; its name goes over its first bar.
@@ -1368,28 +1508,38 @@ function joinSongs(ids){
 }
 function setPick(on){ state.pick=on?[]:null; $('songsPanel').classList.toggle('picking',!!on); renderSongs(); if(on) try{ $('pickHint').scrollIntoView({block:'nearest'}); }catch(e){} }
 function renderSongs(){
-  // the rudiments have their own chip; "All" is the person's own songs
-  const folders=allFolders().filter(f=>f!==LIB);
-  if(state.folder&&state.folder!==NO_FOLDER&&state.folder!==LIB&&!folders.includes(state.folder)) state.folder='';
-  const mine=state.songs.filter(x=>!x.demo), real=mine.filter(x=>x.folder!==LIB), cnt=f=>mine.filter(x=>f===NO_FOLDER?!x.folder:x.folder===f).length;
+  // the rudiments and the grooves have chips of their own; "All" is the person's own songs
+  const folders=allFolders().filter(f=>f[0]!=='#');
+  if(state.folder&&state.folder[0]!=='#'&&!folders.includes(state.folder)) state.folder='';
+  if(grvStyle(state.folder)&&!GROOVES.some(x=>x[0]===grvStyle(state.folder))) state.folder=GRV;
+  const mine=state.songs.filter(x=>!x.demo), real=mine.filter(x=>!isLibF(x.folder)), cnt=f=>mine.filter(x=>f===NO_FOLDER?!x.folder:f===GRV?isGrv(x.folder):x.folder===f).length;
   let fb=`<button type="button" class="chip" data-folder-pick="" aria-pressed="${!state.folder}">${tx('folderAll')}</button>`;
   fb+=`<button type="button" class="chip lib" data-folder-pick="${LIB}" aria-pressed="${state.folder===LIB}">${tx('libFolder')} · ${cnt(LIB)}</button>`;
+  fb+=`<button type="button" class="chip lib" data-folder-pick="${GRV}" aria-pressed="${isGrv(state.folder)}">${tx('grvFolder')} · ${cnt(GRV)}</button>`;
   folders.forEach((f,i)=>{ fb+=`<button type="button" class="chip" data-folder-pick="${i}" aria-pressed="${state.folder===f}">${esc(f)} · ${cnt(f)}</button>`; });
   if(folders.length) fb+=`<button type="button" class="chip" data-folder-pick="${NO_FOLDER}" aria-pressed="${state.folder===NO_FOLDER}">${tx('folderNone')} · ${cnt(NO_FOLDER)}</button>`;
   fb+=`<button type="button" class="chip" id="folderAdd">${tx('folderAdd')}</button>`;
   if(curFolder()) fb+=`<button type="button" class="chip" id="folderDel">${tx('folderDel')}</button>`;
   $('folderBar').innerHTML=fb; $('folderBar')._names=folders;
   let h='';
-  const list=state.folder===LIB?state.songs.filter(x=>x.folder===LIB).sort((a,b)=>a.id.localeCompare(b.id)):state.songs.filter(x=>x.folder!==LIB&&(!state.folder||x.demo&&!real.length||(state.folder===NO_FOLDER?!x.folder:x.folder===state.folder)));
+  const st=grvStyle(state.folder);
+  const list=state.folder===LIB||st?state.songs.filter(x=>x.folder===state.folder).sort((a,b)=>a.id.localeCompare(b.id)):isGrv(state.folder)?[]:state.songs.filter(x=>!isLibF(x.folder)&&(!state.folder||x.demo&&!real.length||(state.folder===NO_FOLDER?!x.folder:x.folder===state.folder)));
   if(state.folder===LIB){
     const ids=new Set(state.songs.map(x=>x.id)), gone=RUDIMENTS.filter(r=>!ids.has(libId(r[0]))).length;
     h+=`<p class="hint">${tx('libHint')}</p>`+(gone?`<button type="button" class="chip" id="libRestore">${tx('libRestore',gone)}</button>`:'');
+  }
+  if(isGrv(state.folder)){
+    // the styles: folders inside the grooves' folder
+    h+=`<div class="folders styles" aria-label="${esc(tx('grvFolder'))}">`+GROOVES.map(([k])=>`<button type="button" class="chip" data-style-pick="${k}" aria-pressed="${state.folder===GRV+'/'+k}">${esc(styleName(k))} · ${cnt(GRV+'/'+k)}</button>`).join('')+`</div>`;
+    if(!st) h+=`<p class="hint">${tx('grvHint')}</p>`;
+    else { const ids=new Set(state.songs.map(x=>x.id)), gone=GROOVES.find(x=>x[0]===st)[3].filter((g,i)=>!ids.has(grvId(st,i))).length;
+      if(gone) h+=`<button type="button" class="chip" id="grvRestore">${tx('libRestore',gone)}</button>`; }
   }
   for(const s of list){
     const where=!state.folder&&s.folder?' · '+esc(s.folder):'';
     h+=`<div class="songrow"><button type="button" class="open" data-open="${s.id}" aria-current="${s.id===song().id}"><b>${esc(s.title||tx('untitled'))}</b><small>${s.bars.length} ${plural(s.bars.length)} · ${songSigs(s).join(', ')} · ${tx('tempoWord')} ${s.bpm}${where}</small></button><button type="button" class="chip" data-move="${s.id}" aria-haspopup="menu">${tx('folderMove')}</button><button type="button" class="chip" data-del="${s.id}">${tx('del')}</button></div>`;
   }
-  if(!list.length&&state.folder!==LIB) h=`<p class="hint">${tx('folderEmpty')}</p>`;
+  if(!list.length&&state.folder!==LIB&&!isGrv(state.folder)) h=`<p class="hint">${tx('folderEmpty')}</p>`;
   $('songList').innerHTML=h;
   const pk=state.pick;
   $('btnPick').hidden=!!pk; $('pickHint').hidden=!pk; $('pickBar').hidden=!pk;
@@ -1397,13 +1547,13 @@ function renderSongs(){
     // the order number of every time a song was picked
     $('songList').querySelectorAll('[data-open]').forEach(b=>{ const id=b.dataset.open, at=[]; pk.forEach((x,i)=>{ if(x===id) at.push(i+1); });
       b.setAttribute('aria-pressed',String(at.length>0)); if(at.length) b.insertAdjacentHTML('beforeend',`<span class="ord">${at.join(',')}</span>`); });
-    $('songList').querySelectorAll('[data-move],[data-del],#libRestore').forEach(x=>{ x.hidden=true; });
+    $('songList').querySelectorAll('[data-move],[data-del],#libRestore,#grvRestore').forEach(x=>{ x.hidden=true; });
     const nb=pk.reduce((a,id)=>{ const x=state.songs.find(y=>y.id===id); return a+(x?x.bars.length:0); },0);
     $('pickInfo').textContent=tx('pickInfo',pk.length,nb); $('pickGo').disabled=!pk.length; $('pickUndo').disabled=!pk.length;
   }
 }
 function openFolderMenu(id,el){
-  const m=$('noteMenu'), folders=allFolders(), s=state.songs.find(x=>x.id===id); if(!s) return;
+  const m=$('noteMenu'), folders=allFolders().filter(f=>!isGrv(f)), s=state.songs.find(x=>x.id===id); if(!s) return;
   m.innerHTML=`<div class="mh">${esc(tx('folderFor',s.title||tx('untitled')))}</div>`+folders.map((f,i)=>`<button type="button" role="menuitem" data-v="${i}" aria-pressed="${s.folder===f}">${esc(folderLabel(f))}</button>`).join('')
     +`<button type="button" role="menuitem" data-v="${NO_FOLDER}">${tx('folderNone')}</button><button type="button" role="menuitem" data-v="#new">${tx('folderAdd')}</button>`;
   m.hidden=false; menuFor={kind:'folder',id,names:folders};
@@ -1632,14 +1782,14 @@ function addSongs(list,restore){
   // a rudiment changed in the backup takes the place of the same rudiment still as it came; a missing one keeps its own place
   const replaced=[];
   if(restore) list=list.filter(x=>{
-    if(typeof x.id!=='string'||!/^lib\d\d$/.test(x.id)) return true;
+    if(typeof x.id!=='string'||!/^(lib\d\d|grv-[a-z0-9]+-\d\d)$/.test(x.id)) return true;
     const i=state.songs.findIndex(y=>y.id===x.id); if(i<0||state.songs[i].updated) return true;
     const n=unpack(Object.assign({},x,{id:x.id,folder:typeof x.folder==='string'?x.folder:LIB}));
     if(songKey(n)!==songKey(state.songs[i])){ state.songs[i]=n; Store.save(n); replaced.push(n); }
     return false;
   });
   const ids=new Set(state.songs.map(x=>x.id));
-  const added=list.map(x=>unpack(Object.assign({folder:restore?'':curFolder()},x,{id:restore&&/^lib\d\d$/.test(x.id)&&!ids.has(x.id)?x.id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
+  const added=list.map(x=>unpack(Object.assign({folder:restore?'':curFolder()},x,{id:restore&&/^(lib\d\d|grv-[a-z0-9]+-\d\d)$/.test(x.id)&&!ids.has(x.id)?x.id:newId()}))).filter(x=>{ const k=songKey(x); if(have.has(k)) return false; have.add(k); return true; });
   for(let i=added.length-1;i>=0;i--){ state.songs.unshift(added[i]); Store.save(added[i]); }
   if(added.length){ state.songs=state.songs.filter(x=>!x.demo); setSong(added[0].id); }
   return added.concat(replaced);
@@ -3586,6 +3736,7 @@ function applyLang(){
 function setLang(l){
   if(!I18N[l]||l===LANG) return; LANG=l;
   for(const s of state.songs) if(s.demo&&s.tk) s.title=tx(s.tk);
+  retitleLib();
   Store.saveLocal(); applyLang(); renderAll(); if(!$('songsPanel').hidden) renderSongs();
 }
 /* ---------- wiring ---------- */
@@ -4175,7 +4326,7 @@ function init(){
     if([1,2,4].includes(d.bpl)) state.bpl=d.bpl; state.click=!!d.click; state.curSong=d.cur;
   }
   if(!state.songs.length) state.songs=[demoSong()];
-  ensureLibrary(false);
+  ensureLibrary(false); ensureGrooves(false); if(retitleLib()) Store.saveLocal();
   if(!state.songs.some(s=>s.id===state.curSong)) state.curSong=state.songs[0].id;
   $('play').innerHTML=PLAY_ICON;
 
@@ -4238,8 +4389,10 @@ function init(){
   $('btnClosePanel').addEventListener('click',()=>{ $('songsPanel').hidden=true; if(state.pick) setPick(false); });
   $('songsPanel').addEventListener('click',e=>{ if(e.target===$('songsPanel')) $('songsPanel').hidden=true; });
   $('songList').addEventListener('click',e=>{
+    const sp=e.target.closest('[data-style-pick]'); if(sp){ state.folder=GRV+'/'+sp.dataset.stylePick; saveFolders(); renderSongs(); return; }
     if(state.pick){ const o=e.target.closest('[data-open]'); if(o){ state.pick.push(o.dataset.open); renderSongs(); } return; }
     if(e.target.closest('#libRestore')){ const n=ensureLibrary(true); renderSongs(); toast(tx('libRestored',n)); return; }
+    if(e.target.closest('#grvRestore')){ const n=ensureGrooves(true); renderSongs(); toast(tx('grvRestored',n)); return; }
     const o=e.target.closest('[data-open]'), d=e.target.closest('[data-del]'), mv=e.target.closest('[data-move]');
     if(mv){ openFolderMenu(mv.dataset.move,mv); return; }
     if(o){ setSong(o.dataset.open); $('songsPanel').hidden=true; }
@@ -4253,7 +4406,7 @@ function init(){
   });
   $('folderBar').addEventListener('click',e=>{
     const pk=e.target.closest('[data-folder-pick]');
-    if(pk){ const v=pk.dataset.folderPick; state.folder=v===''||v===NO_FOLDER||v===LIB?v:($('folderBar')._names[+v]||''); saveFolders(); renderSongs(); return; }
+    if(pk){ const v=pk.dataset.folderPick; state.folder=v===''||v[0]==='#'?v:($('folderBar')._names[+v]||''); saveFolders(); renderSongs(); return; }
     if(e.target.closest('#folderAdd')){ openFolderBox(null); return; }
     const del=e.target.closest('#folderDel');
     if(del) armed(del,tx('sure'),()=>{
@@ -4334,10 +4487,6 @@ function init(){
   setTimeout(()=>Snd.preload(),300);
   const fontCheck=()=>{
     try{
-      const g=document.createElement('canvas').getContext('2d'), t='МЕТРОНОМ 123';
-      g.font="700 20px 'Sofia Sans Extra Condensed',monospace"; const a=g.measureText(t).width;
-      g.font='700 20px monospace'; const b=g.measureText(t).width;
-      document.documentElement.classList.toggle('nf',Math.abs(a-b)<.5);
       if(state.view==='grid') renderTape();
     }catch(e){}
   };
