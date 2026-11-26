@@ -329,6 +329,7 @@ main{display:flex;flex-direction:column;gap:10px;padding:0 16px 12px}
     <div class="seg wide" id="rWhat"><button type="button" data-what="sn" aria-pressed="true" id="rWhat1">Малый или пэд</button><button type="button" data-what="kit" aria-pressed="false" id="rWhat2">Вся установка</button></div>
     <div class="seg wide" id="rDiv"><button type="button" data-div="auto" aria-pressed="true" id="rDivA">Авто</button><button type="button" data-div="4" aria-pressed="false" id="rDiv4">16-е</button><button type="button" data-div="3" aria-pressed="false" id="rDiv3">Триоли</button><button type="button" data-div="6" aria-pressed="false" id="rDiv6">Секстоли</button><button type="button" data-div="8" aria-pressed="false" id="rDiv8">32-е</button></div>
     <button class="chip" id="rClick" type="button" aria-pressed="true">Метроном во время записи</button>
+    <button class="chip" id="rAi" type="button" aria-pressed="true" hidden>Gemini помогает различать барабаны</button>
     <div class="panelrow" id="recLatRow"><span class="hint" id="recLat"></span><button class="chip" id="recCal" type="button">Калибровка</button></div>
     <div class="recmeter" id="recMeter" hidden><i id="recLevel"></i></div>
     <p class="status" id="recStatus" role="status" aria-live="polite"></p>
@@ -361,12 +362,12 @@ const I18N={
   mySongs:'Мои песни',close:'Закрыть',newSong:'Новая песня',
   i_cr:'Крэш',i_hh:'Хэт',i_rd:'Райд',i_t1:'Том 1',i_t2:'Том 2',i_sn:'Малый',i_ft:'Флор',i_bd:'Бочка',i_hp:'Педаль',hands:'Руки',
   untitled:'Без названия',demoTitle:'Пример: рок-бит',barN:'Такт {0}',addBar:'Добавить такт',cellAria:'{0}, клетка {1}',handAria:'Рука, клетка {0}',
-  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',pickBtn:'Собрать из песен и рудиментов',pickHint:'Нажимайте песни и рудименты в том порядке, в каком они должны идти, — можно переходить между папками. Одну и ту же можно нажать несколько раз. Потом «Соединить»: получится новая песня, которую можно играть, менять и сохранить в PDF.',pickInfo:'Выбрано: {0} · тактов: {1}',pickGo:'Соединить',pickCancel:'Отмена',compTitle:'Сборник',compDone:'Соединено частей: {0}, тактов: {1}. PDF — во вкладке «Ноты».',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
+  sheetAria:'Ноты: {0}',tempoLine:'Темп {0} уд/мин · размер {1}',recCal:'Калибровка',recLatIs:'Задержка телефона: {0} мс',recLatNone:'Задержка не измерена. Один раз сделайте калибровку — в тех же наушниках или с тем же динамиком, что и при игре.',recCalCount:'Калибровка: приготовьтесь… {0}',recCalGo:'Ударьте вместе со щелчком: {0} из 8',recCalDone:'Готово: задержка {0} мс. Теперь ноты встанут точнее.',recCalFail:'Не получилось измерить: ударов почти не слышно. Бейте громче и ровно со щелчками, потом повторите.',recCalOld:'На этом телефоне задержку не измерить: браузер слишком старый.',recAgain:'Распознать заново',recListen:'Послушать',recListenStop:'Остановить',recWav:'Сохранить запись',recAfterHint:'Можно переключить «Авто / 16-е…» или «Малый / Установка» и нажать «Распознать заново» — без новой записи. Если ноты всё равно не те, сохраните запись и пришлите её мне: я настрою распознавание по ней.',recUpdated:'Ноты пересчитаны, тактов: {0}.',metroBtn:'Просто метроном',recBtn:'Записать игру',metroH:'Метроном',mBeatsL:'Долей в такте',mSub1:'Четверти',mSub2:'Восьмые',mSub3:'Триоли',mSub4:'16-е',mAccent:'Акцент на «1»',mTap:'Тап',mStart:'Старт',mStop:'Стоп',recH:'Записать игру',recHelp:'Сыграйте под метроном: телефон запишет звук и сам расставит ноты. Сначала прозвучит такт отсчёта. Лучше в проводных наушниках: так щелчки не попадут в запись. Бочка, малый и хэт различаются по звуку приблизительно, томы и тарелки могут записаться как малый или хэт. Если добавлен ключ Gemini, он послушает запись «всей установки» и подскажет томы, тарелки, открытый хэт и кросс-стик, а ритм программа расставит сама. Аппликатуру по звуку не узнать. Один раз сделайте калибровку — так ноты встанут точнее. «Авто» сам выбирает для каждого такта 16-е, триоли, 32-е или секстоли.',recHelpClaude:'Внутри Claude программе закрыт доступ к микрофону. Запись работает в версии на GitHub (с иконки на телефоне).',rTempoL:'Темп',rSizeL:'Размер',rWhat1:'Малый или пэд',rWhat2:'Вся установка',rDivA:'Авто',rDiv4:'16-е',rDiv3:'Триоли',rDiv6:'Секстоли',rDiv8:'32-е',rClick:'Метроном во время записи',rAi:'Gemini помогает различать барабаны',recAiAsk:'Gemini слушает запись и называет барабаны…',recAiWait:'Gemini занят, ждём {0} с…',recAiDone:'Gemini послушал запись: уточнено ударов — {0}.',recAiOff:'Ответ Gemini не совпал с записью, поэтому оставлены ноты, распознанные самой программой.',recAiFail:'Gemini не ответил — ноты распознаны самой программой.',recAiSlow:'Gemini слишком долго не отвечал — ноты распознаны самой программой.',recStart:'● Запись',recStop:'■ Стоп',recCount:'Отсчёт… {0}',recOn:'Идёт запись · такт {0}',recAnalyze:'Распознаю ноты…',recNoMic:'Нет доступа к микрофону. Разрешите его: Настройки iPhone → Safari → Микрофон.',recNone:'В записи не нашлось ударов. Играйте громче или положите телефон ближе.',recDone:'Распознано тактов: {0}. Проверьте ноты и поправьте, где нужно.',recTitle:'Запись {0}',recShort:'Запись слишком короткая.',close2:'Закрыть',folderAll:'Все',pickBtn:'Собрать из песен и рудиментов',pickHint:'Нажимайте песни и рудименты в том порядке, в каком они должны идти, — можно переходить между папками. Одну и ту же можно нажать несколько раз. Потом «Соединить»: получится новая песня, которую можно играть, менять и сохранить в PDF.',pickInfo:'Выбрано: {0} · тактов: {1}',pickGo:'Соединить',pickCancel:'Отмена',compTitle:'Сборник',compDone:'Соединено частей: {0}, тактов: {1}. PDF — во вкладке «Ноты».',libFolder:'Рудименты',libHint:'40 стандартных рудиментов (список PAS) с аппликатурой: маленькие буквы — форшлаги (lR — флэм). Откройте любой и нажмите ▶; «Цикл такта» играет по кругу. Их можно менять, удалённые можно вернуть.',libRestore:'Вернуть удалённые ({0})',libRestored:'Возвращено рудиментов: {0}.',folderNone:'Без папки',folderAdd:'+ Папка',folderDel:'Удалить папку',folderMove:'Папка',folderFor:'Папка для «{0}»',folderMoved:'Перенесено в «{0}»',folderMovedNone:'Песня теперь без папки',folderDeleted:'Папка удалена, её песни теперь «Без папки».',folderEmpty:'В этой папке пока нет песен. Новые песни и всё, что добавите отсюда, попадут сюда.',folderNamePh:'Название папки, например Stick Control',folderSaveT:'Создать',cancel:'Отмена',foldersAria:'Папки',swOn:'свинг',swShuffle:'шаффл (восьмые триолями)',swing0:'Ровно',swing30:'Свинг лёгкий',swing60:'Свинг',swing100:'Шаффл',swingAria:'Свинг',pageOf:'стр. {0} из {1}',tempoWord:'темп',fileDef:'ноты',
   st_cloud:'Песни сохраняются в вашем аккаунте Claude и откроются на любом устройстве.',st_local:'Песни сохраняются только в этом браузере на этом устройстве.',
   st_wait:'Проверяю сохранённые песни…',st_fail:'Сохранение в аккаунт здесь недоступно. Песни сохраняются только в этом браузере на этом устройстве.',
   tSave:'Браузер не дал сохранить изменения на этом устройстве.',tNoAudio:'Этот браузер не умеет воспроизводить звук.',
   tAudioOff:'Браузер не включил звук (состояние: {0}). Нажмите «Стоп» и «Играть» ещё раз.',tPdf:'Готовлю PDF…',tFile:'Не получилось сохранить файл. Попробуйте ещё раз.',
-  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phDoneOwn:'Добавлено тактов: {0}.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами или сделайте скриншот: программа сама прочитает ноты и добавит песню. С ключом Gemini (кнопка «Ключ ИИ», бесплатно, примерно 20 страниц в день) ИИ дочитает такты, в которых программа не уверена, и название с темпом. Снимайте ровно сверху, при хорошем свете. Проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phCheck:'{0} ещё раз смотрит на сомнительные такты ({1})…',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.',phRecheck:'{0} перечитывает страницу: в первом чтении похоже на ошибку во многих тактах…',aiRawSum:'Ответ ИИ на последнее фото',aiRawHint:'Если ноты прочитались неправильно, скопируйте этот текст и пришлите его вместе с фото страницы — так проще найти, где ошибка.',copyBtn:'Копировать',tCopied:'Скопировано.',phPic:'Программа сама проверила ноты по фото и поправила барабаны в тактах: {0}.',phOwnUsed:'Программа сама прочитала по фото {0} из {1} тактов (ритм, барабаны, паузы, акценты) — эти такты взяты у неё, остальные у ИИ.',phOwnOnly:'Ноты прочитала сама программа, без Gemini: {0} тактов, из них уверенно {1}.',phOwnCheck:'Проверьте такты: {0}.',phOwnFail:'Gemini не ответил, поэтому ноты прочитала сама программа: {0} тактов, из них уверенно {1}.',phOwnLook:'Программа читает ноты сама…',phOwnWeak:'Программа не смогла уверенно прочитать эту страницу (уверенно {0} из {1} тактов). Снимите ровнее и крупнее или добавьте ключ Gemini — тогда ноты прочитает ИИ.',phOwnNone:'Программа не нашла на фото нотный стан. Снимайте страницу ровно, сверху, при хорошем свете; или добавьте ключ Gemini.'},
+  sureDel:'Точно удалить?',sure:'Точно?',importAria:'Добавить песни из PDF или файла',importHint:'«+ PDF» добавляет песни из PDF, сохранённого этой программой, или из файла .json.',tNoPdfData:'В этом PDF нет нот для программы. Добавить можно только PDF, сохранённый этой программой после обновления.',tDupe:'Эти песни уже есть в списке.',fillAll16:'Все 16-е',fillAll6:'Все секстоли',fillAll32:'Все 32-е',fill16:'16-е',fill8t:'Триоли восьмыми',d6:'Секстоли',d32:'32-е',fillAllT:'Все триоли',fillAll8c:'Все восьмые',fill8:'Восьмые',fill4:'На доли',clearRow:'Очистить строку',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Акценты R, остальное L',rowAria:'{0}: заполнить строку',hintRow:' Нажмите на название строки слева, чтобы заполнить её в этом такте целиком.',photoBtn:'Ноты с фото (ИИ)',photoHint:'Сфотографируйте страницу с нотами: Claude прочитает её и добавит песню. Снимайте ровно сверху, при хорошем свете. ИИ может ошибаться — проверьте ноты после добавления.',stop:'Стоп',phPrep:'Готовлю фото…',phLook:'{1} читает ноты на фото{0}… Обычно это 1–2 минуты.',phWrite:'{1} записывает ноты: тактов {0}…',phDone:'Добавлено тактов: {0}. Проверьте ноты — ИИ может ошибаться.',phDoneOwn:'Добавлено тактов: {0}.',phNone:'На фото не нашлось нот. Снимите страницу ровнее, ближе и при хорошем свете.',phOff:'Claude недоступен для этой страницы.',phBusy:'Слишком много запросов или закончился лимит Claude. Попробуйте позже.',phRefused:'ИИ не стал читать это фото.',phBadImg:'Это фото не подошло. Попробуйте другое (JPEG или PNG).',phFail:'Не получилось связаться с Claude. Попробуйте ещё раз.',phSession:'Войдите в Claude ещё раз и повторите.',photoTitle:'Ноты с фото',photoHintApi:'Сфотографируйте страницу с нотами или сделайте скриншот: программа сама прочитает ноты и добавит песню. С ключом Gemini (кнопка «Ключ ИИ», бесплатно, примерно 20 страниц в день) ИИ дочитает такты, в которых программа не уверена, и название с темпом. Снимайте ровно сверху, при хорошем свете. Проверьте ноты после добавления.',keyHelpGem:'Бесплатно: зайдите на aistudio.google.com со своим Google-аккаунтом и нажмите «Get API key» → «Create API key» (карта не нужна). Хватает примерно на 20 страниц в день. На бесплатном тарифе Google может использовать фото и ответы для улучшения своих продуктов. Ключ хранится только на этом устройстве.',keyPhGem:'Ключ Gemini (AQ.… или AIza…)',keyBadGem:'Это не похоже на ключ Gemini. Скопируйте его из AI Studio целиком, без пробелов.',phGemLimit:'Бесплатный лимит Gemini на сегодня закончился. Попробуйте завтра.',phRegion:'Gemini недоступен в вашей стране.',keyBtn:'Ключ ИИ',keySave:'Сохранить ключ',keyDel:'Удалить ключ',keySaved:'Ключ сохранён на этом устройстве.',keyDeleted:'Ключ удалён с этого устройства.',phKeyBad:'Ключ не подошёл. Проверьте его в «Ключ ИИ».',phNet:'Нет связи с Gemini. Проверьте интернет и не блокируйте телефон и не уходите из программы, пока ИИ читает ноты.',phThink:'{0} разбирает ноты…',phPartial:'Не всё удалось дочитать: добавлено то, что пришло. Остальное сфотографируйте отдельно.',phPart:'часть {0}',phMore:'{0} дописывает остаток страницы, часть {1}… Можно подождать.',phCheck:'{0} ещё раз смотрит на сомнительные такты ({1})…',phParse:'ИИ ответил, но ответ не получилось разобрать. Попробуйте ещё раз или снимите по полстраницы.',phLong:'Ответ ИИ получился слишком длинным и оборвался. Снимите страницу по половинкам.',phGot:'получено символов {0}',phBusyApi:'Серверы Gemini у Google перегружены: программа повторяла запрос около {0} мин на разных моделях Gemini. Это не ошибка ключа и не телефона — попробуйте позже.',phWait:'Gemini сейчас перегружен (это на стороне Google). Пробую снова через {0} с, попытка {1}. Можно просто подождать.',phRecheck:'{0} перечитывает страницу: в первом чтении похоже на ошибку во многих тактах…',aiRawSum:'Ответ ИИ на последнее фото',aiRawHint:'Если ноты прочитались неправильно, скопируйте этот текст и пришлите его вместе с фото страницы — так проще найти, где ошибка.',copyBtn:'Копировать',tCopied:'Скопировано.',phPic:'Программа сама проверила ноты по фото и поправила барабаны в тактах: {0}.',phOwnUsed:'Программа сама прочитала по фото {0} из {1} тактов (ритм, барабаны, паузы, акценты) — эти такты взяты у неё, остальные у ИИ.',phOwnOnly:'Ноты прочитала сама программа, без Gemini: {0} тактов, из них уверенно {1}.',phOwnCheck:'Проверьте такты: {0}.',phOwnFail:'Gemini не ответил, поэтому ноты прочитала сама программа: {0} тактов, из них уверенно {1}.',phOwnLook:'Программа читает ноты сама…',phClean:'Фото сначала улучшено: бумага выровнена до белого, ноты сделаны темнее и чётче, строчки выпрямлены.',phClose:'{0} смотрит вблизи на такты, где есть сомнения ({1})…',phCloseDone:'{0} ещё раз посмотрел вблизи на сомнительные такты ({1}) и исправил {2}.',phOwnWeak:'Программа не смогла уверенно прочитать эту страницу (уверенно {0} из {1} тактов). Снимите ровнее и крупнее или добавьте ключ Gemini — тогда ноты прочитает ИИ.',phOwnNone:'Программа не нашла на фото нотный стан. Снимайте страницу ровно, сверху, при хорошем свете; или добавьте ключ Gemini.'},
  en:{songs:'Songs',songTitle:'Song title',view:'View',grid:'Grid',sheet:'Sheet',bars:'Bars',timeSig:'Time signature',division:'Bar subdivision',d16:'16ths',trip:'Triplets',
   copyBar:'Copy bar',repBtn:'Repeat',importBtn:'+ PDF',exportBtn:'Save a backup',restoreBtn:'Restore from a backup',backupH:'Backup',backupHint:'All songs, rudiments and folders in one file. Keep it in Files or send it to yourself: if the phone clears the app’s storage, the songs can come back. {0}',backupLast:'Last backup: {0}.',backupNever:'No backup saved yet.',tBackupSaved:'Backup saved: {0} songs.',tRestored:'Songs restored: {0}. The rest were already in the list.',tRestoredAll:'Songs restored: {0}.',backupFile:'drum songs',tImported:'Songs added: {0}',tBadFile:'This file has no songs for this app.',clear:'Clear',del:'Delete',undo:'Undo',notationAria:'Notation of this bar',strokeType:'Stroke type',hit:'Hit',accent:'Accent >',ghost:'Ghost ( )',
   hintGrid:'Tap a cell to place a hit. Tap a hi-hat again to open it. Hold a cell for flam, drag, buzz, cross-stick and triplet. The bars form one ribbon: scroll it left and right.',ribbon:'Ribbon of bars',staffBtn:'Write on staff',openHat:'Open ○',xstick:'Cross-stick ⊗',rimshot:'Rimshot ⊘',x2n:'Cross-sticks → strokes (whole song)',x2nDone:'Cross-sticks turned into strokes: {0}.',flam:'Flam',flamAcc:'Flam >',drag:'Drag',dragAcc:'Drag >',buzz:'Buzz z',triplet:'Triplet ³',remove:'Remove',hintHold:' Press and hold a cell or a note to choose accent or ghost.',hintStaff:'Tap the staff to place a note: the line sets the drum. Drag a note to another line or beat; tap a note to remove it. In this mode, scroll the ribbon on the grid.',
@@ -377,18 +378,18 @@ const I18N={
   mySongs:'My songs',close:'Close',newSong:'New song',
   i_cr:'Crash',i_hh:'Hi-hat',i_rd:'Ride',i_t1:'Tom 1',i_t2:'Tom 2',i_sn:'Snare',i_ft:'Floor',i_bd:'Kick',i_hp:'Pedal',hands:'Hands',
   untitled:'Untitled',demoTitle:'Example: rock beat',barN:'Bar {0}',addBar:'Add a bar',cellAria:'{0}, cell {1}',handAria:'Hand, cell {0}',
-  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',pickBtn:'Combine songs and rudiments',pickHint:'Tap songs and rudiments in the order they should go; you can switch folders. The same one can be tapped more than once. Then “Join”: you get a new song to play, change and save as a PDF.',pickInfo:'Picked: {0} · bars: {1}',pickGo:'Join',pickCancel:'Cancel',compTitle:'Collection',compDone:'Joined {0} parts, {1} bars. The PDF is under “Sheet”.',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
+  sheetAria:'Sheet music: {0}',tempoLine:'Tempo {0} bpm · {1} time',recCal:'Calibrate',recLatIs:'Phone delay: {0} ms',recLatNone:'Delay not measured yet. Calibrate once, with the same headphones or speaker you will play with.',recCalCount:'Calibration: get ready… {0}',recCalGo:'Hit together with the click: {0} of 8',recCalDone:'Done: delay {0} ms. Notes will now land more accurately.',recCalFail:'Could not measure: the hits were barely audible. Hit louder, exactly with the clicks, and try again.',recCalOld:'The delay cannot be measured on this phone: the browser is too old.',recAgain:'Find notes again',recListen:'Listen',recListenStop:'Stop',recWav:'Save recording',recAfterHint:'You can switch “Auto / 16ths…” or “Snare / Kit” and tap “Find notes again”, with no new recording. If the notes are still wrong, save the recording and send it to me: I will tune the recognition with it.',recUpdated:'Notes found again: {0} bars.',metroBtn:'Metronome only',recBtn:'Record my playing',metroH:'Metronome',mBeatsL:'Beats per bar',mSub1:'Quarters',mSub2:'Eighths',mSub3:'Triplets',mSub4:'16ths',mAccent:'Accent on “1”',mTap:'Tap',mStart:'Start',mStop:'Stop',recH:'Record my playing',recHelp:'Play along with the metronome: the phone records the sound and writes the notes itself. A count-in bar comes first. Wired headphones are best, so the clicks stay out of the recording. Kick, snare and hi-hat are told apart roughly by sound; toms and cymbals may come out as snare or hi-hat. With a Gemini key added, Gemini listens to a full-kit take and names the toms, cymbals, open hi-hat and cross-stick, while the app places the rhythm itself. Sticking cannot be heard. Calibrate once so the notes land more accurately. “Auto” picks 16ths, triplets, 32nds or sextuplets for each bar by itself.',recHelpClaude:'Inside Claude the app has no access to the microphone. Recording works in the GitHub version (the icon on your phone).',rTempoL:'Tempo',rSizeL:'Time',rWhat1:'Snare or pad',rWhat2:'Whole kit',rDivA:'Auto',rDiv4:'16ths',rDiv3:'Triplets',rDiv6:'Sextuplets',rDiv8:'32nds',rClick:'Metronome while recording',rAi:'Gemini helps tell the drums apart',recAiAsk:'Gemini is listening to the take and naming the drums…',recAiWait:'Gemini is busy, waiting {0} s…',recAiDone:'Gemini listened to the take: strokes corrected — {0}.',recAiOff:'Gemini\'s answer did not fit the take, so the notes the app found itself are kept.',recAiFail:'Gemini did not answer — the notes were found by the app itself.',recAiSlow:'Gemini took too long — the notes were found by the app itself.',recStart:'● Record',recStop:'■ Stop',recCount:'Count-in… {0}',recOn:'Recording · bar {0}',recAnalyze:'Finding the notes…',recNoMic:'No access to the microphone. Allow it: iPhone Settings → Safari → Microphone.',recNone:'No hits were found in the recording. Play louder or put the phone closer.',recDone:'Bars found: {0}. Check the notes and fix what needs it.',recTitle:'Recording {0}',recShort:'The recording is too short.',close2:'Close',folderAll:'All',pickBtn:'Combine songs and rudiments',pickHint:'Tap songs and rudiments in the order they should go; you can switch folders. The same one can be tapped more than once. Then “Join”: you get a new song to play, change and save as a PDF.',pickInfo:'Picked: {0} · bars: {1}',pickGo:'Join',pickCancel:'Cancel',compTitle:'Collection',compDone:'Joined {0} parts, {1} bars. The PDF is under “Sheet”.',libFolder:'Rudiments',libHint:'The 40 standard rudiments (the PAS list) with sticking: small letters are grace notes (lR is a flam). Open one and press ▶; “Loop bar” plays it round. You can change them, and bring back any you delete.',libRestore:'Bring back deleted ({0})',libRestored:'Rudiments brought back: {0}.',folderNone:'No folder',folderAdd:'+ Folder',folderDel:'Delete folder',folderMove:'Folder',folderFor:'Folder for “{0}”',folderMoved:'Moved to “{0}”',folderMovedNone:'The song is now in no folder',folderDeleted:'Folder deleted; its songs are now in “No folder”.',folderEmpty:'No songs in this folder yet. New songs and anything you add from here will go in it.',folderNamePh:'Folder name, e.g. Stick Control',folderSaveT:'Create',cancel:'Cancel',foldersAria:'Folders',swOn:'swing',swShuffle:'shuffle (eighths as triplets)',swing0:'Straight',swing30:'Light swing',swing60:'Swing',swing100:'Shuffle',swingAria:'Swing',pageOf:'page {0} of {1}',tempoWord:'tempo',fileDef:'sheet',
   st_cloud:'Songs are saved to your Claude account and open on any device.',st_local:'Songs are saved only in this browser on this device.',
   st_wait:'Checking saved songs…',st_fail:'Saving to an account is not available here. Songs are saved only in this browser on this device.',
   tSave:'The browser did not let the changes be saved on this device.',tNoAudio:'This browser cannot play sound.',
   tAudioOff:'The browser has not turned sound on (state: {0}). Press Stop, then Play again.',tPdf:'Preparing the PDF…',tFile:'The file could not be saved. Try again.',
-  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phDoneOwn:'Bars added: {0}.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo or a screenshot of a page of drum music: the app reads the notes by itself and adds a song. With a Gemini key (the “AI key” button, free, about 20 pages a day) the AI also reads the bars the app is unsure of, and the title and tempo. Shoot straight from above in good light. Check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phCheck:'{0} is taking a second look at doubtful bars ({1})…',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.',phRecheck:'{0} is reading the page again: the first reading looks wrong in many bars…',aiRawSum:'AI answer for the last photo',aiRawHint:'If the notes were misread, copy this text and send it along with the photo of the page: it shows where the mistake is.',copyBtn:'Copy',tCopied:'Copied.',phPic:'The app checked the notes against the photo itself and corrected the drums in {0} bars.',phOwnUsed:'The app read {0} of {1} bars from the photo by itself (rhythm, drums, rests, accents); those bars are its own, the rest are the AI\'s.',phOwnOnly:'The app read the notes by itself, without Gemini: {0} bars, {1} of them for sure.',phOwnCheck:'Check bars {0}.',phOwnFail:'Gemini did not answer, so the app read the notes by itself: {0} bars, {1} of them for sure.',phOwnLook:'The app is reading the notes…',phOwnWeak:'The app could not read this page for sure ({0} of {1} bars). Take it straighter and closer, or add a Gemini key so the AI reads it.',phOwnNone:'The app found no staff in the photo. Take the page straight from above in good light, or add a Gemini key.'}
+  sureDel:'Really delete?',sure:'Sure?',importAria:'Add songs from a PDF or a file',importHint:'“+ PDF” adds songs from a PDF saved by this app, or from a .json file.',tNoPdfData:'This PDF has no notes for this app. Only PDFs saved by this app after this update can be added.',tDupe:'These songs are already in the list.',fillAll16:'All 16ths',fillAll6:'All sextuplets',fillAll32:'All 32nds',fill16:'16ths',fill8t:'Eighth triplets',d6:'Sextuplets',d32:'32nds',fillAllT:'All triplets',fillAll8c:'All eighths',fill8:'Eighths',fill4:'On the beats',clearRow:'Clear row',stRL:'R L R L…',stLR:'L R L R…',stAcc:'Accents R, rest L',rowAria:'{0}: fill the row',hintRow:' Tap a row name on the left to fill that row in this bar at once.',photoBtn:'Notes from a photo (AI)',photoHint:'Take a photo of a page of drum music: Claude reads it and adds a song. Shoot straight from above in good light. AI can make mistakes, so check the notes afterwards.',phPrep:'Preparing the photo…',phLook:'{1} is reading the notes in the photo{0}… This usually takes 1–2 minutes.',phWrite:'{1} is writing the notes: {0} bars…',phDone:'Bars added: {0}. Check the notes: AI can make mistakes.',phDoneOwn:'Bars added: {0}.',phNone:'No notes were found in the photo. Shoot the page straighter, closer and in good light.',phOff:'Claude is not available for this page.',phBusy:'Too many requests or your Claude limit is reached. Try again later.',phRefused:'The AI declined to read this photo.',phBadImg:'This photo could not be used. Try another one (JPEG or PNG).',phFail:'Could not reach Claude. Try again.',phSession:'Sign in to Claude again and retry.',photoTitle:'Notes from a photo',photoHintApi:'Take a photo or a screenshot of a page of drum music: the app reads the notes by itself and adds a song. With a Gemini key (the “AI key” button, free, about 20 pages a day) the AI also reads the bars the app is unsure of, and the title and tempo. Shoot straight from above in good light. Check the notes afterwards.',keyHelpGem:'Free: go to aistudio.google.com with your Google account and tap “Get API key” → “Create API key” (no card needed). Enough for about 20 pages a day. On the free tier Google may use the photos and answers to improve its products. The key stays on this device.',keyPhGem:'Gemini key (AQ.… or AIza…)',keyBadGem:'This does not look like a Gemini key. Copy the whole key from AI Studio, with no spaces.',phGemLimit:'Today’s free Gemini limit is used up. Try again tomorrow.',phRegion:'Gemini is not available in your country.',keyBtn:'AI key',keySave:'Save key',keyDel:'Delete key',keySaved:'Key saved on this device.',keyDeleted:'Key deleted from this device.',phKeyBad:'The key was not accepted. Check it under “AI key”.',phNet:'Lost the connection to Gemini. Check the internet, and keep the phone unlocked and this app open while the AI reads.',phThink:'{0} is working out the notes…',phPartial:'Not everything could be read: what arrived was added. Photograph the rest separately.',phPart:'part {0}',phMore:'{0} is writing the rest of the page, part {1}… Worth the wait.',phCheck:'{0} is taking a second look at doubtful bars ({1})…',phParse:'The AI answered, but the answer could not be read. Try again, or shoot half a page at a time.',phLong:'The AI answer was too long and got cut off. Shoot the page in halves.',phGot:'{0} characters received',phBusyApi:'Google’s Gemini servers are overloaded: the app kept retrying for about {0} min on several Gemini models. Not a problem with your key or phone — try again later.',phWait:'Gemini is overloaded right now (on Google’s side). Trying again in {0} s, attempt {1}. You can just wait.',phRecheck:'{0} is reading the page again: the first reading looks wrong in many bars…',aiRawSum:'AI answer for the last photo',aiRawHint:'If the notes were misread, copy this text and send it along with the photo of the page: it shows where the mistake is.',copyBtn:'Copy',tCopied:'Copied.',phPic:'The app checked the notes against the photo itself and corrected the drums in {0} bars.',phOwnUsed:'The app read {0} of {1} bars from the photo by itself (rhythm, drums, rests, accents); those bars are its own, the rest are the AI\'s.',phOwnOnly:'The app read the notes by itself, without Gemini: {0} bars, {1} of them for sure.',phOwnCheck:'Check bars {0}.',phOwnFail:'Gemini did not answer, so the app read the notes by itself: {0} bars, {1} of them for sure.',phOwnLook:'The app is reading the notes…',phClean:'The photo was made clearer first: paper evened out to white, notes darker and sharper, staves straightened.',phClose:'{0} is looking close up at the doubtful bars ({1})…',phCloseDone:'{0} looked close up at the doubtful bars ({1}) and corrected {2}.',phOwnWeak:'The app could not read this page for sure ({0} of {1} bars). Take it straighter and closer, or add a Gemini key so the AI reads it.',phOwnNone:'The app found no staff in the photo. Take the page straight from above in good light, or add a Gemini key.'}
 };
 let LANG='ru';
 const tx=(k,...args)=>{ let v=(I18N[LANG]&&I18N[LANG][k])||I18N.ru[k]||k; args.forEach((a,i)=>{ if(a!==undefined) v=v.replace('{'+i+'}',a); }); return v; };
 const TEXT={'#btnSongs':'songs','#tabGrid':'grid','#tabSheet':'sheet','#divSeg [data-div="4"]':'d16','#divSeg [data-div="3"]':'trip','#divSeg [data-div="6"]':'d6','#divSeg [data-div="8"]':'d32','#btnDup':'copyBar','#btnRep':'repBtn','#btnImport':'importBtn','#btnExport':'exportBtn','#btnPick':'pickBtn','#pickGo':'pickGo','#pickCancel':'pickCancel','#pickHint':'pickHint','#btnRestore':'restoreBtn','#backupH':'backupH','#btnClear':'clear','#btnDel':'del','#btnUndo':'undo',
   '#toolSeg [data-tool="n"]':'hit','#toolSeg [data-tool="a"]':'accent','#toolSeg [data-tool="g"]':'ghost','#btnStaff':'staffBtn','#credits':'credits','#perLine':'perLine','#btnPdf':'pdf','#btnPng':'png',
-  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel','#aiRawSum':'aiRawSum','#aiRawHint':'aiRawHint','#aiRawCopy':'copyBtn'};
+  '#hintSheet':'hintSheet','#loop':'loop','#click':'metro','#songsH':'mySongs','#btnClosePanel':'close','#btnNew':'newSong','#btnMetro':'metroBtn','#recCal':'recCal','#recAgain':'recAgain','#recWav':'recWav','#recAfterHint':'recAfterHint','#btnRec':'recBtn','#metroH':'metroH','#mBeatsL':'mBeatsL','#mSub1':'mSub1','#mSub2':'mSub2','#mSub3':'mSub3','#mSub4':'mSub4','#mAccent':'mAccent','#mTap':'mTap','#recH':'recH','#rTempoL':'rTempoL','#rSizeL':'rSizeL','#rWhat1':'rWhat1','#rWhat2':'rWhat2','#rDivA':'rDivA','#rDiv4':'rDiv4','#rDiv3':'rDiv3','#rDiv6':'rDiv6','#rDiv8':'rDiv8','#rClick':'rClick','#rAi':'rAi','#metroClose':'close2','#recClose':'close2','#folderSave':'folderSaveT','#folderCancel':'cancel','#swing0':'swing0','#swing30':'swing30','#swing60':'swing60','#swing100':'swing100','#importHint':'importHint','#btnPhoto':'photoBtn','#photoStop':'stop','#btnKey':'keyBtn','#keySave':'keySave','#keyDel':'keyDel','#aiRawSum':'aiRawSum','#aiRawHint':'aiRawHint','#aiRawCopy':'copyBtn'};
 const ARIA={'#folderBar':'foldersAria','#swing':'swingAria','#btnImport':'importAria','#title':'songTitle','#viewSeg':'view','#strip':'bars','#sig':'timeSig','#divSeg':'division','#tape':'ribbon','#toolSeg':'strokeType','#bpmDown':'slower','#bpm':'tempoAria','#bpmUp':'faster'};
 
 /* ---------- model ---------- */
@@ -1674,7 +1675,8 @@ async function readOwn(files){
     for(let f=0;f<files.length;f++){
       photoState(tx('phOwnLook'));
       await new Promise(r=>setTimeout(r,30));   // the message shows before the work starts
-      const {omr}=await photoParts(files[f]), own=ownOnly(omr(),'phOwnOnly',.25);
+      const {omr,cleaned}=await photoParts(files[f]), own=ownOnly(omr(),'phOwnOnly',.25);
+      if(cleaned&&!f) notes.push(tx('phClean'));
       if(!own){ notes.push(tx('phOwnNone')); continue; }
       if(own.weak){ notes.push(tx('phOwnWeak',own.sure,own.n)); continue; }
       const added=addSongs([Object.assign(own.song,{title:tx('photoTitle')})]); songs+=added.length; for(const x of added) bars+=x.bars.length; notes.push(own.msg);
@@ -1722,10 +1724,10 @@ let gemWaitUI=null;   // shows the countdown while Gemini is busy
 async function gemPhotos(prompt,imgs,signal,onText,onThink,opt){
   opt=opt||{};
   const parts=[];
-  for(const b of imgs) parts.push({inline_data:{mime_type:'image/jpeg',data:await blobB64(b)}});
+  for(const b of imgs) parts.push({inline_data:{mime_type:b&&b.type&&/^(image|audio)\//.test(b.type)?b.type:'image/jpeg',data:await blobB64(b)}});
   parts.push({text:prompt+'\n\nReply with the JSON only, no other text.'});
   let maxOut=65536;
-  const bodyFor=th=>JSON.stringify({contents:[{role:'user',parts}],generationConfig:Object.assign({responseMimeType:'application/json',maxOutputTokens:maxOut},gemHiRes?{mediaResolution:'MEDIA_RESOLUTION_HIGH'}:{},th?{thinkingConfig:Object.assign({includeThoughts:true},opt.budget?{thinkingBudget:opt.budget}:{})}:{})});
+  const bodyFor=th=>JSON.stringify({contents:[{role:'user',parts}],generationConfig:Object.assign({responseMimeType:'application/json',maxOutputTokens:maxOut},gemHiRes&&!opt.audio?{mediaResolution:'MEDIA_RESOLUTION_HIGH'}:{},th?{thinkingConfig:Object.assign({includeThoughts:true},opt.budget?{thinkingBudget:opt.budget}:{})}:{})});
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   // one request; resolves {value} or {err}
   const attempt=async(model,th)=>{
@@ -1869,7 +1871,10 @@ async function readPage(imgs,signal,ui,measure){
     }catch(e){ if(e&&e.code==='cancelled') throw e; }   // the first reading stands
   }
   r.filled=ownFill(r.songs,omr);
-  await secondLook(r.songs,imgs,signal,ui,r.allowX,r.allowR);
+  // the bars in doubt, close up: the AI looks again at each one enlarged, with the app's own reading of it
+  let cl={seen:new Set(),fixed:0}; try{ cl=await closeLook(r.songs,omr,signal,ui,r.allowX,r.allowR); }catch(e){ if(e&&e.code==='cancelled') throw e; }
+  r.close=cl;
+  await secondLook(r.songs,imgs,signal,ui,r.allowX,r.allowR,cl.seen);
   const m2=omrApply(r.songs,omr,true);   // and once more at the end, placing by position what still does not match
   r.pic=r.songs.reduce((k,x)=>k+x.bars.filter(b=>b._pic&&!b._own).length,0); r.own=ownCount(r.songs); omrLog(omr,r.songs,m2);
   return r;
@@ -1878,10 +1883,90 @@ const ownCount=acc=>acc.reduce((k,x)=>k+x.bars.filter(b=>b._own).length,0);
 function omrLog(omr,acc,m){
   aiLog.push('[app] '+(omr?'measured on the picture: staves '+omr.staves+', bars '+omr.bars.length+', read for sure by the app '+omr.bars.filter(b=>b.own&&b.own.sure).length+' (used '+ownCount(acc)+') ('+omr.bars.map(b=>b.cols.map(c=>c.steps.join('/')).join(' ')||'-').join(' | ')+'); bars read '+barCount(acc)+', matched '+m.pairs+', corrected '+acc.reduce((k,x)=>k+x.bars.filter(b=>b._pic).length,0):'the picture could not be measured (no straight staves found)'));
 }
+// two readings of one bar, note by note (the sticking aside)
+function sameNotes(a,b){
+  const cells=x=>{ const out=new Set(); for(const k in x.c){ if(k==='st') continue; const r=x.c[k]; for(let i=0;i<r.length;i++) if(r[i]!=='-') out.add((i/r.length).toFixed(4)+k+r[i]); } return out; };
+  const p=cells(a), q=cells(b); if(p.size!==q.size) return false; for(const v of p) if(!q.has(v)) return false; return true;
+}
+// one bar cut out of the measured page, enlarged so a staff space is about 24 pixels
+async function barCrop(omr,ob){
+  const cv=omr&&omr.cv, bx=ob&&ob.box; if(!cv||!bx) return null;
+  const g=ob.g, x0=Math.max(0,Math.floor(bx.x0-.6*g)), x1=Math.min(cv.width,Math.ceil(bx.x1+.6*g)), y0=Math.max(0,Math.floor(bx.top-5*g)), y1=Math.min(cv.height,Math.ceil(bx.bot+5*g));
+  const w=x1-x0, h=y1-y0; if(w<4*g||h<4*g) return null;
+  const k=Math.max(.5,Math.min(3,24/g,1600/w,1200/h)), c=document.createElement('canvas'); c.width=Math.max(1,Math.round(w*k)); c.height=Math.max(1,Math.round(h*k));
+  const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.imageSmoothingEnabled=true; try{ x.imageSmoothingQuality='high'; }catch(e){}
+  x.drawImage(cv,x0,y0,w,h,0,0,c.width,c.height);
+  return await toBlob(c,.9);
+}
+// The bars where the app and the AI do not agree, or whose reading looks wrong, are cut out of the page and shown to the AI
+// close up, with both readings and what the app has measured in them: the AI decides, looking at that one bar enlarged.
+// A new reading is kept when it agrees with the app's own, or else when it is no worse than the first one.
+async function closeLook(acc,omr,signal,ui,allowX,allowR){
+  const res={seen:new Set(),asked:0,fixed:0,agreed:0};
+  const max=PhotoMode==='api'?8:Math.min(8,(SampleImg&&SampleImg.maxCount)||1);
+  if(!omr||!omr.cv||max<4) return res;
+  const P=omrPairs(acc,omr); if(!P) return res;
+  const flags=pageCheck(acc).flags, exact=P.gb.length===omr.bars.length, list=[];
+  const lineOf={}; omr.bars.forEach(ob=>{ lineOf[ob.line]=(lineOf[ob.line]||0)+1; ob._k=lineOf[ob.line]; });
+  const pj=new Map(P.pairs);
+  for(const [i,j] of P.pairs){
+    const {x,b}=P.gb[i], ob=omr.bars[j]; if(b._own||!ob.box) continue;
+    const S=barS(x,b), o=ob.own, why=barDoubts(b,S,flags), nAI=ovalSlots(b.c,S.beats*b.div).length, nApp=ob.cols.length;
+    // bars matched up by their notes: used only where they surely are the same bar (the same count of notes, or the bars
+    // on both sides matched to each other)
+    if(!exact&&nAI!==nApp&&!(pj.get(i-1)===j-1&&pj.get(i+1)===j+1)) continue;
+    let mine=null; try{ if(o&&o.v&&Math.abs(quarters(S)-o.Q)<1e-6) mine=ownBar(o,b.sg||x.sig,null); }catch(e){ mine=null; }
+    if(mine&&sameNotes(mine,b)&&!why.length) continue;   // both read it the same way
+    if(!mine&&!why.length) continue;
+    list.push({x,b,ob,S,o,mine,why,nApp,nAI});
+  }
+  if(!list.length) return res;
+  list.sort((p,q)=>(q.why.length?1:0)-(p.why.length?1:0)); const look=list.slice(0,24);
+  look.sort((p,q)=>P.gb.findIndex(g=>g.b===p.b)-P.gb.findIndex(g=>g.b===q.b));
+  if(ui.close) ui.close(look.length);
+  for(let from=0;from<look.length;from+=max){
+    const part=look.slice(from,from+max), pics=[], shown=[];
+    for(const q of part){ const blob=await barCrop(omr,q.ob); if(blob){ pics.push(blob); shown.push(q); } }
+    if(!shown.length) continue;
+    const says=shown.map((q,k)=>{
+      const si=acc.indexOf(q.x), bi=q.x.bars.indexOf(q.b);
+      let t='Picture '+(k+1)+': song '+(si+1)+' "'+(q.x.title||'')+'" ('+(q.b.sg||q.x.sig)+'), bar '+(bi+1)+' (bar '+q.ob._k+' of line '+q.ob.line+' on the page).\n  Your reading: '+countText(q.b,q.S);
+      if(q.mine) t+='\n  The app\'s reading, from measuring the notes on the picture'+(q.o.why&&q.o.why.length?' (it is not sure of it: '+q.o.why.slice(0,3).join('; ')+')':'')+': '+countText(q.mine,q.S);
+      else t+='\n  The app could not read this bar; it found filled noteheads (drums, not cymbals) at '+q.nApp+' places in it.';
+      if(q.why.length) t+='\n  Your reading looks wrong: '+q.why.join('; ');
+      return t; }).join('\n\n');
+    const prompt=photoPrompt(pics.length,true)+'\n\nYOU HAVE ALREADY READ THIS PAGE, and the app has measured the notes on the picture itself. The bars where the two readings differ, or where a reading looks wrong, are shown to you now close up, one bar per picture:\n\n'+says
+      +'\n\nThe two readings are only help: where they agree they are most likely right; where they differ, the close-up decides. Look at each picture note by note: every notehead and its place between the staff lines, its stem, its beams or flag, the rests, and any mark on a note. Write each bar again in full, in the same bar form as in the example above: every voice of the bar in "v", and its sticking in "st" if one is printed. Reply with only JSON of this form: {"fix":[{"pic":1,"v":["8 hh, 8 hh, …","4 bd, 4 sn, …"]}]}, with every picture in it.';
+    let v; res.asked+=shown.length;
+    try{ const {text}=await askAI(prompt,pics,signal,ui.onText,ui.onThink,0); v=parseLoose(text); if(v===undefined) v=salvage(text); }
+    catch(e){ if(e&&e.code==='cancelled') throw e; return res; }   // the readings so far stand
+    const fix=v&&Array.isArray(v.fix)?v.fix:[];
+    for(const f of fix){
+      if(!f||typeof f!=='object') continue;
+      const q=shown[(+f.pic||0)-1]; if(!q||!q.x.bars.includes(q.b)) continue;
+      res.seen.add(q.b);   // answered: not asked about again
+      const old=q.b, x=q.x, nb=Object.assign({},f,{sg:f.sg||old.sg}); delete nb.pic;
+      if(!voiceList(nb.v!==undefined?nb.v:nb.voices)) continue;
+      const t=tidyReading([{sig:x.sig,bars:[nb]}],allowX,allowR)[0].bars[0]; if(!t) continue;
+      if(t.c.st&&!hasNotes(t.c,'st')) delete t.c.st;
+      const S=barS(x,t); if(Math.abs(quarters(S)-quarters(q.S))>1e-6) continue;
+      const agree=q.mine&&sameNotes(t,q.mine), nNew=ovalSlots(t.c,S.beats*t.div).length;
+      // kept when it agrees with what the app measured, or is at least no worse than the first reading
+      if(!agree&&(barDoubts(t,S,flags).length>q.why.length||Math.abs(nNew-q.nApp)>Math.abs(q.nAI-q.nApp))) continue;
+      for(const k of ['lb','rs','re','tm']) if(t[k]===undefined&&old[k]!==undefined) t[k]=old[k];
+      if(!t.c.st&&old.c&&old.c.st&&hasNotes(old.c,'st')) t.c.st=old.c.st;
+      if(old._omrBar) omrBar(t,S,old._omrBar,true);
+      if(agree) setHidden(t,'_close',true);
+      if(!sameNotes(t,old)){ res.fixed++; if(agree) res.agreed++; }
+      x.bars[x.bars.indexOf(old)]=t; res.seen.add(t);
+    }
+  }
+  return res;
+}
 // one more look, only at the bars whose reading breaks the rules or looks wrong, a dozen at a time
-async function secondLook(acc,imgs,signal,ui,allowX,allowR){
+async function secondLook(acc,imgs,signal,ui,allowX,allowR,skip){
   const flags=pageCheck(acc).flags, bad=[];
-  acc.forEach((x,si)=>x.bars.forEach((b,bi)=>{ if(b._own) return; const why=barDoubts(b,barS(x,b),flags); if(why.length) bad.push({si,bi,why}); }));
+  acc.forEach((x,si)=>x.bars.forEach((b,bi)=>{ if(b._own||skip&&skip.has(b)) return; const why=barDoubts(b,barS(x,b),flags); if(why.length) bad.push({si,bi,why}); }));
   if(!bad.length) return;
   if(ui.check) ui.check(bad.length);
   for(let at=0;at<bad.length&&at<36;at+=12){
@@ -1956,7 +2041,13 @@ async function loadImage(file){
 // Claude sees each picture at about 1.2 megapixels, too coarse for a whole page of sixteenths.
 // So it gets the whole page for the layout plus overlapping strips of it, top to bottom, for the detail.
 async function photoParts(file){
-  const api=PhotoMode==='api', im=await loadImage(file), W=im.width, H=im.height, maxB=api?4.5e6:((SampleImg&&SampleImg.maxInputBytes)||5e6);
+  const api=PhotoMode==='api', im0=await loadImage(file), maxB=api?4.5e6:((SampleImg&&SampleImg.maxInputBytes)||5e6);
+  // a photo is made clearer first (paper evened out, ink darkened, staves straightened): the AI and the app both read
+  // the clearer page. A screenshot or a scan stays as it was.
+  let im=im0, cleaned=null;
+  try{ const k=Math.min(1,2000/im0.width,Math.sqrt(8e6/(im0.width*im0.height))), c=document.createElement('canvas'); c.width=Math.max(1,Math.round(im0.width*k)); c.height=Math.max(1,Math.round(im0.height*k));
+    c.getContext('2d').drawImage(im0,0,0,c.width,c.height); cleaned=cleanPage(c); if(cleaned) im=cleaned.canvas; }catch(e){ cleaned=null; }
+  const W=im.width, H=im.height;
   const cut=async(sy,sh)=>{
     let k=api?Math.min(1,2576/Math.max(W,sh),Math.sqrt(3.4e6/(W*sh))):Math.min(1,2600/W), b=null;
     for(let t=0;t<4;t++){
@@ -1971,8 +2062,143 @@ async function photoParts(file){
   if(strips>=2){ const sh=Math.min(H,H*(1/strips+.13)), step=(H-sh)/(strips-1); for(let i=0;i<strips;i++) out.push(await cut(Math.round(i*step),Math.round(sh))); }
   // a copy for the app's own measuring, done later so the AI's request goes out at once
   let keep=null; try{ const k=Math.min(1,2000/W); keep=document.createElement('canvas'); keep.width=Math.max(1,Math.round(W*k)); keep.height=Math.max(1,Math.round(H*k)); keep.getContext('2d').drawImage(im,0,0,keep.width,keep.height); }catch(e){ keep=null; }
-  if(im.close) try{ im.close(); }catch(e){}
-  let memo; return {imgs:out,omr:()=>{ if(memo===undefined){ try{ memo=keep?omrPage(keep):null; }catch(e){ memo=null; } keep=memo===null?keep:null; } return memo; }};
+  if(im0.close) try{ im0.close(); }catch(e){}
+  let memo; return {imgs:out,cleaned:cleaned&&cleaned.info,omr:()=>{ if(memo===undefined){ try{ memo=keep?omrPage(keep):null; }catch(e){ memo=null; } if(memo&&cleaned) memo.photo=true; keep=memo===null?keep:null; } return memo; }};
+}
+/* ---------- a photo made fit to read ----------
+   A phone photo of a page: lit unevenly (a shadow, a lamp to one side), grey or yellowish paper, faint pencil, taken at an
+   angle or of a page that bends. The paper is evened out to white and the ink made dark (each part of the page against its
+   own paper), a little sharper; then every staff is straightened: its lines found along the page in narrow strips, and the
+   page moved up or down, column by column, so the lines run level and evenly apart. Nothing is drawn or removed: every
+   mark stays where it was on the staff. A clean picture (a screenshot, a scan) is left as it is: null. */
+function cleanPage(src){
+  const W=src.width, H=src.height; if(W<300||H<200||W*H>9e6) return null;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const cx=cv.getContext('2d',{willReadFrequently:true});
+  cx.fillStyle='#fff'; cx.fillRect(0,0,W,H); cx.drawImage(src,0,0,W,H);
+  const px=cx.getImageData(0,0,W,H), d=px.data, N=W*H, gray=new Float32Array(N);
+  for(let i=0,j=0;i<N;i++,j+=4) gray[i]=(d[j]*299+d[j+1]*587+d[j+2]*114)/1000;
+  // the paper's own brightness, block by block: the light part of each block (ink is the dark part), widened to the
+  // neighbours (a block of beams has paper beside it) and smoothed
+  const bs=Math.max(12,Math.round(Math.min(W,H)/45)), bw=Math.ceil(W/bs), bh=Math.ceil(H/bs), blk=new Float32Array(bw*bh), hist=new Uint32Array(64);
+  for(let by=0;by<bh;by++) for(let bx=0;bx<bw;bx++){ hist.fill(0); let n=0;
+    for(let y=by*bs;y<Math.min(H,(by+1)*bs);y+=2) for(let x=bx*bs;x<Math.min(W,(bx+1)*bs);x+=2){ hist[Math.min(63,gray[y*W+x]>>2)]++; n++; }
+    let acc=0, v=63; for(let t=0;t<64;t++){ acc+=hist[t]; if(acc>=.85*n){ v=t; break; } } blk[by*bw+bx]=v*4+2; }
+  const pass=(a,f)=>{ const o=new Float32Array(bw*bh); for(let y=0;y<bh;y++) for(let x=0;x<bw;x++){ let m=f==='max'?0:0, c=0; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const yy=y+dy, xx=x+dx; if(yy<0||yy>=bh||xx<0||xx>=bw) continue; const v=a[yy*bw+xx]; if(f==='max') m=Math.max(m,v); else { m+=v; c++; } } o[y*bw+x]=f==='max'?m:m/c; } return o; };
+  let bg=pass(pass(pass(blk,'max'),'mean'),'mean');
+  const sorted=Array.from(bg).sort((p,q)=>p-q), bgMin=sorted[Math.floor(sorted.length*.05)], bgMax=sorted[Math.floor(sorted.length*.95)], bgMed=sorted[sorted.length>>1];
+  // the ink: how dark its darkest strokes are against their paper
+  const norm=new Float32Array(N); const hn=new Uint32Array(256);
+  for(let y=0;y<H;y++){ const fy=Math.min(bh-1.001,Math.max(0,y/bs-.5)), y0=Math.floor(fy), ty=fy-y0;
+    for(let x=0;x<W;x++){ const fx=Math.min(bw-1.001,Math.max(0,x/bs-.5)), x0=Math.floor(fx), tx=fx-x0, i0=y0*bw+x0;
+      const b=(bg[i0]*(1-tx)+bg[i0+1]*tx)*(1-ty)+(bg[i0+bw]*(1-tx)+bg[i0+bw+1]*tx)*ty;
+      const v=Math.min(255,gray[y*W+x]*255/Math.max(30,b)); norm[y*W+x]=v; hn[v|0]++; } }
+  let acc=0, lo=0; for(let t=0;t<256;t++){ acc+=hn[t]; if(acc>=N*.01){ lo=t; break; } }
+  const uneven=(bgMax-bgMin)/Math.max(1,bgMax), photo=uneven>.07||bgMed<232||lo>70;
+  if(!photo) return null;
+  // (the paper, not a shade under it, becomes white: thin staff lines on a photo are pale, and must stay)
+  const hi=Math.max(lo+40,Math.min(246,(()=>{ let a=0; for(let t=0;t<256;t++){ a+=hn[t]; if(a>=N*.5) return t-7; } return 246; })()));
+  // (the greys of thin lines and pencil pulled toward black: a line that comes out pale on a photo is still a line)
+  const out=new Float32Array(N); for(let i=0;i<N;i++){ const v=(norm[i]-lo)/(hi-lo); out[i]=v<=0?0:v>=1?255:255*Math.pow(v,1.15); }
+  // a little sharper: each pixel pushed away from the mean of its neighbours
+  const sh=new Uint8ClampedArray(N);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){ const i=y*W+x; if(x===0||y===0||x===W-1||y===H-1){ sh[i]=out[i]; continue; }
+    const m=(out[i-1]+out[i+1]+out[i-W]+out[i+W]+out[i-W-1]+out[i-W+1]+out[i+W-1]+out[i+W+1])/8; sh[i]=out[i]+.6*(out[i]-m); }
+  const info={light:true,straight:false};
+  const res=pageStraighten(sh,W,H); let img=sh;
+  if(res){ img=res; info.straight=true; }
+  for(let i=0,j=0;i<N;i++,j+=4){ d[j]=d[j+1]=d[j+2]=img[i]; d[j+3]=255; }
+  cx.putImageData(px,0,0);
+  return {canvas:cv,info};
+}
+// the staves followed along the page in narrow strips; null when they run level already, or cannot be followed for sure
+function pageStraighten(G,W,H){
+  const ink=i=>G[i]<215;   // (a staff line on a photo is thin and grey)
+  // a rough turn of the whole page first, so the lines run nearly level within each strip
+  let ang=0; { const pts=[]; for(let y=0;y<H;y+=2) for(let x=(y*7)%5;x<W;x+=5) if(ink(y*W+x)) pts.push(x,y);
+    if(pts.length<200) return null; let best=-1;
+    const score=a=>{ const t=Math.tan(a*Math.PI/180), h=new Float64Array(H+2*W); for(let i=0;i<pts.length;i+=2) h[Math.round(pts[i+1]-pts[i]*t)+W]++; let sc=0; for(const v of h) sc+=v*v; return sc; };
+    for(let a=-6;a<=6.001;a+=.25){ const sc=score(a); if(sc>best){ best=sc; ang=a; } } const a0=ang; for(let a=a0-.25;a<=a0+.251;a+=.05){ const sc=score(a); if(sc>best){ best=sc; ang=a; } } }
+  const tan=Math.tan(ang*Math.PI/180);
+  // in each strip: the staves (five lines evenly apart), the page's turn undone as it is read
+  const S=Math.max(12,Math.min(40,Math.round(W/55))), sw=W/S, strips=[];
+  for(let s=0;s<S;s++){ const xa=Math.round(s*sw), xb=Math.round((s+1)*sw), xc=(xa+xb)/2, cnt=new Float32Array(H);
+    for(let x=xa;x<xb;x++){ const off=(x-xc)*tan; for(let y=0;y<H;y++){ const yy=Math.round(y+off); if(yy>=0&&yy<H&&ink(yy*W+x)) cnt[y]++; } }
+    const runs=[]; for(let y=0;y<H;y++) if(cnt[y]>=.4*(xb-xa)){ const r=runs[runs.length-1]; if(r&&y-r.b<=1) r.b=y; else runs.push({a:y,b:y}); }
+    const lines=runs.map(r=>({y:(r.a+r.b)/2,t:r.b-r.a+1})), st=[];
+    for(let i=0;i<lines.length;i++){ let found=null;
+      for(let j=i+1;j<lines.length&&!found;j++){ let dd=lines[j].y-lines[i].y; if(dd<=3) continue; if(dd>H/12) break;
+        const idx=[i,j]; let ok=true;
+        for(let k=2;k<5&&ok;k++){ const want=lines[i].y+k*dd; let bi=-1, be=1e9; for(let q=idx[idx.length-1]+1;q<lines.length&&lines[q].y<want+dd;q++){ const e=Math.abs(lines[q].y-want); if(e<be){ be=e; bi=q; } }
+          if(bi<0||be>.22*dd) ok=false; else { idx.push(bi); dd=(lines[bi].y-lines[i].y)/k; } }
+        if(ok&&idx.every(q=>lines[q].t<=Math.max(3,.55*dd))&&lines.filter((l,q)=>!idx.includes(q)&&l.y>lines[idx[0]].y&&l.y<lines[idx[4]].y).length<=2) found=idx; }
+      if(found){ const y0=lines[found[0]].y, y4=lines[found[4]].y; st.push({yc:(y0+y4)/2,g:(y4-y0)/4}); i=found[4]; } }
+    strips.push({xc,st}); }
+  // each staff followed from the strip where most are found, both ways along the page
+  if(typeof window!=='undefined'&&window.__cleanDbg) window.__cleanDbg.strips=strips.map(s=>s.st.length), window.__cleanDbg.ang=ang;
+  let ref=0; strips.forEach((s,i)=>{ if(s.st.length>strips[ref].st.length||s.st.length===strips[ref].st.length&&Math.abs(i-S/2)<Math.abs(ref-S/2)) ref=i; });
+  if(strips[ref].st.length<1) return null;
+  const chains=strips[ref].st.map(o=>{ const pts=[{x:strips[ref].xc,yc:o.yc,g:o.g}];
+    for(const dir of [-1,1]){ let last=o, lastI=ref, slope=0;
+      for(let i=ref+dir;i>=0&&i<S;i+=dir){ const want=last.yc+slope*(i-lastI);
+        const c=strips[i].st.filter(q=>Math.abs(q.yc-want)<1.2*last.g&&Math.abs(q.g-last.g)<.2*last.g).sort((p,q)=>Math.abs(p.yc-want)-Math.abs(q.yc-want))[0];
+        if(!c){ if(Math.abs(i-lastI)>4) break; continue; }
+        slope=(c.yc-last.yc)/(i-lastI)*.5+slope*.5; last=c; lastI=i; pts.push({x:strips[i].xc,yc:c.yc,g:c.g}); } }
+    return pts; }).filter(p=>p.length>=Math.max(4,.4*S));
+  if(!chains.length) return null;
+  // each staff's middle and spacing along the page: a gentle curve fitted through its points (stray points left out)
+  const fit=(pts,key,deg)=>{ let use=pts.slice();
+    for(let round=0;round<2;round++){ const n=deg+1, A=[], bvec=[]; for(let r=0;r<n;r++){ A.push(new Array(n).fill(0)); bvec.push(0); }
+      for(const p of use){ const u=(p.x-W/2)/W, pw=[1,u,u*u]; for(let r=0;r<n;r++){ bvec[r]+=pw[r]*p[key]; for(let c=0;c<n;c++) A[r][c]+=pw[r]*pw[c]; } }
+      for(let i=0;i<n;i++){ let m=i; for(let r=i+1;r<n;r++) if(Math.abs(A[r][i])>Math.abs(A[m][i])) m=r; [A[i],A[m]]=[A[m],A[i]]; [bvec[i],bvec[m]]=[bvec[m],bvec[i]]; if(Math.abs(A[i][i])<1e-9) return null;
+        for(let r=0;r<n;r++){ if(r===i) continue; const f=A[r][i]/A[i][i]; for(let c=i;c<n;c++) A[r][c]-=f*A[i][c]; bvec[r]-=f*bvec[i]; } }
+      const co=bvec.map((v,i)=>v/A[i][i]), f=x=>{ const u=(x-W/2)/W; return co[0]+co[1]*u+(deg>1?co[2]*u*u:0); };
+      if(round===0){ const g0=pts[0].g; const keep=use.filter(p=>Math.abs(f(p.x)-p[key])<(key==='yc'?.35*g0:.08*g0)); if(keep.length>=Math.max(3,.6*use.length)) use=keep; else return f; continue; }
+      return f; } };
+  const st=[]; for(const pts of chains){ const yc=fit(pts,'yc',2), g=fit(pts,'g',1); if(!yc||!g) return null; st.push({yc,g}); }
+  st.sort((p,q)=>p.yc(W/2)-q.yc(W/2));
+  for(let i=0;i+1<st.length;i++) if(st[i+1].yc(W/2)-st[i].yc(W/2)<5*st[i].g(W/2)) return null;   // staves overlapping: something went wrong
+  // how far from level the staves run; a page that is level already needs nothing
+  let worst=0; for(const q of st) for(let x=0;x<W;x+=W/20){ worst=Math.max(worst,Math.abs(q.yc(x)-q.yc(W/2))/q.g(W/2),Math.abs(q.g(x)-q.g(W/2))*4/q.g(W/2)); }
+  // the page moved up or down column by column: each staff's top and bottom lines land level, at their height in the
+  // middle of the page; between staves the move goes evenly from one to the next
+  const out=new Uint8ClampedArray(W*H).fill(255);
+  const kOut=[]; for(const q of st){ const X=W/2; kOut.push(q.yc(X)-2*q.g(X),q.yc(X)+2*q.g(X)); }
+  for(let x=0;x<W;x++){
+    const kIn=[]; for(const q of st) kIn.push(q.yc(x)-2*q.g(x),q.yc(x)+2*q.g(x));
+    let seg=0;
+    for(let y=0;y<H;y++){
+      while(seg<kOut.length-1&&y>kOut[seg+1]) seg++;
+      let yi;
+      if(y<=kOut[0]) yi=y+(kIn[0]-kOut[0]);
+      else if(y>=kOut[kOut.length-1]) yi=y+(kIn[kIn.length-1]-kOut[kOut.length-1]);
+      else { const a=kOut[seg], b=kOut[seg+1], t=(y-a)/Math.max(1e-6,b-a); yi=kIn[seg]+t*(kIn[seg+1]-kIn[seg]); }
+      const y0=Math.floor(yi), ty=yi-y0;
+      if(y0<0||y0+1>=H) continue;
+      out[y*W+x]=G[y0*W+x]*(1-ty)+G[(y0+1)*W+x]*ty; } }
+  // a page photographed from below or above: the staves nearer the camera come out wider, and the barlines lean. Every
+  // staff of a printed page has the same width: each one's ends are found, and the page is stretched sideways, row by row,
+  // so that the ends line up (a staff that starts later or stops early is left out of that)
+  const ends=[]; st.forEach((q,i)=>{ const yc=Math.round((kOut[2*i]+kOut[2*i+1])/2), g0=q.g(W/2);
+    let a=-1, b=-1, sa=-1, prev=-1e9;
+    for(let x=0;x<W;x++){ let dark=false; for(let dy=-Math.round(2*g0);dy<=Math.round(2*g0)&&!dark;dy+=Math.max(1,Math.round(g0))){ const y=yc+dy; if(y>=0&&y<H&&out[y*W+x]<215) dark=true; }
+      if(dark){ if(x-prev>2*g0) sa=x; prev=x; if(prev-sa>b-a){ a=sa; b=prev; } } }
+    if(b-a>W*.3) ends.push({y:yc,a,b}); });
+  let hz=false;
+  if(ends.length>=3){
+    // (a straight line through the staves' ends that one odd staff cannot pull aside: the middle of the slopes between
+    // every two of them)
+    const med=a=>{ const b=a.slice().sort((p,q)=>p-q); return b[b.length>>1]; };
+    const line=(key)=>{ const sl=[]; for(let i=0;i<ends.length;i++) for(let j=i+1;j<ends.length;j++) if(Math.abs(ends[j].y-ends[i].y)>1) sl.push((ends[j][key]-ends[i][key])/(ends[j].y-ends[i].y));
+      const k=sl.length?med(sl):0, c=med(ends.map(e=>e[key]-k*e.y)); return y=>c+k*y; };
+    const fa=line('a'), fb=line('b'), Y0=H/2, XA=fa(Y0), XB=fb(Y0);
+    if(typeof window!=='undefined'&&window.__cleanDbg) window.__cleanDbg.ends=ends.map(e=>[Math.round(e.y),e.a,e.b,Math.round(fa(e.y)),Math.round(fb(e.y))]);
+    let lean=0; for(const e of ends) lean=Math.max(lean,Math.abs(fa(e.y)-XA),Math.abs(fb(e.y)-XB));
+    if(lean>.4*st[0].g(W/2)){ hz=true; const o2=new Uint8ClampedArray(W*H).fill(255);
+      for(let y=0;y<H;y++){ const a=fa(y), b=fb(y), k=(b-a)/(XB-XA);
+        for(let x=0;x<W;x++){ const xi=a+(x-XA)*k, x0=Math.floor(xi), tx=xi-x0; if(x0<0||x0+1>=W) continue; o2[y*W+x]=out[y*W+x0]*(1-tx)+out[y*W+x0+1]*tx; } }
+      return o2; } }
+  if(worst<.25&&!hz) return null;
+  return out;
 }
 /* ---------- the page measured by the app itself ---------- */
 // The AI reads rhythm well but often cannot tell a notehead in the third space (snare) from one in the first (bass drum).
@@ -2002,7 +2228,7 @@ function omrBlobs(bin,w,h){
     out.push(c); }
   return out;
 }
-function omrPage(im,dbg){
+function omrPage(im,dbg,big){
   const k0=Math.min(1,2000/Math.max(1,im.width)), W=Math.max(1,Math.round(im.width*k0)), H=Math.max(1,Math.round(im.height*k0));
   if(W<300||H<60||W*H>9e6) return null;
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
@@ -2033,27 +2259,55 @@ function omrPage(im,dbg){
   // B: ink, for the noteheads; L: any ink at all, for the thin lines (a line one pixel wide, drawn small, comes out grey)
   const thL=th+(255-th)*.5, B=new Uint8Array(N), L=new Uint8Array(N); for(let i=0;i<N;i++){ B[i]=gray[i]<th?1:0; L[i]=gray[i]<thL?1:0; }
   // staff lines: thin rows dark across much of the page, five at an even spacing
-  const runs=[];
-  for(let y=0;y<H;y++){ let s=0; const o=y*W; for(let x=0;x<W;x++) s+=L[o+x]; if(s>.35*W){ const r=runs[runs.length-1]; if(r&&y-r.b<=1) r.b=y; else runs.push({a:y,b:y}); } }
+  const runs0=[], rowS=new Float32Array(H);
+  for(let y=0;y<H;y++){ let s=0; const o=y*W; for(let x=0;x<W;x++) s+=L[o+x]; rowS[y]=s; if(s>.35*W){ const r=runs0[runs0.length-1]; if(r&&y-r.b<=1) r.b=y; else runs0.push({a:y,b:y}); } }
+  // (a row of noteheads or beams lying right against a line can run together with it into one thick band: the line is
+  // the band's darkest rows, dark nearly all the way across)
+  const runs=[]; for(const r of runs0){ if(r.b-r.a<4){ runs.push(r); continue; } let mx=0; for(let y=r.a;y<=r.b;y++) mx=Math.max(mx,rowS[y]);
+    const cut=Math.max(.35*W,.8*mx); let cur=null; for(let y=r.a;y<=r.b;y++){ if(rowS[y]>=cut){ if(cur&&y-cur.b<=1) cur.b=y; else { cur={a:y,b:y}; runs.push(cur); } } } }
   // a row of beams or of noteheads side by side can be as long as a line, but not as thin
   const tMed=runs.map(r=>r.b-r.a+1).sort((p,q)=>p-q)[runs.length>>1]||1;
   const lines=runs.map(r=>({y:(r.a+r.b)/2,t:r.b-r.a+1})).filter(l=>l.t<=Math.max(2,1.6*tMed+.5)), staves=[];
-  // five lines at one spacing; a row of noteheads or beams lying between them is passed over
+  // five lines at one spacing; a row of noteheads or beams lying between them is passed over. Every such set is a
+  // candidate; where candidates overlap (rows of beams set level with a staff's lines), the one whose lines run on
+  // furthest is the staff.
+  const cands=[];
   for(let i=0;i<lines.length;i++){
     let found=null;
-    for(let j=i+1;j<lines.length&&!found;j++){
+    for(let j=i+1;j<lines.length;j++){ found=null;
       let d=lines[j].y-lines[i].y; if(d<=3) continue; if(d>.08*W) break;
       const idx=[i,j]; let ok=true;
       for(let k=2;k<5&&ok;k++){ const want=lines[i].y+k*d; let bi=-1, be=Infinity;
         for(let q=idx[idx.length-1]+1;q<lines.length&&lines[q].y<want+d;q++){ const e=Math.abs(lines[q].y-want); if(e<be){ be=e; bi=q; } }
         if(bi<0||be>.22*d) ok=false; else { idx.push(bi); d=(lines[bi].y-lines[i].y)/k; } }
-      if(ok&&idx.every(q=>lines[q].t<=Math.max(3,.45*d))) found=idx;
+      // (each line thin for its spacing: an enlarged picture's lines come out a few pixels thick; and nothing else
+      // line-like between them: five rows of beams far apart, with real staves' lines between, are no staff)
+      // (and all five about as long: rows of beams set level across a line, split off thick bands, are line-like too, but
+      // they break off between the groups of notes, while a staff's lines run on unbroken)
+      const cov=q=>{ const y=Math.round(lines[q].y); let m=0; for(let yy=Math.max(0,y-1);yy<=Math.min(H-1,y+1);yy++) m=Math.max(m,rowS[yy]); return m; };
+      if(ok&&idx.every(q=>lines[q].t<=Math.max(3,.55*d))&&lines.filter((l,q)=>!idx.includes(q)&&l.y>lines[idx[0]].y&&l.y<lines[idx[4]].y).length<=2
+        &&Math.min(...idx.map(cov))>=.6*Math.max(...idx.map(cov))) found=idx;
+      if(found) cands.push({idx:found,cov:Math.min(...found.map(cov))});
     }
-    if(found){ staves.push(found.map(q=>lines[q].y)); i=found[4]; }
   }
+  cands.sort((p,q)=>q.cov-p.cov||lines[p.idx[0]].y-lines[q.idx[0]].y);
+  for(const c of cands){ const a=lines[c.idx[0]].y, z=lines[c.idx[4]].y;
+    if(staves.some(sv=>a<=sv[4]+.5*(sv[4]-sv[0])/4&&z>=sv[0]-.5*(sv[4]-sv[0])/4)) continue;
+    // (with the lines' thickness: on an enlarged picture or a thick-lined print a line is several pixels thick)
+    const sv=c.idx.map(q=>lines[q].y); sv.ts=c.idx.map(q=>lines[q].t); sv.t=Math.max(...sv.ts); staves.push(sv); }
+  staves.sort((p,q)=>p[0]-q[0]);
   if(dbg){ dbg.th=th; dbg.runs=runs.map(r=>[r.a,r.b]); dbg.staves=staves.map(ys=>ys.map(y=>+y.toFixed(1))); dbg.blobs=[]; }
   if(!staves.length) return null;
-  const lineRow=new Uint8Array(H); for(const ys of staves) for(const y of ys) for(let d=-1;d<=1;d++){ const r=Math.round(y)+d; if(r>=0&&r<H) lineRow[r]=1; }
+  // a small picture (a staff space of a few pixels: a screenshot of a whole page): read again enlarged two or three times,
+  // pixel for pixel (smoothing would blur the narrow gaps between beams and the white inside the heads), so every measure
+  // below has pixels enough to work with
+  if(!big&&k0===1){ const gs=staves.map(ys=>(ys[4]-ys[0])/4).sort((p,q)=>p-q), g0=gs[gs.length>>1];
+    if(g0<7.5){ const f=g0<4.2?3:2, c2=document.createElement('canvas'); c2.width=W*f; c2.height=H*f;
+      if(c2.width*c2.height<=9e6){ const x2=c2.getContext('2d'); x2.imageSmoothingEnabled=false; x2.drawImage(cv,0,0,c2.width,c2.height);
+        if(dbg){ for(const k of Object.keys(dbg)) delete dbg[k]; dbg.up=f; }
+        const r=omrPage(c2,dbg,true); if(r) return r; } } }
+  const lineHalf=ys=>Math.max(1,Math.ceil(((ys.t||1)-1)/2));
+  const lineRow=new Uint8Array(H); for(const ys of staves) ys.forEach((y,li)=>{ const hf=Math.max(1,Math.ceil((ys.ts[li]-1)/2)); for(let d=-hf;d<=hf+((ys.ts[li]&1)?0:0);d++){ const r=Math.round(y)+d; if(r>=0&&r<H) lineRow[r]=1; } });
   const vrun=(x,y,dir)=>{ let n=0, gap=0; for(let yy=Math.round(y);yy>=0&&yy<H;yy+=dir){ if(L[yy*W+x]){ n+=1+gap; gap=0; } else if(++gap>2) break; } return n; };
   const bars=[]; let narrow=0, lineNo=0;
   for(const ys of staves){
@@ -2066,7 +2320,10 @@ function omrPage(im,dbg){
     // barlines: dark from the top line to the bottom one, and not beyond (a stem goes on past the staff)
     const blg=[];
     // (a tie or a slur crossing just above or below is no stem: a stem goes on, dark all the way)
-    for(let x=xa;x<=xb;x++) if(frac(x,y1,y5)>.92&&frac(x,y1-1.6*g,y1-.3*g)<.55&&frac(x,y5+.3*g,y5+1.6*g)<.55){ const q=blg[blg.length-1]; if(q&&x-q.b<=Math.max(2,.8*g)) q.b=x; else blg.push({a:x,b:x}); }
+    // (what goes on past the staff is measured unbroken from the staff's edge: an accent or a number standing just
+    // above a barline is apart from it)
+    const ext=(x,y,dir)=>{ let n=0, gap=0; for(let yy=Math.round(y)+dir,k=0;yy>=0&&yy<H&&k<2*g;yy+=dir,k++){ if(L[yy*W+x]){ n+=1+gap; gap=0; } else if(++gap>1) break; } return n; };
+    for(let x=xa;x<=xb;x++) if(frac(x,y1,y5)>.92&&(frac(x,y1-1.6*g,y1-.3*g)<.55||ext(x,y1+1,-1)<.9*g)&&(frac(x,y5+.3*g,y5+1.6*g)<.55||ext(x,y5-1,1)<.9*g)){ const q=blg[blg.length-1]; if(q&&x-q.b<=Math.max(2,.8*g)) q.b=x; else blg.push({a:x,b:x}); }
     // stems: thin vertical runs at least two and a half spaces long
     const stem=new Uint8Array(W), ya0=Math.max(0,Math.round(y1-5*g)), yb0=Math.min(H-1,Math.round(y5+5*g));
     for(let x=Math.max(3,xa);x<=Math.min(W-4,xb);x++){ let run=0, gap=0, top=0;
@@ -2102,7 +2359,8 @@ function omrPage(im,dbg){
         for(let k=0;k<4*g;k++,yy+=dir){ if(yy<0||yy>=H) break; const o=yy*W, xi=Math.round(q.x);
           // (measured from the stem's own edge: on a large picture a stem is several pixels wide)
           const eN=hs0<0?q.x1:q.x0, eH=hs0<0?q.x0:q.x1;
-          const near=[2,3,4].some(d=>{ const xx=eN-hs0*d; return xx>=0&&xx<W&&L[o+xx]; }), farS=[far,far+1].some(d=>{ const xx=xi+hs0*d; return xx>=0&&xx<W&&L[o+xx]; });
+          // (joined to the stem: a dot after the note stands a little apart from it)
+          const near=[2,3].every(d=>{ const xx=eN-hs0*d; return xx>=0&&xx<W&&L[o+xx]; }), farS=[far,far+1].some(d=>{ const xx=xi+hs0*d; return xx>=0&&xx<W&&L[o+xx]; });
           // (a short partial beam on the heads' side: solid ink from the stem out for most of a space, where an x touches it at a point)
           let run=0; for(let d=1;d<=Math.round(.75*g);d++){ const xx=eH+hs0*d; if(xx>=0&&xx<W&&L[o+xx]) run++; }
           const beside=near||farS||run>=.85*Math.round(.75*g);
@@ -2115,11 +2373,31 @@ function omrPage(im,dbg){
         // (a thin x on a sharp picture has little ink, but some in nearly every row and column of its box: a stem or a tie has not)
         const nb=stems.filter(o=>o!==q&&(o.x-q.x)*side>0).map(o=>Math.abs(o.x-q.x)), KW=Math.max(3,Math.round(Math.min(1.2*g,nb.length?Math.min(...nb)-2:1e9)));
         for(let p=pA;p<=pB;p++){ const cy=y5-p*g/2; let ink=0, tot=0, rows=0, rowsN=0; const colHit=new Uint8Array(KW+1);
-          for(let yy=Math.round(cy-.38*g);yy<=Math.round(cy+.38*g);yy++){ if(yy<0||yy>=H||lineRow[yy]) continue; let any=0; rowsN++;
-            for(let k=1;k<=KW;k++){ const xx=Math.round(q.x+side*(k+.5)); if(xx<0||xx>=W) continue; tot++; const v=L[yy*W+xx]; ink+=v; if(v){ any=1; colHit[k]=1; } } rows+=any; }
+          // (a row inked all the way across and on past the window is a staff line's faint edge, not part of an x)
+          const lineEdge=yy=>{ let n=0, m=0; for(let k=Math.round(.7*g);k<=KW+Math.round(.6*g);k++){ const xx=Math.round(q.x+side*(k+.5)); if(xx<0||xx>=W) continue; m++; n+=L[yy*W+xx]; } return m&&n>=.9*m; };
+          let ky0=1e9, ky1=-1, kk0=1e9, kk1=-1;
+          for(let yy=Math.round(cy-.38*g);yy<=Math.round(cy+.38*g);yy++){ if(yy<0||yy>=H||lineRow[yy]||lineEdge(yy)) continue; let any=0; rowsN++;
+            for(let k=1;k<=KW;k++){ const xx=Math.round(q.x+side*(k+.5)); if(xx<0||xx>=W) continue; tot++; const v=L[yy*W+xx]; ink+=v; if(v){ any=1; colHit[k]=1; ky0=Math.min(ky0,yy); ky1=Math.max(ky1,yy); kk0=Math.min(kk0,k); kk1=Math.max(kk1,k); } } rows+=any; }
+          // (a dot beside a line, as in a repeat sign, is small and round: an x reaches across most of a head's width)
+          const dotty=ky1>=0&&kk1-kk0+1<.65*g&&ky1-ky0+1<.65*g;
           let cf=0; for(let k=1;k<=KW;k++) cf+=colHit[k]; cf/=KW; const d=tot?ink/tot:0, rf=rowsN?rows/rowsN:0;
-          dens.push([p,d>=.25||(rf>=.75&&cf>=.6&&d>=.1)?d+.3*rf*cf:0]); }
-        q.hd=[]; for(let i=0;i<dens.length;i++){ const [p,d]=dens[i]; if(d<.25) continue; if((i>0&&dens[i-1][1]>d)||(i<dens.length-1&&dens[i+1][1]>=d)) continue; q.hd.push({step:p,d,x:q.x+side*.62*g}); }
+          // (a stroke across the stem, a tremolo's slash, has as much ink on the stem's other side: an x has none there)
+          // (and it runs on through the stem, touching it on that side: a dot after the note stands apart from the stem)
+          // (a thick line there, as in a repeat sign, has ink in every row: also no x's place)
+          let inkO=0, totO=0, touch=0, rO=0, rN=0; const KO=Math.max(2,Math.round(.5*g));
+          for(let yy=Math.round(cy-.38*g);yy<=Math.round(cy+.38*g);yy++){ if(yy<0||yy>=H||lineRow[yy]) continue; rN++; let any=0; for(let k=1;k<=KO;k++){ const xx=(side<0?q.x1:q.x0)-side*(k+1); if(xx<0||xx>=W) continue; totO++; inkO+=L[yy*W+xx]; if(L[yy*W+xx]) any=1; if(k===1&&L[yy*W+xx]) touch++; } rO+=any; }
+          const dO=totO?inkO/totO:0, across=dO>=.18&&dO>=.5*d&&(touch>0||rN&&rO>=.8*rN);
+          // (an x reaches out along both its diagonals: smudges or the blur along a staff line lie flat)
+          let corners=0; { const cx0=q.x+side*.62*g, r=.3*g; for(const [sx,sy] of [[-1,-1],[1,-1],[-1,1],[1,1]]){ let hit=0; const xx0=Math.round(cx0+sx*r), yy0=Math.round(cy+sy*r);
+            for(let dy=-1;dy<=1&&!hit;dy++) for(let dx=-1;dx<=1&&!hit;dx++){ const xx=xx0+dx, yy=yy0+dy; if(xx>=0&&xx<W&&yy>=0&&yy<H&&L[yy*W+xx]) hit=1; } corners+=hit; } }
+          dens.push([p,!across&&!dotty&&corners>=3&&(d>=.25||(rf>=.75&&cf>=.6&&d>=.1))?d+.3*rf*cf:0,corners,d]); }
+        q.hd=[]; for(let i=0;i<dens.length;i++){ const [p,d,c4,d0]=dens[i]; if(d<.25) continue; if((i>0&&dens[i-1][1]>d)||(i<dens.length-1&&dens[i+1][1]>=d)) continue;
+          // (an x on a drum's place, a cross-stick, is rare: only a clear one, reaching all four ways; grain on a pencil page is not)
+          if(p<8&&p>-1&&!(c4===4&&d0>=.35)) continue;
+          q.hd.push({step:p,d,x:q.x+side*.62*g}); }
+        // (a stem goes on well past its last head: ink close to its far end is its flag, which on a stem pointing down
+        // curls back up on the heads' side, not an x below the staff)
+        { const yEnd=q.up?q.top:q.bot; q.hd=q.hd.filter(h=>Math.abs(y5-h.step*g/2-yEnd)>=2*g); }
         q.dir=dir;
       }
     }
@@ -2163,8 +2441,11 @@ function omrPage(im,dbg){
         // a ghost note: a thin parenthesis just left of the head (and right of it, past the stem)
         const par=(x0,x1)=>{ for(let xx=Math.round(x0);xx<=Math.round(x1);xx++) if(xx>=0&&xx<W&&L[Math.round(hy)*W+xx]&&vrun(xx,hy,-1)+vrun(xx,hy,1)>1.9*g) return 0;
           let ink=0, tot=0; for(let yy=Math.round(hy-.45*g);yy<=Math.round(hy+.45*g);yy++){ if(yy<0||yy>=H||lineRow[yy]) continue; for(let xx=Math.round(x0);xx<=Math.round(x1);xx++){ if(xx<0||xx>=W) continue; tot++; ink+=L[yy*W+xx]; } } return tot?ink/tot:0; };
-        const hx0=hx-w1/2, hx1=hx+w1/2, gl=par(hx0-.6*g,hx0-.2*g), gr=par(hx1+.2*g,hx1+.6*g), ghost=hxs.length<2&&gl>=.2&&gl<.7&&gr>=.15;
-        heads.push({x:hx,y:hy,w:w1,shade,ghost,step:Math.abs(pos-step)<.33?step:step===step0&&Math.abs(pos0-step0)<.4?step:99}); }
+        // (each bracket a stroke standing up beside the head, taller than the head itself: the tail of a rest just before the
+        // note slants across)
+        const tall=(x0,x1)=>{ let best=0; for(let xx=Math.round(x0);xx<=Math.round(x1);xx++){ if(xx<0||xx>=W) continue; let run=0; for(let yy=Math.round(hy-.8*g);yy<=Math.round(hy+.8*g);yy++){ if(yy>=0&&yy<H&&(L[yy*W+xx]||lineRow[yy]&&run>0)){ run++; if(run>best) best=run; } else run=0; } } return best/g; };
+        const hx0=hx-w1/2, hx1=hx+w1/2, gl=par(hx0-.6*g,hx0-.2*g), gr=par(hx1+.2*g,hx1+.6*g), ghost=hxs.length<2&&gl>=.2&&gl<.7&&gr>=.15&&tall(hx0-.6*g,hx0-.2*g)>=1.1&&tall(hx1+.2*g,hx1+.6*g)>=1.1;
+        heads.push({x:hx,y:hy,w:w1,shade,ghost,pos,step:Math.abs(pos-step)<.33?step:step===step0&&Math.abs(pos0-step0)<.4?step:99}); }
     }
     // how many beams (or flags) at each stem's end: separate bands of ink just beside the stem, from its end to its nearest
     // head (an x found along it, or a filled head beside it), counted on whichever side has more (a short partial beam
@@ -2178,13 +2459,28 @@ function omrPage(im,dbg){
       // (on a small picture the narrow gap between two beams comes out grey: the darker ink map keeps it apart)
       // (near a staff line, a row counts as ink only when a beam crosses there: ink beyond the line's band above and
       // below; a photo's line is thicker than its three marked rows and bends a little across the page)
-      const rb=Math.min(3,Math.max(2,Math.round(.1*g)+1));
+      const rb=Math.max(Math.min(3,Math.max(2,Math.round(.1*g)+1)),lineHalf(ys)+1);
       const runsAt=(xx,M)=>{ if(xx<0||xx>=W) return []; const rs=[]; let r0=-1;
         for(let yy=a-1;yy<=b+1;yy++){ const ly=ys0.find(y=>Math.abs(yy-y)<=rb);
           const at=y=>y>=0&&y<H&&M[y*W+xx];
-          const l0=Math.round(ly), v=ly===undefined?at(yy):at(yy)&&[1,2,3].some(d=>at(l0-rb-d+1))&&[1,2,3].some(d=>at(l0+rb+d-1)); if(v&&r0<0) r0=yy; if(!v&&r0>=0){ rs.push([r0,yy-1]); r0=-1; } } return rs; };
-      let best=[]; for(const M of [L,B]) for(const d of [Math.round(.45*g),Math.round(.7*g)]) for(const sd of [-1,1]){ const rs=runsAt(xi+sd*d,M); if(rs.length>best.length) best=rs; }
-      q.runs=best; q.nb=best.length; if(dbg) q.runs=[[a,b]].concat(best);
+          const l0=Math.round(ly), v=ly===undefined?at(yy):at(yy)&&[1,2,3].some(d=>at(l0-rb-d+1))&&[1,2,3].some(d=>at(l0+rb+d-1)); if(v&&r0<0) r0=yy; if(!v&&r0>=0){ if(yy-r0>=Math.max(2,.25*g)) rs.push([r0,yy-1]); r0=-1; } } return rs; };   // (a beam or a flag is a quarter of a space thick at least: a thinner band is a line's blurred edge)
+      q.cand=[]; for(const M of [L,B]) for(const d of [Math.round(.45*g),Math.round(.7*g)]) for(const sd of [-1,1]) q.cand.push({rs:runsAt(xi+sd*d,M),sd});
+      q.zone=[a,b];
+    }
+    // two beams printed touching (a small picture has no room for the gap between them) make one band twice as thick:
+    // the band is counted as two when it reaches the next stem along (a flag on a lone stem is thick too, and is one)
+    // (one beam's thickness on this staff: the middle of the first beams' thicknesses, the one at each stem's end; a
+    // blurred photo has every beam thick, and that is one beam still)
+    { const lens=[]; for(const q of stems){ let best=[]; for(const c of q.cand) if(c.rs.length>best.length) best=c.rs; if(best.length){ const r=q.up?best[0]:best[best.length-1], n=r[1]-r[0]+1; if(n<=1.6*g) lens.push(n); } }
+      lens.sort((p,q)=>p-q); const bt=Math.max(.3*g,lens.length?lens[lens.length>>1]:.5*g);
+      // (the next stem along that side shows the same thick band on its side facing this one)
+      const thick=r=>r[1]-r[0]+1>=1.7*bt;
+      const partner=(q,sd,r)=>stems.some(o=>o!==q&&o.up===q.up&&(o.x-q.x)*sd>.6*g&&(o.x-q.x)*sd<5*g&&o.cand.some(c=>c.sd===-sd&&c.rs.some(t=>thick(t)&&t[0]<=r[1]&&t[1]>=r[0])));
+      for(const q of stems){
+        let best=[], bw=0;
+        for(const c of q.cand){ let w=0; for(const r of c.rs) w+=thick(r)&&partner(q,c.sd,r)?Math.min(3,Math.round((r[1]-r[0]+1)/bt)):1; if(w>bw||w===bw&&c.rs.length>best.length){ bw=w; best=c.rs; } }
+        q.runs=best; q.nb2=bw; if(dbg) q.runs=[q.zone].concat(best); }
+      for(const q of stems){ q.nb=q.nb2; delete q.nb2; delete q.cand; }
     }
     const isReal=q=>q.hd.length||q.fh.some(h=>h.step!==99);
     // the other marks on the staff, each as a piece of ink of its own: rests, dots, tuplet numbers, accents, circles, letters.
@@ -2194,7 +2490,7 @@ function omrPage(im,dbg){
     // which notes a mark belongs to is told later by how near it is to them)
     { const si=staves.indexOf(ys), prevB=si>0?staves[si-1][4]+.6*g:-1e9, nextT=si+1<staves.length?staves[si+1][0]-.6*g:1e9;
       const sa=Math.max(0,Math.round(Math.max(y1-6.5*g,prevB))), sb=Math.min(H-1,Math.round(Math.min(y5+4.5*g,nextT))), sh=sb-sa+1, M=new Uint8Array(W*sh);
-      const lineOff=Math.max(2,Math.round(.18*g)+1);
+      const lineOff=Math.max(2,Math.round(.18*g)+1,lineHalf(ys)+2);
       for(let y=sa;y<=sb;y++){ const o=y*W, m=(y-sa)*W;
         for(let x=Math.max(0,xa-Math.round(g));x<=Math.min(W-1,xb+Math.round(g));x++){ if(!L[o+x]) continue;
           // a staff line's own pixels go; a mark crossing the line stays
@@ -2204,8 +2500,8 @@ function omrPage(im,dbg){
       const clear=(x0,x1,y0,y1)=>{ for(let y=Math.max(sa,Math.round(y0));y<=Math.min(sb,Math.round(y1));y++) for(let x=Math.max(0,Math.round(x0));x<=Math.min(W-1,Math.round(x1));x++) M[(y-sa)*W+x]=0; };
       // (only real stems, with a head: a quarter rest's long middle stroke can look like a stem)
       for(const q of stems) if(isReal(q)) clear(q.x0-1,q.x1+1,q.top-1,q.bot+1);
-      for(const h of heads) if(h.step!==99) clear(h.x-h.w/2-1,h.x+h.w/2+1,h.y-.6*g,h.y+.6*g);
-      for(const q of stems) for(const h of q.hd) clear(h.x-.7*g,h.x+.7*g,y5-h.step*g/2-.55*g,y5-h.step*g/2+.55*g);
+      for(const h of heads) if(h.step!==99){ const hw=Math.max(h.w/2,.72*g)+1; clear(h.x-hw,h.x+hw,h.y-.6*g,h.y+.6*g); }
+      for(const q of stems) for(const h of q.hd) clear(Math.min(h.x,q.x)-.75*g,Math.max(h.x,q.x)+.45*g,y5-h.step*g/2-.75*g,y5-h.step*g/2+.75*g);   // (an x is drawn a little off its place)
       for(const q of blg) clear(q.a-1,q.b+1,y1-1,y5+1);
       // pieces of ink, eight-connected (a rest is drawn with thin slanted strokes)
       const lab=new Int32Array(W*sh), stack=new Int32Array(W*sh); let id=0;
@@ -2217,13 +2513,32 @@ function omrPage(im,dbg){
         // the outline from the right: a flagged rest's right side is one slanted line, a quarter rest's zigzags
         const right=[]; for(let y=c.y0;y<=c.y1;y++){ let r=-1; for(let x=c.x1;x>=c.x0;x--) if(M[y*W+x]&&lab[y*W+x]===id){ r=x; break; } if(r>=0) right.push([y,r]); }
         let res=0; if(right.length>=4){ const n=right.length, my=right.reduce((p,q)=>p+q[0],0)/n, mx=right.reduce((p,q)=>p+q[1],0)/n; let a=0,b=0; for(const [y,x] of right){ a+=(y-my)*(x-mx); b+=(y-my)*(y-my); } const k=b?a/b:0; for(const [y,x] of right) res+=Math.abs(x-(mx+k*(y-my))); res/=n; }
-        syms.push({x:(c.x0+c.x1)/2,y:(c.y0+c.y1)/2+sa,x0:c.x0,x1:c.x1,y0:c.y0+sa,y1:c.y1+sa,w:w/g,h:h/g,fill:c.n/(w*h),zig:res/g,n:c.n,px:c.px.map(p=>p+sa*W)}); }
+        // (a piece cut off by the edge of the stretch looked at is part of something further off: the sticking letters of
+        // the line above, say)
+        const cut=c.y0<=0&&sa>Math.round(prevB)+1||c.y1>=sh-1&&sb<Math.round(nextT)-1;
+        syms.push({x:(c.x0+c.x1)/2,y:(c.y0+c.y1)/2+sa,x0:c.x0,x1:c.x1,y0:c.y0+sa,y1:c.y1+sa,w:w/g,h:h/g,fill:c.n/(w*h),zig:res/g,n:c.n,cut,px:c.px.map(p=>p+sa*W)}); }
+      // marks too pale to count as ink (a small accent, blurred on a scan or a photo): found apart, and a bar with one over
+      // or under its notes is left to be checked
+      { const fth=Math.min(paper-30,thL+45), F=new Uint8Array(W*sh), fl=new Int32Array(W*sh), faint=[];
+        for(let y=sa;y<=sb;y++){ if(y>=y1-.5*g&&y<=y5+.5*g) continue; const m=(y-sa)*W, o=y*W; for(let x=0;x<W;x++) if(gray[o+x]<fth) F[m+x]=1; }
+        let fid=0;
+        for(let i=0;i<W*sh;i++){ if(!F[i]||fl[i]) continue; fid++; let sp=0; stack[sp++]=i; fl[i]=fid; let n=0, strong=0, x0=W, x1=-1, y0=sh, y1c=-1; const px=[];
+          while(sp){ const p=stack[--sp], x=p%W, y=(p-x)/W; n++; if(px.length<2000) px.push(p+sa*W); if(L[p+sa*W]) strong++; if(x<x0) x0=x; if(x>x1) x1=x; if(y<y0) y0=y; if(y>y1c) y1c=y;
+            for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ if(!dx&&!dy) continue; const xx=x+dx, yy=y+dy; if(xx<0||xx>=W||yy<0||yy>=sh) continue; const q=yy*W+xx; if(F[q]&&!fl[q]){ fl[q]=fid; stack[sp++]=q; } } }
+          const w=x1-x0+1, h=y1c-y0+1;
+          if(n>=.12*g*g&&strong<.06*g*g&&w>=.5*g&&h>=.25*g&&w<=2*g&&h<=1.3*g&&n/(w*h)>=.25)
+            faint.push({x:(x0+x1)/2,y:(y0+y1c)/2+sa,x0,x1,y0:y0+sa,y1:y1c+sa,w:w/g,h:h/g,fill:n/(w*h),zig:0,n,faint:true,px}); }
+        // (many of them is the grain of a dark photo, not marks)
+        if(faint.length<=6) syms.push(...faint); }
       // crumbs (what is left of a line beside a removed head) go first; pieces a staff line cut apart (a rest crossing
       // a line) are joined again when they lie close together
       for(let i=syms.length-1;i>=0;i--) if(syms[i].n<.06*g*g) syms.splice(i,1);
       // a flag, or the end of a beam, lies right beside a real stem (one with a head), where its beams are: set aside first
       const real=stems.filter(isReal);
-      for(const q of syms){ const st=real.find(st=>q.x0<=st.x+.7*g&&q.x1>=st.x-.7*g&&q.y1>=Math.min(st.end,st.last)-.3*g&&q.y0<=Math.max(st.end,st.last)+.6*g&&(st.up?q.y>=st.end-.2*g:q.y<=st.end+.2*g)); if(st) q.flag=st; }
+      // (an accent just over the end of a beam lies near it too, but apart from the stem, and shaped as an angle: its
+      // ink thin, its right side going in and out)
+      const accentLike=(q,st)=>q.w>1.1*q.h&&q.fill<.55&&q.zig>=.2&&(st.up?q.y<st.end:q.y>st.end);
+      for(const q of syms){ const st=real.find(st=>!accentLike(q,st)&&Math.abs(q.y-st.end)<=2.8*g&&q.x0<=st.x+.7*g&&q.x1>=st.x-.7*g&&q.y1>=Math.min(st.end,st.last)-.3*g&&q.y0<=Math.max(st.end,st.last)+.6*g&&(st.up?q.y>=st.end-.2*g:q.y<=st.end+.2*g)); if(st) q.flag=st; }
       for(const a of syms) for(const b of syms){ if(a===b) continue; const ya=(a.y-y1)/g, yb=(b.y-y1)/g, dw=q=>(q.x1-q.x0+1)/g, dh=q=>(q.y1-q.y0+1)/g;
         if(Math.abs(a.x-b.x)<.45*g&&ya>1.15&&ya<1.85&&yb>2.15&&yb<2.85&&[a,b].every(q=>dw(q)>=.2&&dw(q)<=.75&&dh(q)>=.2&&dh(q)<=.75)){ a.rep=true; b.rep=true;
           // (with the bit of the middle line the two dots touch)
@@ -2246,8 +2561,19 @@ function omrPage(im,dbg){
         let balls=0; const le=rows.map(r=>r[1]); const span=Math.max(2,Math.round(.25*g));
         for(let i=0;i<le.length;i++){ const a=Math.max(0,i-span), b=Math.min(le.length-1,i+span); let mn=Infinity; for(let k=a;k<=b;k++) mn=Math.min(mn,le[k]); if(le[i]===mn&&(i===0||le[i-1]>le[i])){ const up=le.slice(Math.max(0,i-2*span),i), dn=le.slice(i+1,i+1+2*span); if((!up.length||Math.max(...up)-le[i]>=.2*g)&&dn.length&&Math.max(...dn)-le[i]>=.2*g) balls++; } }
         q.balls=balls;
+        { const n=rows.length, wd=r=>(r[2]-r[1]+1)/g; let bw=0; for(let i=Math.floor(n*.7);i<n;i++) bw=Math.max(bw,wd(rows[i]));
+          const mid=rows.slice(Math.floor(n*.35),Math.ceil(n*.65)).map(wd).sort((p,q)=>p-q); q.botW=bw; q.midW=mid.length?mid[mid.length>>1]:9;
+          q.botY=n?rows.slice(Math.floor(n*.7)).reduce((p,r)=>p+r[0],0)/Math.max(1,n-Math.floor(n*.7)):q.y;
+          // the longest straight up-and-down stroke in it (a small note's stem; a rest has none)
+          let vr=0, vx=0, vb=0; for(let x=q.x0;x<=q.x1;x++){ let run=0; for(let y=q.y0;y<=q.y1;y++){ if(set.has(y*W+x)){ run++; if(run>vr){ vr=run; vx=x; vb=y; } } else run=0; } } q.vrun=vr/Math.max(1,q.y1-q.y0+1);
+          // (a small note's stem runs down into its head, at the head's right side)
+          let rb=-1, lb=1e9; for(let i=Math.floor(n*.7);i<n;i++){ rb=Math.max(rb,rows[i][2]); lb=Math.min(lb,rows[i][1]); }
+          q.stemAtHead=n>0&&vb>=q.y0+.6*(q.y1-q.y0)&&Math.abs(vx-rb)<=.35*g&&rb-lb>=.4*g; }
         // where the middle row's ink begins, from the left (a circle is closed there; a 3 is open on its left)
-        { const mid=rows[Math.floor(rows.length/2)]; q.ml=mid?(mid[1]-q.x0)/Math.max(1,q.x1-q.x0):1; }
+        { const mid=rows[Math.floor(rows.length/2)]; q.ml=mid?(mid[1]-q.x0)/Math.max(1,q.x1-q.x0):1;
+          // (an accent's point may fall a row off the middle: the furthest start among the middle rows)
+          q.mlx=q.ml; for(const d of [-1,1]){ const r=rows[Math.floor(rows.length/2)+d]; if(r) q.mlx=Math.max(q.mlx,(r[1]-q.x0)/Math.max(1,q.x1-q.x0)); } }
+        { const cx=Math.round((q.x0+q.x1)/2), cy=Math.round((q.y0+q.y1)/2); let c0=0; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) c0+=set.has((cy+dy)*W+cx+dx)?1:0; q.hole=c0===0; }
         { let tr=0, n=0; const cx=(q.x0+q.x1)/2, cy=(q.y0+q.y1)/2; for(const p of set){ const x=p%W, y=(p-x)/W; n++; if(x>cx&&y<cy) tr++; } q.tr=n?tr/n:0; }
         delete q.px; }
     }
@@ -2255,11 +2581,21 @@ function omrPage(im,dbg){
     const yMid=(y1+y5)/2;
     for(const q of syms){ const yc=(q.y-y1)/g;   // in spaces below the top line
       const atStemEnd=q.flag;
-      if(q.rep) q.k='repeat';
-      else if(q.n<.06*g*g) q.k='bit';
+      if(q.cut) q.k='cut';
+      else if(q.faint) q.k='faint';
+      else if(q.rep) q.k='repeat';
+      else if(q.n<.06*g*g||q.h<.16||q.h<=.3&&ys0.some(y=>Math.abs(q.y-y)<.45*g)||q.w<=.5&&q.h<=.5&&ys0.some(y=>Math.abs(q.y-y)<.12*g)||q.h<=.45&&(q.w>=1||q.fill<.4)&&ys0.some(y=>Math.abs(q.y-y)<.35*g)) q.k='bit';   // (a thin sliver along a staff line: what is left of the line's edge)
       else if(atStemEnd&&q.w<1.6){ q.k='flag'; if(dbg) q.why=[Math.round(atStemEnd.x),Math.round(atStemEnd.end),Math.round(atStemEnd.last),atStemEnd.up]; }
+      // a small note struck just before another (a flam's or a drag's grace notes): a small head at the foot of a short
+      // thin stem, inside the staff
+      else if(yc>-1.2&&yc<4.8&&q.h>=1.4&&q.h<=3.4&&q.w>=.6&&q.w<=2.6&&q.botW>=.45&&q.vrun>=.55&&q.stemAtHead&&q.fill<.5) q.k='grace';
+      // (an accent outside the staff: its middle row begins at its point on the right; a piece of beam is ink from its left)
+      else if((yc<-.3||yc>4.3)&&q.w>=.6&&q.w<=1.8&&q.h>=.3&&q.h<=1.3&&q.w>1.15*q.h&&q.fill<.75&&q.mlx>.4) q.k='accent';
+      // (an accent blurred on a scan loses its notch, but its right side still comes to a point: a piece of beam is square-cut)
+      else if((yc<-.3||yc>4.3)&&q.w>=.6&&q.w<=1.8&&q.h>=.3&&q.h<=1.3&&q.w>1.15*q.h&&q.fill<.8&&q.zig>=.25) q.k='accent';
       else if(q.w>=1.2&&q.h<=1.1&&q.fill>=.45&&!(q.w<=1.9&&q.h>=.3&&q.h<=.85&&q.fill>=.75&&yc>.6&&yc<3.4)) q.k='beam';
-      else if(q.w<=.7&&q.h<=.7&&q.w>=.25&&q.h>=.25&&q.w<=1.8*q.h&&q.h<=1.8*q.w&&q.fill>=.5) q.k='dot';
+      // (a dot stands in a space, never on a line)
+      else if(q.w<=.7&&q.h<=.7&&q.w>=.25&&q.h>=.25&&q.w<=1.8*q.h&&q.h<=1.8*q.w&&q.fill>=.5&&!ys0.some(y=>Math.abs(q.y-y)<.2*g)) q.k='dot';
       else if(q.w>=.8&&q.w<=1.9&&q.h>=.3&&q.h<=.85&&q.fill>=.75&&yc>-.5&&yc<4.5){
         // a block: a whole rest hangs from a line, a half rest sits on one
         const topOn=Math.abs((q.y0-y1)/g-Math.round((q.y0-y1)/g)), botOn=Math.abs((q.y1-y1)/g-Math.round((q.y1-y1)/g));
@@ -2270,9 +2606,13 @@ function omrPage(im,dbg){
         else q.k=q.h<2.5?'r8':q.h<3.45?'r16':'r32'; }
       else if(q.y1<y1-.2*g||q.y0>y5+.2*g){
         // (an accent is wider than it is tall; a number, taller)
-        if(q.w>=.6&&q.w<=1.8&&q.h>=.3&&q.h<=1.3&&q.w>1.15*q.h) q.k='accent';
+        // (a solid block is two beams run together on a blurred page, never an accent)
+        if(q.w>=.6&&q.w<=1.8&&q.h>=.3&&q.h<=1.3&&q.w>1.15*q.h&&q.fill<.85) q.k='accent';
+        else if(q.w>=1.2&&q.h<=1.6&&q.fill>=.85) q.k='beam';
         // (an open hi-hat's circle: as wide as it is tall, small, hollow)
         else if(q.w>=.35&&q.w<=1&&q.h>=.35&&q.h<=1&&Math.abs(q.w-q.h)<=.2*Math.max(q.w,q.h)&&q.fill<.55&&q.ml<.2) q.k='ring';
+        // (a small round one drawn with a thick pen: still open in the middle)
+        else if(q.w>=.35&&q.w<=1&&q.h>=.35&&q.h<=1&&Math.abs(q.w-q.h)<=.25*Math.max(q.w,q.h)&&q.fill<.8&&q.ml<.25&&q.hole) q.k='ring';
         else if(q.h>=.7&&q.h<=1.8&&q.w>=.35&&q.w<=1.3) q.k='digit';
         else if(q.w>=.35&&q.w<=.95&&q.h>=.35&&q.h<=.95&&q.fill<.7) q.k='ring';
         else q.k='other'; }
@@ -2286,7 +2626,7 @@ function omrPage(im,dbg){
     for(let i=0;i+1<realSt.length;i++){ const p=realSt[i], q=realSt[i+1]; p.linkR=false; if(p.up!==q.up||!p.nb||!q.nb) continue;
       const xm=Math.round((p.x+q.x)/2), ya=Math.round(Math.min(p.end,q.end,p.last,q.last)-.3*g), yb=Math.round(Math.max(p.end,q.end,p.last,q.last)+.3*g);
       for(let y=Math.max(0,ya);y<=Math.min(H-1,yb)&&!p.linkR;y++) if(!lineRow[y]&&(L[y*W+xm]||L[y*W+xm-1]||L[y*W+xm+1])) p.linkR=true; }
-    if(dbg) (dbg.syms=dbg.syms||[]).push({y1,y5,g,syms:syms.map(q=>[Math.round(q.x),+((q.y-y1)/g).toFixed(2),+q.w.toFixed(2),+q.h.toFixed(2),+q.fill.toFixed(2),+q.zig.toFixed(2),q.balls,q.k,q.why||'',Math.round(q.y0),Math.round(q.y1)])});
+    if(dbg) (dbg.syms=dbg.syms||[]).push({y1,y5,g,syms:syms.map(q=>[Math.round(q.x),+((q.y-y1)/g).toFixed(2),+q.w.toFixed(2),+q.h.toFixed(2),+q.fill.toFixed(2),+q.zig.toFixed(2),q.balls,q.k,q.why||'',Math.round(q.y0),Math.round(q.y1),+(q.ml||0).toFixed(2),+(q.botW||0).toFixed(2),+(q.vrun||0).toFixed(2)])});
     // short ledger lines just above the staff: the crash (and only the crash, on a usual drum key) sits on one
     const crs=[], off=Math.max(2,Math.round(.5*g));
     for(let y=Math.round(y1-1.3*g);y<=Math.round(y1-.7*g);y++){ if(y-off<0||y+off>=H) continue; let run=0;
@@ -2300,8 +2640,9 @@ function omrPage(im,dbg){
     crs.sort((p,q)=>p-q); const cr=[]; for(const x of crs){ if(cr.length&&x-cr[cr.length-1]<.6*g) continue; cr.push(x); }
     // a stem that happens to run from the bottom line to the top one has a notehead at its end: not a barline
     const bls=blg.filter(q=>!heads.some(h=>Math.abs(h.x-(q.a+q.b)/2)<=h.w/2+.4*g&&(Math.abs(h.y-y5)<.9*g||Math.abs(h.y-y1)<.9*g)));
+    if(dbg) (dbg.blg=dbg.blg||[]).push(blg.map(q=>[q.a,q.b,(heads.find(h=>Math.abs(h.x-(q.a+q.b)/2)<=h.w/2+.4*g&&(Math.abs(h.y-y5)<.9*g||Math.abs(h.y-y1)<.9*g))||{}).x]));
     const edges=[xa,...bls.map(q=>(q.a+q.b)/2)]; if(xb-edges[edges.length-1]>6*g) edges.push(xb);
-    if(dbg) (dbg.edges=dbg.edges||[]).push({g:+g.toFixed(1),xa,xb,edges:edges.map(Math.round)});
+    if(dbg) (dbg.edges=dbg.edges||[]).push({g:+g.toFixed(1),xa,xb,y1,y5,edges:edges.map(Math.round)});
     let started=false; lineNo++;
     for(let j=0;j+1<edges.length;j++){
       const a=edges[j], b=edges[j+1];
@@ -2312,7 +2653,7 @@ function omrPage(im,dbg){
       let s0=-1, s1=-1; for(let x=Math.ceil(from);x<=b-g;x++) if(stem[x]){ if(s0<0) s0=x; s1=x; }
       if(!started&&!hs.length&&s0<0&&b-a<12*g) continue;   // the clef (and a repeat sign) at the start of a line: no bar of its own
       started=true;
-      bars.push({hs,s0,s1,g,y5,y1,line:lineNo,cr:cr.filter(x=>x>a+.3*g&&x<b-.3*g),sts:stems.filter(q=>q.x>a+.5*g&&q.x<b-.5*g&&q.hd.length),
+      bars.push({hs,s0,s1,g,y5,y1,line:lineNo,box:{x0:a,x1:b,top:y1,bot:y5},cr:cr.filter(x=>x>a+.3*g&&x<b-.3*g),sts:stems.filter(q=>q.x>a+.5*g&&q.x<b-.5*g&&q.hd.length),
         rs:realSt.filter(q=>q.x>a+.3*g&&(q.x<b-.3*g||q.fh.some(h=>h.step!==99&&h.x<b-.5*g)&&!(Math.abs(q.top-y1)<.35*g&&Math.abs(q.bot-y5)<.35*g))),sy:syms.filter(q=>q.x>a+.2*g&&q.x<b-.2*g),all:syms});
     }
   }
@@ -2348,14 +2689,16 @@ function omrPage(im,dbg){
         if(!k){ odd=true; continue; } if(n.fill||!(k in rows)) rows[k]=n.fill?(n.ghost&&STICK_DRUMS.includes(k)?'g':'n'):(k==='sn'?'x':'n'); }
       return {x:c.x,rows,odd}; });
     b.own=ownRead(b,thr); delete b.rs; delete b.sy; delete b.all; delete b.y5; delete b.y1;
-    if(dbg) (dbg.st=dbg.st||[]).push(b.sts.map(q=>[Math.round(q.x),q.up?'u':'d',q.nb,q.hd.map(h=>h.step).join('/'),q.top,q.bot,JSON.stringify(q.runs)]));
+    if(dbg) (dbg.st=dbg.st||[]).push(b.sts.map(q=>[Math.round(q.x),q.up?'u':'d',q.nb,q.hd.map(h=>h.step+":"+h.d.toFixed(2)).join("/"),q.top,q.bot,JSON.stringify(q.runs),q.last]));
     delete b.sts; b.odd=b.hs.filter(h=>h.shade>=thr&&!OMR_ROW[h.step]).length; b.nh=b.hs.filter(h=>h.shade>=thr).length; delete b.hs; }
   // the count of bars is told to the AI only for a page measured whole: lines at an even spacing, none missing between them
   const lineN=[]; for(const b of bars) lineN[b.line-1]=(lineN[b.line-1]||0)+1;
   const tops=staves.map(ys=>ys[0]), gaps=tops.slice(1).map((y,i)=>y-tops[i]).sort((p,q)=>p-q);
   const sure=lineN.length>=2&&lineN.every(k=>k>0)&&gaps.length>0&&gaps[gaps.length-1]<=2.2*gaps[0];
   ownFinish(bars);
-  return {bars,staves:staves.length,lines:lineN,sure};
+  // the picture as measured (straightened, perhaps enlarged) stays with the result, so a bar can be cut out of it for a close look
+  const res={bars,staves:staves.length,lines:lineN,sure}; Object.defineProperty(res,'cv',{value:cv,enumerable:false,configurable:true,writable:true});
+  return res;
 }
 /* ---------- the bar read by the app itself ----------
    Every note's length from its beams or flags and its dot, the rests between the notes, tuplet numbers over beamed
@@ -2365,20 +2708,35 @@ const OWN_REST={r1:0,r2:2,r4:1,r8:.5,r16:.25,r32:.125};
 function ownRead(b,thr){
   const g=b.g, y1=b.y1, y5=b.y5, mid=(y1+y5)/2, why=[];
   const ups=b.rs.filter(q=>q.up), downs=b.rs.filter(q=>!q.up), two=ups.length&&downs.length;
+  // blobs between two places beside stems that have an x there: most are the x itself (lighter than a filled head); a dark
+  // one among light ones is an x with its open circle run into it (a small print)
+  // (a blob is taken for the x when it lies where the stem's x is, at a place no filled drum is written)
+  const onX=(q,h)=>(h.step===99||!OMR_ROW[h.step])&&q.hd.some(x=>Math.abs(x.step-h.pos)<1.1);
+  const xb=[]; for(const q of b.rs) for(const h of q.fh) if(onX(q,h)) xb.push(h);
+  const darkX=xb.filter(h=>h.shade>=thr).length, lightX=b.rs.reduce((k,q)=>k+q.hd.length,0)-darkX;
   const used=new Set();
   const notes=b.rs.map((q,qi)=>{
     const side=q.up?-1:1, rows={}; let unknown=false;
     const add=(k,m)=>{ if(!k){ unknown=true; return; } const [r,mk]=k.split(':'); if(!(r in rows)||rows[r]==='n') rows[r]=mk||m||'n'; };
-    const fh=q.fh.filter(h=>h.shade>=thr);
+    const asX=h=>onX(q,h);
+    // (a crash's x with its ledger line through it is dark anyway)
+    const opened=new Set(); for(const h of q.fh) if(asX(h)&&h.shade>=thr){ const x=q.hd.find(x=>Math.abs(x.step-h.pos)<1.1); if(OWN_X(x.step)!=='hh') continue; if(lightX>=2*darkX) opened.add('hh'); else unknown=true; }
+    const fh=q.fh.filter(h=>h.shade>=thr&&!asX(h));
     for(const h of fh) add(OMR_ROW[h.step],h.ghost&&STICK_DRUMS.includes(OMR_ROW[h.step])?'g':'');
     // x heads: found along the stem, or (on a blurred picture) as lighter blobs beside it
-    for(const h of q.hd.concat(q.fh.filter(h=>h.shade<thr).map(h=>({step:h.step})))){ if(fh.some(f=>Math.abs(f.step-h.step)<=1)) continue; add(OWN_X(h.step)); }
+    // (an x seen as a lighter blob is the same x the stem's own search found, if any; one between two places is not placed)
+    const xs=q.hd.map(h=>h.step);
+    for(const h of q.fh.filter(h=>h.shade<thr)){ if(h.step===99){ if(!xs.length) unknown=true; continue; } if(!xs.some(s=>Math.abs(s-h.step)<=1)) xs.push(h.step); }
+    for(const st of xs){ if(fh.some(f=>Math.abs(f.step-st)<=1)) continue; add(OWN_X(st)); }
+    if(opened.has('hh')&&'hh' in rows) rows.hh='o';
     const hx=q.x+side*.62*g, hys=fh.map(h=>h.y).concat(q.hd.map(h=>y5-h.step*g/2));
     // a dot: a small round mark just right of a head
     const dot=b.sy.find(s=>s.k==='dot'&&!used.has(s)&&s.x>hx+.45*g&&s.x<hx+2*g&&hys.some(y=>Math.abs(s.y-y)<.8*g)); if(dot) used.add(dot);
     return {x:hx,sx:q.x,q,rows,unknown,len:[1,.5,.25,.125,.0625][Math.min(q.nb,4)],dot:!!dot,v:two&&!q.up?1:0,up:q.up,tup:false,top:Math.min(...hys),bot:Math.max(...hys)};
   });
-  const rests=b.sy.filter(s=>s.k in OWN_REST).map(s=>{
+  // (a rest stands in the staff; with two voices it may be moved up or down a little)
+  // (a small number over the bar's start is no eighth rest; a quarter rest is tall and may stand a little high)
+  const rests=b.sy.filter(s=>s.k in OWN_REST&&(two||s.k==='r4'?s.y>y1-1.3*g&&s.y<y5+1.3*g:s.y>y1-.2*g&&s.y<y5+.2*g)).map(s=>{
     const dot=b.sy.find(d=>d.k==='dot'&&!used.has(d)&&d.x>s.x1&&d.x<s.x1+1.2*g&&Math.abs(d.y-s.y)<1.3*g); if(dot) used.add(dot);
     // with two voices a rest belongs to the one it is moved toward (up or down from the middle of the staff)
     return {x:s.x,rest:true,k:s.k,len:s.k==='r1'?0:OWN_REST[s.k],dot:!!dot,v:two&&s.y>mid+.25*g?1:0,amb:two&&Math.abs(s.y-mid)<=.25*g,tup:false};
@@ -2390,25 +2748,45 @@ function ownRead(b,thr){
     for(const x of rv.slice().sort((p,q)=>q-p)) if(x<a&&a-x<1.5*sp&&!notes.some(n=>n.v===v&&n.sx>x&&n.sx<a)) a=x;
     for(const x of rv.slice().sort((p,q)=>p-q)) if(x>z&&x-z<1.5*sp&&!notes.some(n=>n.v===v&&n.sx<x&&n.sx>z)) z=x;
     return [a,z]; };
-  const alone=d=>!b.all.some(s=>s!==d&&s.k!=='bit'&&s.k!=='flag'&&s.k!=='beam'&&Math.abs(s.y-d.y)<.6*g&&Math.abs(s.x-d.x)<1.7*g);
+  // (accents over notes close together stand side by side: each is still a mark of its own)
+  const alone=d=>!b.all.some(s=>s!==d&&s.k!=='bit'&&s.k!=='flag'&&s.k!=='beam'&&s.k!=='cut'&&!(s.k===d.k&&d.k==='accent'&&Math.abs(s.x-d.x)>=.9*g)&&Math.abs(s.y-d.y)<.6*g&&Math.abs(s.x-d.x)<1.7*g);
   for(const d of b.sy.filter(s=>s.k==='digit'&&alone(s))){
     let wide=false;
     const fits=gp=>{ const [a,z]=span(gp,wide), up=gp[0].up, ends=gp.map(n=>n.q.end);
       // (centred over its group: a bar number stands at the start of the bar instead)
       return Math.abs(d.x-(a+z)/2)<=Math.max(.7*g,.3*(z-a))&&(up?d.y<Math.min(...ends)+.2*g&&d.y>Math.min(...ends)-2.7*g:d.y>Math.max(...ends)-.2*g&&d.y<Math.max(...ends)+2.7*g); };
     let gr=groups.find(fits); if(!gr){ wide=true; gr=groups.find(fits); }
+    // (notes under a number with no beam between them: a quarter and an eighth, or eighths with flags, one beat in triplets)
+    if(!gr&&alone(d)) for(const v of [0,1]){ const ns=notes.filter(n=>n.v===v&&!groups.some(gq=>gq.length>1&&gq.includes(n))).sort((p,q)=>p.sx-q.sx);
+      for(let i=0;i<ns.length&&!gr;i++) for(const L of [2,3]){ const gp=ns.slice(i,i+L); if(gp.length<L||gp.some(n=>n.len>1||n.up!==gp[0].up)) continue;
+        if(gp.some((n,k)=>k&&n.sx-gp[k-1].sx>3.5*g)) continue;
+        const a=gp[0].sx, z=gp[gp.length-1].sx, ends=gp.map(n=>n.q.end), up=gp[0].up;
+        if(Math.abs(d.x-(a+z)/2)<=Math.max(.9*g,.35*(z-a))&&(up?d.y<Math.min(...ends)+.2*g&&d.y>Math.min(...ends)-3.2*g:d.y>Math.max(...ends)-.2*g&&d.y<Math.max(...ends)+3.2*g)){ gr=gp; break; } } }
     if(!gr) continue;
+    d.usedT=true;
     const [a0,z0]=span(gr,wide), a=a0-.3*g, z=z0+.5*g, v=gr[0].v;
     for(const e of notes.concat(rests)) if(e.v===v&&(e.rest?e.x:e.sx)>=a&&(e.rest?e.x:e.sx)<=z) e.tup=true;
   }
+  // a number standing over (or under) the notes that is no tuplet's: what it says is not known
+  // (and any mark the app cannot name just over or under the notes: two accents run together, say)
+  const stray=b.sy.filter(s=>(s.k==='digit'&&!s.usedT&&alone(s)||(s.k==='other'||s.k==='faint')&&(s.y1<y1-.2*g||s.y0>y5+.2*g))&&notes.some(n=>Math.abs(n.sx-s.x)<1.2*g+(s.x1-s.x0)/2&&(n.up?s.y<n.q.end&&n.q.end-s.y<3.2*g:s.y>n.q.end&&s.y-n.q.end<3.2*g))&&(s.y1<y1-.2*g||s.k==='other')).length;
+  // grace notes: a flam (one) or a drag (two) on the drum of the note just after them, at the same height
+  let graceOdd=0; const GSTEP={bd:1,ft:3,sn:5,t2:6,t1:7};
+  for(const s of b.sy.filter(s=>s.k==='grace')){
+    const n=notes.filter(n=>n.x>s.x&&n.x-s.x1<2.6*g&&!n.rest).sort((p,q)=>p.x-q.x)[0];
+    const k=n&&['sn','t1','t2','ft'].find(r=>r in n.rows&&Math.abs(y5-GSTEP[r]*g/2-s.botY)<.8*g);
+    if(!k){ graceOdd++; continue; }
+    n.rows[k]=s.botW>=1.3?'d':'f';
+  }
   // marks above or below the notes: accents, the open hi-hat's circle, the sticking letters underneath
+  let accAmb=false;
   for(const s of b.sy.filter(s=>(s.k==='accent'||s.k==='ring')&&alone(s))){
     // just above the note (over its stem's end or its top head) or just below it
     const near=n=>{ const t=Math.min(n.top,n.q.end), u=Math.max(n.bot,n.q.end); return s.y<t?t-s.y<2.9*g:s.y>u?s.y-u<2.1*g:true; };
     const n=notes.filter(n=>near(n)&&(Math.abs(n.sx-s.x)<1.1*g||Math.abs(n.x-s.x)<1.1*g)).sort((p,q)=>Math.abs(p.x-s.x)-Math.abs(q.x-s.x))[0]; if(!n) continue;
     if(s.k==='ring'){ if('hh' in n.rows) n.rows.hh='o'; continue; }
     const order=s.y<mid?['cr','hh','rd','t1','t2','sn','ft','bd','hp']:['hp','bd','ft','sn','t2','t1','rd','hh','cr'];
-    const k=order.find(r=>r in n.rows); if(k&&n.rows[k]==='n') n.rows[k]='a';
+    const k=order.find(r=>r in n.rows); if(k&&n.rows[k]==='n') n.rows[k]='a'; else if(k&&(n.rows[k]==='f'||n.rows[k]==='d')) n.rows[k]=n.rows[k].toUpperCase();
   }
   const letters=b.sy.filter(s=>s.y0>y5+.6*g&&s.y1<Math.max(y5,...notes.map(n=>n.bot),...notes.map(n=>n.q.end))+3.2*g&&!['accent','beam','flag','repeat','dot'].includes(s.k)&&s.h>=.55&&s.h<=1.7&&s.w>=.35&&s.w<=1.4&&s.k!=='clef').sort((p,q)=>p.x-q.x);
   // sticking: one letter under each stroke (notes struck together are one stroke), each right under its note
@@ -2425,11 +2803,13 @@ function ownRead(b,thr){
   // repeat signs: dots before the first note open a repeat, dots after the last one close it
   const reps=b.sy.filter(s=>s.k==='repeat'), xs=notes.map(n=>n.sx).concat(rests.map(r=>r.x)), mx=xs.length?(Math.min(...xs)+Math.max(...xs))/2:null;
   const rs=reps.some(s=>xs.length?s.x<Math.min(...xs):s.x<mx), re=reps.some(s=>xs.length?s.x>Math.max(...xs):false);
-  return {voices:out,unknown:notes.some(n=>n.unknown),amb,st,why,rs,re,g,odd:b.sy.filter(s=>s.k==='other'&&s.y0<y5+.3*g&&s.y1>y1-.3*g).length};
+  return {voices:out,unknown:notes.some(n=>n.unknown),accAmb,amb,st,why,rs,re,g,odd:b.sy.filter(s=>s.k==='other'&&s.y0<y5+.3*g&&s.y1>y1-.3*g).length+graceOdd+stray};
 }
 function ownBars(omr,sig){
   const sg=sig||(omr&&omr.bars.length?{2:'2/4',3:'3/4',4:'4/4',5:'5/4',6:'12/8'}[omr.bars[0].own.Q]||'4/4':'4/4');
-  return tidyReading([{sig:sg,bars:omr.bars.map(b=>({v:b.own.v,st:b.own.st||undefined}))}],true,false)[0].bars.map((x,i)=>Object.assign(x,{_sure:omr.bars[i].own.sure,_why:omr.bars[i].own.why}));
+  // (sure only in the time it was read in: a page read all in half time, its beams blurred together, is not sure in 4/4)
+  const [tn,td]=sg.split('/').map(Number), q=tn*4/td;
+  return tidyReading([{sig:sg,bars:omr.bars.map(b=>({v:b.own.v,st:b.own.st||undefined}))}],true,false)[0].bars.map((x,i)=>Object.assign(x,{_sure:omr.bars[i].own.sure&&Math.abs(q-omr.bars[i].own.Q)<1e-6,_why:omr.bars[i].own.why}));
 }
 const ownLen=e=>e.len*(e.dot?1.5:1)*(e.tup?2/3:1);
 const ownTok=v=>{ for(const [d,t] of [[4,'1'],[2,'2'],[1,'4'],[.5,'8'],[.25,'16'],[.125,'32'],[.0625,'64']]){ if(Math.abs(v-d)<1e-6) return t; if(Math.abs(v-d*1.5)<1e-6) return t+'.'; if(Math.abs(v-d*2/3)<1e-6) return t+'t'; } return null; };
@@ -2437,10 +2817,14 @@ const ownTok=v=>{ for(const [d,t] of [[4,'1'],[2,'2'],[1,'4'],[.5,'8'],[.25,'16'
 function ownFinish(bars){
   const sums=[]; for(const b of bars){ const o=b.own; if(!o) continue; for(const ev of o.voices){ if(ev.length===1&&ev[0].rest&&ev[0].k==='r1') continue; const t=ev.reduce((p,e)=>p+ownLen(e),0); if(t>0) sums.push(+t.toFixed(3)); } }
   const cnt={}; for(const t of sums) cnt[t]=(cnt[t]||0)+1; let Q=4, best=0; for(const [t,n] of Object.entries(cnt)) if(n>best&&[2,3,4,5,6].includes(+t)){ best=n; Q=+t; }
+  // a bar far narrower than the others on the page is likely a piece cut off by a line taken for a barline
+  const wds=bars.filter(b=>b.box).map(b=>(b.box.x1-b.box.x0)/b.g).sort((p,q)=>p-q), wMed=wds.length?wds[wds.length>>1]:0;
   for(const b of bars){ const o=b.own; if(!o) continue; o.Q=Q; const why=o.why;
+    if(b.box&&wds.length>=4&&(b.box.x1-b.box.x0)/b.g<.35*wMed) o.narrow=true;
     // a rest right on the middle line between two voices goes to the voice it completes
     for(const r of o.amb){ const [a,z]=o.voices, ta=a.reduce((p,e)=>p+ownLen(e),0), tz=z?z.reduce((p,e)=>p+ownLen(e),0):Q; if(z&&r.v===0&&ta>Q+1e-6&&tz<Q-1e-6){ a.splice(a.indexOf(r),1); z.push(r); z.sort((p,q)=>(p.rest?p.x:p.sx)-(q.rest?q.x:q.sx)); r.v=1; } }
     const strs=[]; let ok=!o.unknown;
+    if(o.narrow){ ok=false; why.push('a bar much narrower than the others'); }
     o.voices.forEach((ev,vi)=>{
       if(!ev.length) return;
       if(ev.length===1&&ev[0].rest&&ev[0].k==='r1'){ strs.push('1 r'); return; }
@@ -2452,10 +2836,19 @@ function ownFinish(bars){
       if(Math.abs(t-Q)>1e-6){ ok=false; why.push(`voice ${vi+1} comes to ${+t.toFixed(3)} of ${Q}`); }
       strs.push(parts.join(', ')); });
     if(!strs.length){ strs.push('1 r'); }
+    // a cymbal kept going note after note, with one place left out where something else is played: the x there was
+    // probably missed (a blurred photo), not left out
+    for(const ev of o.voices){ let t=0; const at=[]; for(const e of ev){ if(!e.rest) at.push({t:+t.toFixed(4),rows:e.rows}); t+=ownLen(e); }
+      for(const cym of ['hh','rd']){ const ts=at.filter(a=>cym in a.rows).map(a=>a.t); if(ts.length<5) continue;
+        const ds={}; for(let i=1;i<ts.length;i++){ const d=+(ts[i]-ts[i-1]).toFixed(4); ds[d]=(ds[d]||0)+1; } const step=+Object.entries(ds).sort((p,q)=>q[1]-p[1])[0][0];
+        if(!(step>0)||ds[step]<ts.length-2) continue;
+        if(at.some(a=>!(cym in a.rows)&&!('cr' in a.rows)&&a.t>ts[0]&&a.t<ts[ts.length-1]&&Math.abs((a.t-ts[0])/step-Math.round((a.t-ts[0])/step))<1e-3)){ ok=false; why.push('a '+cym+' note seems missed'); } } }
     if(o.unknown) why.push('a head the app cannot place');
     if(o.g<6.5) why.push('the staff is too small on the picture');
     o.v=strs; o.sure=ok&&!o.odd&&o.g>=6.5; if(o.odd) why.push('marks on the staff the app cannot read');
     delete o.voices; delete o.amb; }
+  const xs=bars.filter(b=>b.own&&b.own.v.some(v=>/sn:x/.test(v))).length;
+  if(xs===1) for(const b of bars) if(b.own&&b.own.sure&&b.own.v.some(v=>/sn:x/.test(v))){ b.own.sure=false; b.own.why.push('one cross-stick alone on the page'); }
 }
 const setCh=(v,i,ch)=>v.slice(0,i)+ch+v.slice(i+1);
 const ovalSlots=(c,n)=>{ const out=[]; for(let i=0;i<n;i++) if(OVAL_ROWS.some(k=>c&&c[k]&&c[k][i]&&c[k][i]!=='-'&&c[k][i]!=='x')) out.push(i); return out; };
@@ -2588,6 +2981,21 @@ function ownApply(acc,omr){
     const {x,b}=P.gb[i], S=barS(x,b); if(b._own||Math.abs(quarters(S)-o.Q)>1e-6) continue;
     const t=ownBar(o,b.sg||x.sig,b); if(!t) continue;
     if(t.sg===x.sig) delete t.sg;
+    // a photo (made clearer by the app first) is read less surely: the app's bar is taken only where the AI heard the
+    // same rhythm, and a cymbal stroke the AI saw where the app saw none is kept
+    if(omr.photo){ const ons=(c,n)=>{ const a=new Set(); for(const k in c){ const r=c[k]; for(let i=0;i<r.length;i++) if(r[i]!=='-') a.add(+(i/r.length).toFixed(5)); } return [...a].sort().join(','); };
+      if(ons(b.c)!==ons(t.c)) continue;
+      for(const k of ['hh','rd','cr']){ const ra=b.c[k]; if(!ra) continue; let rt=t.c[k]||'-'.repeat((t.c[Object.keys(t.c)[0]]||'').length);
+        for(let i=0;i<ra.length;i++){ if(ra[i]==='-') continue; const j=Math.round(i/ra.length*rt.length); if(j>=rt.length||rt[j]!=='-') continue;
+          if(['hh','rd','cr'].some(q=>t.c[q]&&t.c[q][Math.round(j/rt.length*t.c[q].length)]&&t.c[q][Math.round(j/rt.length*t.c[q].length)]!=='-')) continue;   // (the app saw another cymbal there)
+          rt=rt.slice(0,j)+ra[i]+rt.slice(j+1); }
+        t.c[k]=rt; }
+      // small marks are the hardest to see on a photo: an accent the AI saw is kept, and a cross-stick only the app saw is not
+      for(const k in t.c){ const ra=b.c[k]; if(!ra) continue; let rt=t.c[k];
+        for(let i=0;i<rt.length;i++){ const w=rt[i]; if(w==='-') continue; const v=ra[Math.round(i/rt.length*ra.length)];
+          if(!v||v==='-'||v===w) continue;
+          if(w==='n'&&v==='a'||k==='sn'&&w==='x') rt=rt.slice(0,i)+v+rt.slice(i+1); }
+        t.c[k]=rt; } }
     setHidden(t,'_own',true); setHidden(t,'_omrBar',ob);
     x.bars[x.bars.indexOf(b)]=t; res.used++; }
   return res;
@@ -2631,10 +3039,12 @@ function omrApply(acc,omr,last){
   for(const [i,j] of pairs){ const {x,b}=gb[i]; res.pairs++; if(b._own) continue; if(omrBar(b,barS(x,b),omr.bars[j],last,opt)==='fixed') res.fixed++; }
   return res;
 }
-function photoPrompt(n){
+function photoPrompt(n,close){
   return `You are reading a photo of drum sheet music and writing it out, exactly as printed, as data for a drum notation app. Being right matters more than being quick.
 
-${n>1?`Image 1 is the whole page. Images 2 to ${n} are overlapping horizontal strips of the same page, from top to bottom, at higher resolution: read the notes from the strips and use image 1 for the layout, titles and reading order. A line of music near a strip edge appears in two strips: write every bar exactly once.`:'The image is the whole page.'}
+${close?`The images are close-ups cut from a page you have already read: each one is a single bar, from its barline to the next, enlarged. Bits of the bars beside it, and of the lines of music above and below, may show at the edges: read only the bar on the staff in the middle, between its two barlines.`:n>1?`Image 1 is the whole page. Images 2 to ${n} are overlapping horizontal strips of the same page, from top to bottom, at higher resolution: read the notes from the strips and use image 1 for the layout, titles and reading order. A line of music near a strip edge appears in two strips: write every bar exactly once.`:'The image is the whole page.'}
+The page may be a phone photo the app has already evened out and straightened, or music written by hand in pencil on a home-drawn staff: then the lines may be uneven and the noteheads rough. Read each mark by where it sits between the staff lines of its own staff (a head drawn a little high or low belongs to the nearest line or space), filled or hollow by its look, an x as a cymbal, and the rhythm from the stems, flags and beams as drawn. Where a hand-drawn mark is truly unclear, choose the reading that makes the bar add up.
+
 Read in the order a musician would. If the exercises are set in two columns, follow their labels (for example A to H down the left column, then I to P down the right).
 
 Reply with only JSON of this form:
@@ -2921,7 +3331,8 @@ async function readPhotos(files){
     const ctl=photoCtl=new AbortController();
     try{
       photoState(tx('phPrep'));
-      const {imgs,omr}=await photoParts(files[f]); if(ctl.signal.aborted) break;
+      const {imgs,omr,cleaned}=await photoParts(files[f]); if(ctl.signal.aborted) break;
+      if(cleaned&&!notes.includes(tx('phClean'))) notes.push(tx('phClean'));
       const ai=PhotoMode==='api'?'Gemini':'Claude'; let sawText=false; photoState(tx('phLook',files.length>1?' '+(f+1)+'/'+files.length:'',ai));
       let have=0, part=1;
       const ui={
@@ -2930,6 +3341,7 @@ async function readPhotos(files){
         round:n=>{ part=n; sawText=false; photoState(tx('phMore',ai,n)); },
         check:n=>{ sawText=true; photoState(tx('phCheck',ai,n)); },
         recheck:()=>{ part=1; sawText=true; photoState(tx('phRecheck',ai)); },
+        close:n=>{ part=1; sawText=true; photoState(tx('phClose',ai,n)); },
         wait:(left,n)=>{ if(left>0) photoState(tx('phWait',left,n)); else if(!sawText) photoState(tx('phThink',ai)+(part>1?' · '+tx('phPart',part):'')); },
         got:n=>{ have=n; }
       };
@@ -2945,6 +3357,7 @@ async function readPhotos(files){
       finally{ showAiLog(); }
       if(r.own) notes.push(tx('phOwnUsed',r.own,barCount(r.songs)));
       if(r.pic) notes.push(tx('phPic',r.pic));
+      if(r.close&&r.close.asked) notes.push(tx('phCloseDone',ai,r.close.asked,r.close.fixed));
       if(r.partial) notes.push(tx('phPartial'));
       notes.push(...r.notes);
       const list=r.songs.filter(x=>x.bars.length).map(x=>Object.assign({},x,{title:typeof x.title==='string'&&x.title.trim()?x.title.trim().slice(0,80):tx('photoTitle')}));
@@ -3179,6 +3592,7 @@ function kitSplit(hits){
   // A drum hidden inside a louder neighbour must be clearer: a hi-hat heard through a snare's own hiss,
   // a snare inside a kick's thud, a kick under a snare's body. Alone or over a drum of another range, a soft ghost note will do.
   const need={hh:a=>a.sn,sn:a=>a.bd,bd:a=>a.sn};
+  hits.forEach((h,i)=>{ const sh={}, raw={}; for(const c of C){ sh[c]=A[i][c]/tot[i]; raw[c]=Math.sqrt(Math.max(0,A[i][c])); } h.share=sh; h.raw=raw; });
   return A.map((a,i)=>{ const r={}; for(const c of C){ const hid=need[c](a)>.3*tot[i]; if(a[c]>0&&a[c]>=typ[c]*(hid?(c==='bd'?.3:.2):.06)) r[c]=Math.sqrt(a[c]); } return r; });
 }
 // Accent, plain or ghost for one drum's notes, from how loud each one is next to the others: the loudness groups found in
@@ -3259,9 +3673,9 @@ function hitsToSong(hits,o){
   const ev=[];
   for(const h of hits){
     const pb=h.rel/beat; if(pb<-.2) continue;
-    const amp=h.amp||{sn:h.level}, rows=Object.keys(amp); if(!rows.length) continue;
+    const lab=o.ai&&o.ai.get(h), amp=lab?lab.amp:(h.amp||{sn:h.level}), rows=Object.keys(amp); h.pl=null; if(!rows.length) continue;
     const k=Math.floor(Math.max(0,Math.round(pb*24)/24)/o.beats);
-    ev.push({bar:k,pos:Math.max(0,pb-k*o.beats),rows,amp});
+    ev.push({bar:k,pos:Math.max(0,pb-k*o.beats),rows,amp,mk:lab?lab.mk:null,h});
   }
   if(!ev.length) return null;
   const byBar={}; for(const e of ev) (byBar[e.bar]||(byBar[e.bar]=[])).push(e);
@@ -3281,15 +3695,94 @@ function hitsToSong(hits,o){
     let bi=e.bar-b0; if(bi<0||bi>=nb) continue;
     const d=divs[bi]; let slot=Math.round(e.pos*d);
     if(slot>=o.beats*d){ bi++; slot=0; if(bi>=nb) continue; }    // a hit a hair before the next bar line starts that bar
-    for(const r of e.rows){ const cur=bars[bi].c[r][slot]; if(!cur||cur.level<e.amp[r]) bars[bi].c[r][slot]={r,level:e.amp[r]}; }
+    e.h.pl={bar:bi,slot,div:d};
+    for(const r of e.rows){ const cur=bars[bi].c[r][slot]; if(!cur||cur.level<e.amp[r]) bars[bi].c[r][slot]={r,level:e.amp[r],mk:e.mk&&e.mk[r]}; }
   }
   for(const r of ROWS){
-    const cells=[]; for(const br of bars) br.c[r].forEach((c,i)=>{ if(c) cells.push([br,i,c.level]); });
+    const cells=[]; for(const br of bars) br.c[r].forEach((c,i)=>{ if(c) cells.push([br,i,c.level,c.mk]); });
     const marks=dynMarks(cells.map(x=>x[2]),r);
     for(const br of bars) br.c[r]=br.c[r].map(c=>c?'n':'-');
-    cells.forEach(([br,i],j)=>{ br.c[r][i]=marks[j]; });
+    cells.forEach(([br,i,,mk],j)=>{ br.c[r][i]=mk||marks[j]; });
   }
-  return {bars:bars.map(b=>{ const c={}; for(const r of ROWS) c[r]=b.c[r].join(''); return {div:b.div,c}; })};
+  return {bars:bars.map(b=>{ const c={}; for(const r of ROWS) c[r]=b.c[r].join(''); return {div:b.div,c}; }),used:ev.filter(e=>e.h.pl).map(e=>e.h)};
+}
+/* ---------- Gemini listens along ----------
+   The app hears WHEN each stroke comes very well, and roughly how deep, middle or bright it is; it cannot tell a tom
+   from the snare, a ride or a crash from the hi-hat, an open hi-hat or a cross-stick. Gemini gets the take (16 kHz) and
+   the list of strokes the app found, with their times and places in the bar, and names what it hears in each. The app
+   keeps its own timing and takes Gemini's names only within what it heard itself: a deep, a middle or a bright sound
+   becomes the drum of that kind Gemini names; a sound the app hardly heard and Gemini does not hear is left out; one
+   it heard a little and Gemini hears is kept. An answer that does not fit the take (wrong times) is not used at all. */
+const REC_FAM={bd:['low'],ft:['low','mid'],sn:['mid'],xs:['mid'],t1:['mid'],t2:['mid'],hh:['high'],ho:['high'],hp:['high'],rd:['high'],cr:['high']};
+const REC_ALIAS={kick:'bd',bass:'bd',bassdrum:'bd',kickdrum:'bd',b:'bd',k:'bd',snare:'sn',sd:'sn',s:'sn',x:'xs',cs:'xs',crossstick:'xs',sidestick:'xs',rim:'xs',rimclick:'xs',
+  hihat:'hh',hat:'hh',closedhh:'hh',hhc:'hh',oh:'ho',openhh:'ho',hho:'ho',open:'ho',openhihat:'ho',pedal:'hp',foot:'hp',hhp:'hp',hhf:'hp',hf:'hp',ride:'rd',r:'rd',crash:'cr',c:'cr',
+  tom:'t1',tom1:'t1',hightom:'t1',ht:'t1',tom2:'t2',midtom:'t2',mt:'t2',floortom:'ft',floor:'ft',tom3:'ft',lt:'ft',ft1:'ft'};
+const REC_ROW={xs:['sn','x'],ho:['hh','o']};
+function recNames(s){
+  const out=new Set(); for(const w of String(s==null?'':s).toLowerCase().split(/[+,&/;]+|\s+and\s+/)){ const t0=w.replace(/[^a-z0-9]/g,''), t=REC_FAM[t0]?t0:REC_ALIAS[t0]; if(t) out.add(t); }
+  return out;
+}
+// Gemini's names for each stroke (number → text) set against what the app heard in it
+function recMerge(used,names){
+  const ai=new Map(); let judged=0, conflict=0, changed=0;
+  for(const h of used){
+    if(!names.has(h.n)) continue;
+    const G=recNames(names.get(h.n)), sh=h.share||{}, raw=h.raw||{}, amp=h.amp||{}, out={}, mk={}; judged++;
+    const put=(k,v)=>{ const [row,m]=REC_ROW[k]||[k]; if(!(out[row]>=v)) out[row]=v; if(m) mk[row]=m; };
+    let bad=false;
+    for(const [app,fam] of [['bd','low'],['sn','mid'],['hh','high']]){
+      const has=app in amp, sv=sh[app]||0, want=[...G].filter(k=>REC_FAM[k].includes(fam));
+      if(has){ if(want.length) for(const k of want) put(k,amp[app]); else { if(sv>=.25) put(app,amp[app]); if(sv>=.4) bad=true; } }
+      else if(want.length&&sv>=.05) for(const k of want) put(k,raw[app]||amp[app]||h.level);
+    }
+    // what Gemini names where the app heard nothing of that kind: the times do not fit
+    for(const k of G) if(!REC_FAM[k].some(f=>(sh[{low:'bd',mid:'sn',high:'hh'}[f]]||0)>=.05||({low:'bd',mid:'sn',high:'hh'}[f] in amp))) bad=true;
+    if(bad) conflict++;
+    if(!Object.keys(out).length) continue;
+    const before=Object.keys(amp).sort().join('+'), after=Object.keys(out).map(r=>r+(mk[r]?':'+mk[r]:'')).sort().join('+');
+    if(before!==after) changed++;
+    ai.set(h,{amp:out,mk});
+  }
+  return {ai,judged,conflict,changed};
+}
+// the take for Gemini: 16 kHz, from just before the first stroke to just after the last, two minutes at most
+function recClip(L,used){
+  const ts=used.map(h=>h.t-L.tStart), a=Math.max(0,Math.min(...ts)-.6), b=Math.min(L.x.length/L.sr,Math.max(...ts)+1.5,a+120);
+  const sr=16000, ratio=L.sr/sr, n=Math.max(1,Math.floor((b-a)*sr)), y=new Float32Array(n), x=L.x;
+  // a low-pass first (a windowed sinc under 7.2 kHz), so the hiss of the cymbals does not fold down
+  const M=Math.max(4,Math.ceil(ratio*5)), fc=.45/ratio, taps=new Float32Array(2*M+1); let ts0=0;
+  for(let k=-M;k<=M;k++){ const t=k===0?2*fc:Math.sin(2*Math.PI*fc*k)/(Math.PI*k), w=.5+.5*Math.cos(Math.PI*k/(M+1)); taps[k+M]=t*w; ts0+=t*w; }
+  for(let k=0;k<taps.length;k++) taps[k]/=ts0;
+  let pk=1e-9;
+  for(let j=0;j<n;j++){ const c=Math.round(a*L.sr+j*ratio); let v=0; for(let k=-M;k<=M;k++){ const i=c+k; if(i>=0&&i<x.length) v+=x[i]*taps[k+M]; } y[j]=v; pk=Math.max(pk,Math.abs(v)); }
+  const g=.9/pk; for(let j=0;j<n;j++) y[j]*=g;
+  return {blob:wavBlob(y,sr),a,b};
+}
+const mmss=t=>{ const m=Math.floor(t/60), s=t-60*m; return m+':'+(s<10?'0':'')+s.toFixed(2); };
+async function recAsk(L,used,o,signal,onWait){
+  const clip=recClip(L,used), list=used.filter(h=>h.t-L.tStart<=clip.b-.2), S=SIGS[o.beats+'/4']||SIGS['4/4'];
+  list.forEach((h,i)=>{ h.n=i+1; });
+  const nm={bd:'bd',sn:'sn',hh:'hh'};
+  const lines=list.map(h=>'#'+h.n+' '+mmss(h.t-L.tStart-clip.a)+' bar '+(h.pl.bar+1)+' beat '+(h.pl.slot%h.pl.div===0?String(Math.floor(h.pl.slot/h.pl.div)+1):Math.floor(h.pl.slot/h.pl.div)+1+' '+slotName(h.pl.slot,h.pl.div,S))+': '+(Object.keys(h.amp||{}).map(k=>nm[k]).join('+')||'?'));
+  const prompt=`You are helping a drum notation app write down a drummer's playing from a phone recording. The app has already found every stroke and its exact time, and placed it in the bar. It is less sure WHICH drums and cymbals sound in each stroke: it can only tell a deep sound (kick), a middle one (snare) and a bright one (hi-hat). Your job: listen to the recording and say what is struck in each stroke of the list.
+
+The recording: ${(clip.b-clip.a).toFixed(1)} seconds of a drum kit played to a metronome at ${o.bpm} beats per minute in ${o.beats}/4.${o.clickOn===false?'':' The metronome\'s clicks may be heard: they are not drums.'}
+
+Names to use, joined with "+" for things struck together:
+bd kick (bass drum) | sn snare (a crack with the rattle of its wires) | xs cross-stick (a dry, woody click instead of the snare's crack) | hh closed hi-hat (a short "tss" or "tick") | ho open hi-hat (a longer washing "tsss", cut off later) | hp hi-hat pedal (the foot closing the hi-hat: a soft "chick") | rd ride cymbal (a clear "ping" over a long ring) | cr crash cymbal (a loud burst that rings on and fades slowly) | t1 high tom | t2 middle tom | ft floor tom (toms: drums with a clear pitch and boom, without the snare's rattle; the floor tom is the deepest)
+
+The strokes, in order: number, time from the start of the recording (minutes:seconds), place in the bar, and what the app thinks:
+${lines.join('\n')}
+
+Reply with only JSON: {"hits":[[1,"bd+hh"],[2,"hh"]],"note":""} with one entry for every stroke number in the list, saying what you hear at that moment. Listen to the whole take first: a drummer keeps to a few patterns, so strokes at the same place in the bar are usually the same drums. Where you cannot tell, write what the app wrote. "note": one short sentence in ${LANG==='en'?'English':'Russian'} about anything the app should know (for example that the fills are on toms), or "".`;
+  const {text}=await gemPhotos(prompt,[clip.blob],signal,null,null,{audio:true,onWait});
+  let v=parseLoose(text); if(v===undefined) v=salvage(text);
+  const names=new Map(), arr=v&&Array.isArray(v.hits)?v.hits:[];
+  for(const e of arr){ let n, d; if(Array.isArray(e)){ n=+e[0]; d=e[1]; } else if(e&&typeof e==='object'){ n=+(e.n!==undefined?e.n:e.i); d=e.d!==undefined?e.d:e.drums; } if(n>=1&&n<=list.length) names.set(n,Array.isArray(d)?d.join('+'):d); }
+  const m=recMerge(list,names);
+  // too few strokes named, or names that do not fit what the app heard: the answer is not used
+  const fit=m.judged>=Math.max(3,.6*list.length)&&m.conflict<=.3*m.judged;
+  return Object.assign(m,{ok:fit,asked:list.length,note:v&&typeof v.note==='string'?v.note.trim().slice(0,200):''});
 }
 // microphone capture on the audio clock itself: every block arrives stamped with its exact sample frame
 const CAP_SRC="class C extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(4096);this.n=0;this.f=-1;}process(i){const c=i[0]&&i[0][0];if(c){if(this.f<0)this.f=currentFrame;if(this.n+c.length>this.b.length){this.port.postMessage({f:this.f,d:this.b.slice(0,this.n)});this.n=0;this.f=currentFrame;}this.b.set(c,this.n);this.n+=c.length;}return true;}}registerProcessor('drumbook-cap',C);";
@@ -3307,7 +3800,7 @@ function wavBlob(x,sr,meta){
 }
 const Rec={
   busy:false,on:false,cal:false,capturing:false,stream:null,node:null,src:null,sink:null,parts:[],legacy:false,timer:0,last:null,level:0,player:null,
-  cfg:{bpm:100,beats:4,div:'auto',what:'sn',click:true},
+  cfg:{bpm:100,beats:4,div:'auto',what:'sn',click:true,ai:true},
   lat(){ try{ const v=parseFloat(localStorage.getItem(LAT_SLOT)); return isFinite(v)?v:null; }catch(e){ return null; } },
   canRecord(){ return !(window.claude&&typeof window.claude.use==='function')&&!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia); },
   ui(){
@@ -3317,6 +3810,7 @@ const Rec={
     $('rWhat').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.what===this.cfg.what)));
     $('rDiv').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.div===String(this.cfg.div))));
     $('rClick').setAttribute('aria-pressed',String(this.cfg.click));
+    $('rAi').hidden=!(ok&&this.cfg.what==='kit'&&!!getKey()); $('rAi').setAttribute('aria-pressed',String(this.cfg.ai)); $('rAi').disabled=act;
     $('recBtn').disabled=!ok||this.busy||this.cal; $('recBtn').textContent=tx(this.on?'recStop':'recStart'); $('recBtn').setAttribute('aria-pressed',String(this.on));
     ['rDown','rUp','rBpm','rBeats','rClick'].forEach(id=>{ $(id).disabled=act; });
     $('recLatRow').hidden=!ok; $('recLat').textContent=L===null?tx('recLatNone'):tx('recLatIs',Math.round(L*1000)); $('recCal').disabled=act;
@@ -3397,16 +3891,32 @@ const Rec={
       $('recStatus').textContent=tx('recAnalyze');
       const raw=await findHits(L.x,L.sr,p=>{ $('recStatus').textContent=tx('recAnalyze')+' '+Math.round(p*100)+'%'; },{highpass:this.cfg.what==='sn'?90:0});
       const hits=raw.map(h=>Object.assign(h,{t:h.t+L.tStart}));
-      const r=hitsToSong(hits,{bpm:L.bpm,beats:L.beats,div:this.cfg.div,what:this.cfg.what,t0:L.t0,clicks:L.clicks,clickOn:L.click!==false,lat:L.legacy?null:this.lat()});
+      const ho={bpm:L.bpm,beats:L.beats,div:this.cfg.div,what:this.cfg.what,t0:L.t0,clicks:L.clicks,clickOn:L.click!==false,lat:L.legacy?null:this.lat()};
+      let r=hitsToSong(hits,ho), aiMsg='';
       if(!r||!r.bars.length){ $('recStatus').textContent=tx('recNone'); return; }
+      // a full kit, with a Gemini key: Gemini listens and names the drums of each stroke the app found
+      if(this.cfg.what==='kit'&&this.cfg.ai&&getKey()&&r.used&&r.used.length>=3){
+        $('recStatus').textContent=tx('recAiAsk');
+        const ctl=new AbortController(), tm=setTimeout(()=>ctl.abort(),180000);
+        try{
+          const g=await recAsk(L,r.used,ho,ctl.signal,left=>{ $('recStatus').textContent=left>0?tx('recAiWait',left):tx('recAiAsk'); });
+          this.aiLast=g;
+          if(g.ok&&g.ai.size){ const r2=hitsToSong(hits,Object.assign({},ho,{ai:g.ai})); if(r2&&r2.bars.length){ r=r2; aiMsg=tx('recAiDone',g.changed)+(g.note?' '+g.note:''); } }
+          else aiMsg=tx('recAiOff');
+        }catch(e){
+          const bad=e&&e.code==='gem'&&(e.status===401||e.status===403||/API key|API_KEY/i.test(String(e.message||'')));
+          aiMsg=tx(bad?'phKeyBad':e&&e.code==='cancelled'?'recAiSlow':'recAiFail');
+        }finally{ clearTimeout(tm); }
+      }
       const old=L.songId&&state.songs.find(x=>x.id===L.songId);
       if(old){
         setSong(old.id); pushUndo(); old.bars=unpack({id:old.id,sig:old.sig,bars:r.bars}).bars; state.cur=0; Store.save(old); renderAll();
-        $('recStatus').textContent=tx('recUpdated',old.bars.length);
+        $('recStatus').textContent=tx('recUpdated',old.bars.length)+(aiMsg?' '+aiMsg:'');
       } else {
         const d=new Date(), hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
         const added=addSongs([{title:tx('recTitle',hm),bpm:L.bpm,sig:L.beats+'/4',bars:r.bars}]);
-        if(added.length){ L.songId=added[0].id; $('recStatus').textContent=tx('recDone',added[0].bars.length); }
+        if(added.length){ L.songId=added[0].id; $('recStatus').textContent=tx('recDone',added[0].bars.length)+(aiMsg?' '+aiMsg:''); }
+        else $('recStatus').textContent=tx('tDupe')+(aiMsg?' '+aiMsg:'');
       }
     } finally { this.busy=false; this.ui(); }
   },
@@ -3474,6 +3984,7 @@ function wireMetroRec(){
   $('rWhat').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||Rec.on) return; Rec.cfg.what=b.dataset.what; Rec.ui(); });
   $('rDiv').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||Rec.on) return; Rec.cfg.div=b.dataset.div==='auto'?'auto':+b.dataset.div; Rec.ui(); });
   $('rClick').addEventListener('click',()=>{ Rec.cfg.click=!Rec.cfg.click; Rec.ui(); });
+  $('rAi').addEventListener('click',()=>{ if(Rec.busy) return; Rec.cfg.ai=!Rec.cfg.ai; Rec.ui(); });
   document.addEventListener('visibilitychange',()=>{ if(document.hidden){ if(Metro.on) Metro.stop(); if(Rec.on) Rec.stop(); Rec.stopListen(); } });
 }
 function init(){
